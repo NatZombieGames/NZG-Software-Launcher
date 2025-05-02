@@ -1,0 +1,58 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="NZG Software Launcher"
+config/description="Programme to launch and manage all other NZG products."
+config/version="0.0.1"
+run/main_scene="uid://bbj6gwox8hrf3"
+config/features=PackedStringArray("4.4", "Mobile")
+run/max_fps=30
+run/low_processor_mode=true
+boot_splash/bg_color=Color(0.141176, 0.141176, 0.141176, 0)
+config/icon="uid://c1op1ksgcfytd"
+
+[autoload]
+
+IconLoader="*res://Scripts/Globals/IconLoader.gd"
+ColourManager="*res://Scripts/Globals/ColourManager.gd"
+
+[display]
+
+window/size/viewport_width=1920
+window/size/viewport_height=1080
+window/size/borderless=true
+window/size/window_width_override=1440
+window/size/window_height_override=810
+window/energy_saving/keep_screen_on=false
+window/stretch/mode="canvas_items"
+window/vsync/vsync_mode=2
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/NatCustomExporter/plugin.cfg")
+
+[global_group]
+
+Separator="Separator"
+"Background 2"="Secondary Background"
+"Background 1"="Background"
+"Stylebox Haver"="Has A Stylebox"
+
+[gui]
+
+theme/custom_font="uid://dl5fa4m7mvrve"
+theme/default_font_antialiasing=2
+
+[rendering]
+
+textures/canvas_textures/default_texture_filter=2
+renderer/rendering_method="mobile"

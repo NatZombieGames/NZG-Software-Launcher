@@ -1,0 +1,70 @@
+[gd_scene load_steps=4 format=3 uid="uid://3rko5u56gi5j"]
+
+[ext_resource type="Script" uid="uid://b7kh7iudpbfa" path="res://Scripts/PopupPage.gd" id="1_pftha"]
+[ext_resource type="Texture2D" uid="uid://bkadpwjc70qta" path="res://Assets/Icons/Close.svg" id="2_iux4n"]
+[ext_resource type="StyleBox" uid="uid://b4cs2dxb1rg2j" path="res://Assets/Styleboxes/PopupPageStylebox.tres" id="2_lv14s"]
+
+[node name="PopupPage" type="ColorRect"]
+custom_minimum_size = Vector2(1920, 1080)
+offset_right = 1920.0
+offset_bottom = 1080.0
+color = Color(0, 0, 0, 0.498039)
+script = ExtResource("1_pftha")
+
+[node name="Panel" type="PanelContainer" parent="." groups=["Stylebox Haver"]]
+custom_minimum_size = Vector2(1440, 810)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -720.0
+offset_top = -405.0
+offset_right = 720.0
+offset_bottom = 405.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = ExtResource("2_lv14s")
+metadata/StyleboxName = &"PopupPageStylebox"
+
+[node name="Container" type="VBoxContainer" parent="Panel"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="TabsContainer" type="HBoxContainer" parent="Panel/Container"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+
+[node name="ScrollContainer" type="ScrollContainer" parent="Panel/Container/TabsContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Tabs" type="HBoxContainer" parent="Panel/Container/TabsContainer/ScrollContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Separator" type="ColorRect" parent="Panel/Container/TabsContainer" groups=["Separator"]]
+custom_minimum_size = Vector2(15, 0)
+layout_mode = 2
+color = Color(0.0784314, 0.0784314, 0.0862745, 1)
+
+[node name="CloseButton" type="TextureButton" parent="Panel/Container/TabsContainer"]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("2_iux4n")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="Separator" type="ColorRect" parent="Panel/Container" groups=["Separator"]]
+custom_minimum_size = Vector2(0, 15)
+layout_mode = 2
+color = Color(0.0784314, 0.0784314, 0.0862745, 1)
+
+[node name="Body" type="Control" parent="Panel/Container"]
+layout_mode = 2
+size_flags_vertical = 3

@@ -1,0 +1,22 @@
+extends Node
+
+var icons : Dictionary[StringName, ImageTexture]
+var finished_loading_icons : bool = false
+signal finished_loading_icons_signal
+
+func _init() -> void:
+	for icon : String in DirAccess.get_files_at("res://Assets/Icons"):
+		if icon.get_extension() == "svg":
+			icons[StringName(icon.get_basename())] = load_svg_to_img("res://Assets/Icons/" + icon, 2.0)
+	finished_loading_icons = true
+	self.emit_signal(&"finished_loading_icons_signal")
+	return
+
+static func load_svg_to_img(svg_path : String, scale : float = 1.0) -> ImageTexture:
+	# Code inspired from https://forum.godotengine.org/t/how-to-leverage-the-scalability-of-svg-in-godot/82292
+	# But made for single-use instead.
+	var bitmap : Image = Image.new()
+	bitmap.load_svg_from_buffer(FileAccess.get_file_as_bytes(svg_path), scale)
+	var texture : ImageTexture = ImageTexture.create_from_image(bitmap)
+	texture.resource_name = svg_path.get_file().left(svg_path.get_file().find("."))
+	return ImageTexture.create_from_image(bitmap)
