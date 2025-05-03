@@ -1,0 +1,235 @@
+extends Node
+
+var main : Control
+var connection_statuses : Dictionary[api, connection_status] = {
+	api.GITHUB: connection_status.NOT_ATTEMPTED, 
+	api.ITCH: connection_status.NOT_ATTEMPTED, 
+}
+var clients : Dictionary[api, HTTPClient] = {
+	api.GITHUB: HTTPClient.new(), 
+	api.ITCH: HTTPClient.new(), 
+}
+var current_task : task = task.INACTIVE
+var download_percentage : float = 0.0:
+	set(value):
+		download_percentage = value
+		if main != null:
+			pass # do the visual updating here
+const api_to_api_url : Dictionary[api, String] = {
+	api.GITHUB: "https://api.github.com", 
+	api.ITCH: "https://itch.io/api/1"
+}
+const product_to_github_name : Dictionary[product, String] = {
+	product.NPS: "Nat-Password-Software", 
+	product.NMP: "Nat-Music-Programme", 
+	product.NDP: "Nat-Documenter-Programme", 
+}
+const connection_timeout_threshold : int = 15
+enum api {GITHUB, ITCH}
+enum product {NPS, NMP, NDP}
+enum task {INACTIVE, CONNECTING, FETCHING, DOWNLOADING}
+enum connection_status {CONNECTED, FAILED, TIMEOUT, CLOSED, NOT_ATTEMPTED}
+enum fetch_status {RETRIEVED, FAILED, TIMEOUT}
+enum info_types {UNKNOWN, LATEST_VERSION, EXECUTABLE_URL}
+enum executable_types {WINDOWS, LINUX}
+class fetch_response:
+	func _init(stat : fetch_status = fetch_status.FAILED, typ : info_types = info_types.UNKNOWN, resp : String = "") -> void:
+		status = stat
+		type = typ
+		response = resp
+		return
+	var status : fetch_status = fetch_status.FAILED
+	var type : info_types = info_types.UNKNOWN
+	var response : String = ""
+	func _get_details() -> void:
+		print("\n---\n-Status: " + fetch_status.find_key(status) + "\n-Type: " + info_types.find_key(type) + "\n-Response:\n-- " + response + "\n---\n")
+		return
+
+func _get_api_details(target : api) -> void:
+	print("\n---\n-API: " + api.find_key(target) + "\n-Status: " + connection_status.find_key(connection_statuses[target]) + "\n-URL:\n-- " + api_to_api_url[target] + "\n---\n")
+	return
+
+func clean_up_clients() -> void:
+	for target : api in api.values():
+		close_connection(target)
+	return
+
+func close_connection(target : api) -> void:
+	clients[target].close()
+	connection_statuses[target] = connection_status.CLOSED
+	return
+
+func attempt_connection(target : api) -> connection_status:
+	current_task = task.CONNECTING
+	var client : HTTPClient = clients[target]
+	client.close()
+	client.connect_to_host(api_to_api_url[target])
+	var continue_attempt : bool = true
+	var attempt_start_time : float = Time.get_unix_time_from_system()
+	var status : connection_status = connection_status.FAILED
+	while continue_attempt:
+		client.poll()
+		match client.get_status():
+			HTTPClient.Status.STATUS_CONNECTED:
+				continue_attempt = false
+				status = connection_status.CONNECTED
+			HTTPClient.Status.STATUS_RESOLVING, HTTPClient.Status.STATUS_CONNECTING:
+				continue_attempt = (int(Time.get_unix_time_from_system() - attempt_start_time)) < connection_timeout_threshold
+				if not continue_attempt:
+					status = connection_status.TIMEOUT
+			_:
+				print("!!! Failing status: ", client.get_status())
+				continue_attempt = false
+				status = connection_status.FAILED
+	connection_statuses[target] = status
+	_get_api_details(target)
+	current_task = task.INACTIVE
+	return status
+
+func fetch_info(target : api, prod : product, info : info_types, exec_type : executable_types = executable_types.WINDOWS) -> fetch_response:
+	if not connection_statuses[target] == connection_status.CONNECTED or clients[target].get_status() != HTTPClient.Status.STATUS_CONNECTED:
+		return fetch_response.new()
+	current_task = task.FETCHING
+	var client : HTTPClient = clients[target]
+	var continue_attempt : bool = true
+	var attempt_start_time : float = Time.get_unix_time_from_system()
+	var status : fetch_status = fetch_status.FAILED
+	var response : String = ""
+	match target:
+		api.GITHUB:
+			print("/repos/NatZombieGames/" + product_to_github_name[prod] + "/releases/latest")
+			print('{"owner":"natzombiegames","repo":"' + product_to_github_name[prod].to_snake_case() + '"}')
+			match info:
+				info_types.LATEST_VERSION, info_types.EXECUTABLE_URL:
+					client.request(
+						HTTPClient.METHOD_GET, 
+						"/repos/NatZombieGames/" + product_to_github_name[prod] + "/releases/latest", 
+						["accept:application/vnd.github+json", "X-GitHub-Api-Version:2022-11-28"], 
+						'{"owner":"natzombiegames","repo":"' + product_to_github_name[prod].to_snake_case() + '"}'
+						)
+	while continue_attempt:
+		client.poll()
+		match client.get_status():
+			HTTPClient.Status.STATUS_BODY:
+				print(client.get_response_code())
+				match client.get_response_code():
+					HTTPClient.ResponseCode.RESPONSE_OK:
+						current_task = task.DOWNLOADING
+						response = ""
+						download_percentage = 0.0
+						var length : int = maxi(1, client.get_response_body_length())
+						var response_json : Dictionary[String, Variant]
+						var assets : Array[Variant] = []
+						print("info length: ", length)
+						while len(response) < length:
+							response += client.read_response_body_chunk().get_string_from_utf8()
+							download_percentage = float(len(response)) / float(length)
+							print("! Info Download percentage: ", download_percentage * 100, "%")
+							await get_tree().process_frame
+						print("info res length at end: ", len(response))
+						#print("\n", response, "\n\n", JSON.parse_string(response), "\n\n", JSON.parse_string(response)["assets"][0]["browser_download_url"], "\n")
+						response_json.assign(JSON.parse_string(response))
+						match info:
+							info_types.LATEST_VERSION:
+								response = response_json["name"]
+								status = fetch_status.RETRIEVED
+							info_types.EXECUTABLE_URL:
+								assets = response_json["assets"]
+								status = fetch_status.FAILED
+								match exec_type:
+									executable_types.WINDOWS:
+										for asset : Dictionary in assets:
+											if asset["name"].ends_with(".exe"):
+												response = asset["browser_download_url"]
+												status = fetch_status.RETRIEVED
+									executable_types.LINUX:
+										for asset : Dictionary in assets:
+											if not asset["name"].ends_with(".exe"):
+												response = asset["browser_download_url"]
+												status = fetch_status.RETRIEVED
+						#print("\n", response, "\n")
+				continue_attempt = false
+			HTTPClient.Status.STATUS_REQUESTING:
+				continue_attempt = (int(Time.get_unix_time_from_system() - attempt_start_time) < connection_timeout_threshold)
+				if not continue_attempt:
+					status = fetch_status.TIMEOUT
+			_:
+				print(client.get_status())
+				continue_attempt = false
+	current_task = task.INACTIVE
+	return fetch_response.new(status, info, response)
+
+func download_executable(url : String, prod : product) -> PackedByteArray:
+	var result : PackedByteArray = []
+	var client : HTTPClient = HTTPClient.new()
+	var continue_attempt : bool = true
+	var attempt_start_time : float = Time.get_unix_time_from_system()
+	print("url: ", url, "\nhost: ", "https://" + url.right(-8).get_slice("/", 0))
+	client.connect_to_host("https://" + url.right(-8).get_slice("/", 0))
+	current_task = task.CONNECTING
+	print("here 1")
+	while continue_attempt:
+		client.poll()
+		match client.get_status():
+			HTTPClient.Status.STATUS_CONNECTED:
+				continue_attempt = false
+				print("here 2")
+			HTTPClient.Status.STATUS_RESOLVING, HTTPClient.Status.STATUS_CONNECTING:
+				continue_attempt = (int(Time.get_unix_time_from_system() - attempt_start_time)) < connection_timeout_threshold
+			_:
+				print("!!! Failing status: ", client.get_status())
+				continue_attempt = false
+	if client.get_status() != HTTPClient.Status.STATUS_CONNECTED:
+		print("unable to connect during exec download :(")
+		return result
+	print("here 3")
+	print(url.right(len("https://" + url.right(-8).get_slice("/", 0)) * -1))
+	client.request(
+		HTTPClient.METHOD_GET, 
+		url.right(len("https://" + url.right(-8).get_slice("/", 0)) * -1), 
+		["X-GitHub-Api-Version:2022-11-28"], 
+		'{"owner":"natzombiegames","repo":"' + product_to_github_name[prod].to_snake_case() + '"}'
+		)
+	current_task = task.DOWNLOADING
+	continue_attempt = true
+	while continue_attempt:
+		client.poll()
+		match client.get_status():
+			HTTPClient.Status.STATUS_BODY:
+				match client.get_response_code():
+					HTTPClient.ResponseCode.RESPONSE_OK:
+						var length : int = maxi(1, client.get_response_body_length())
+						var chunk : PackedByteArray
+						print("\n\n\nDOWNLOADING EXEC!!!!!\n\n\n")
+						print("length: ", length)
+						while len(result) < length:
+							chunk = client.read_response_body_chunk()
+							result.append_array(chunk)
+							download_percentage = float(len(result)) / float(length)
+							#print("Downloaded Chunk len: ", len(chunk))
+							#print("! Download percentage: ", download_percentage * 100, "%")
+							## This is here to make sure the visuals update to tell the user how far along the download is
+							await get_tree().process_frame
+						print("done?!?!?!??!?!?!?! please?!?!??!")
+						print("res length at end: ", len(chunk))
+						#print("\n", chunk, "\n")
+					HTTPClient.ResponseCode.RESPONSE_FOUND:
+						print("\n\n-")
+						var resp_heads : Array = client.get_response_headers()
+						resp_heads.map(func(item : String) -> String: print(resp_heads.find(item), ": ", item, "\n-"); return item)
+						print(len(resp_heads))
+						#print(resp_heads)
+						print("\nredirect :(")
+						result = await download_executable(resp_heads[4].right(-10), prod)
+						continue_attempt = false
+					_:
+						print("uh oh i got here :(, ", client.get_response_code())
+						continue_attempt = false
+			HTTPClient.Status.STATUS_REQUESTING:
+				continue_attempt = (int(Time.get_unix_time_from_system() - attempt_start_time) < connection_timeout_threshold)
+			_:
+				print("\n\nSTATUS!!!!!!!: ", client.get_status())
+				continue_attempt = false
+	print("i got here with my response during exec return")
+	current_task = task.INACTIVE
+	return result

@@ -66,5 +66,6 @@ layout_mode = 2
 color = Color(0.0784314, 0.0784314, 0.0862745, 1)
 
 [node name="Body" type="Control" parent="Panel/Container"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3

@@ -12,7 +12,7 @@ config_version=5
 
 config/name="NZG Software Launcher"
 config/description="Programme to launch and manage all other NZG products."
-config/version="0.0.1"
+config/version="0.0.2"
 run/main_scene="uid://bbj6gwox8hrf3"
 config/features=PackedStringArray("4.4", "Mobile")
 run/max_fps=30
@@ -24,6 +24,8 @@ config/icon="uid://c1op1ksgcfytd"
 
 IconLoader="*res://Scripts/Globals/IconLoader.gd"
 ColourManager="*res://Scripts/Globals/ColourManager.gd"
+UserManager="*res://Scripts/Globals/UserManager.gd"
+APIManager="*res://Scripts/Globals/APIManager.gd"
 
 [display]
 

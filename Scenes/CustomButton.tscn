@@ -1,0 +1,18 @@
+[gd_scene load_steps=5 format=3 uid="uid://cd33gvegau1vp"]
+
+[ext_resource type="StyleBox" uid="uid://dd8il7ghk2ph2" path="res://Assets/Styleboxes/CustomButtonNormalStylebox.tres" id="1_8nlnf"]
+[ext_resource type="StyleBox" uid="uid://bvxsergw4pm0c" path="res://Assets/Styleboxes/CustomButtonPressedStylebox.tres" id="1_b8vko"]
+[ext_resource type="StyleBox" uid="uid://bm542tk7b6khg" path="res://Assets/Styleboxes/CustomButtonHoverStylebox.tres" id="1_tvl3p"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_cf10v"]
+
+[node name="CustomButton" type="Button" groups=["Stylebox Haver"]]
+offset_right = 8.0
+offset_bottom = 8.0
+mouse_default_cursor_shape = 2
+theme_override_styles/focus = SubResource("StyleBoxEmpty_cf10v")
+theme_override_styles/hover = ExtResource("1_tvl3p")
+theme_override_styles/pressed = ExtResource("1_b8vko")
+theme_override_styles/normal = ExtResource("1_8nlnf")
+text = "Placeholder"
+metadata/StyleboxName = &"CustomButton"

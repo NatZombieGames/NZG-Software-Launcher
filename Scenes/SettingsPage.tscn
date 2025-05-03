@@ -1,0 +1,38 @@
+[gd_scene load_steps=3 format=3 uid="uid://dyryy5kryq7np"]
+
+[ext_resource type="Script" uid="uid://ch3trbsfcn7ca" path="res://Scripts/SettingsPage.gd" id="1_1fdrj"]
+[ext_resource type="PackedScene" uid="uid://cd33gvegau1vp" path="res://Scenes/CustomButton.tscn" id="2_rcp7b"]
+
+[node name="SettingsPage" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_1fdrj")
+
+[node name="ScrollContainer" type="ScrollContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="List" type="VBoxContainer" parent="ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ScrollContainer/List"]
+layout_mode = 2
+alignment = 1
+
+[node name="Label" type="Label" parent="ScrollContainer/List/HBoxContainer"]
+layout_mode = 2
+text = "do the thing"
+
+[node name="CustomButton" parent="ScrollContainer/List/HBoxContainer" instance=ExtResource("2_rcp7b")]
+layout_mode = 2
+toggle_mode = true
