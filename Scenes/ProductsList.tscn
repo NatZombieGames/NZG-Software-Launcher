@@ -1,0 +1,45 @@
+[gd_scene load_steps=3 format=3 uid="uid://da64xys2rpp3v"]
+
+[ext_resource type="Script" uid="uid://b0fdradnluri" path="res://Scripts/ProductsList.gd" id="1_uwfmn"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_p0218"]
+
+[node name="ProductsList" type="MarginContainer"]
+custom_minimum_size = Vector2(1810, 485)
+offset_right = 40.0
+offset_bottom = 40.0
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+script = ExtResource("1_uwfmn")
+
+[node name="Container" type="VBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="Container"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 35
+text = "Category Name"
+vertical_alignment = 1
+
+[node name="Separator" type="ColorRect" parent="Container" groups=["Separator"]]
+custom_minimum_size = Vector2(0, 5)
+layout_mode = 2
+color = Color(0.0784314, 0.0784314, 0.0862745, 1)
+
+[node name="ScrollContainer" type="ScrollContainer" parent="Container"]
+custom_minimum_size = Vector2(0, 125)
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/focus = SubResource("StyleBoxEmpty_p0218")
+vertical_scroll_mode = 0
+
+[node name="List" type="HBoxContainer" parent="Container/ScrollContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 410)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 15

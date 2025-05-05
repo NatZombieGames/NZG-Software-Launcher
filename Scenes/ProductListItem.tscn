@@ -1,0 +1,95 @@
+[gd_scene load_steps=6 format=3 uid="uid://cwsx4nhbtesfh"]
+
+[ext_resource type="Texture2D" uid="uid://bywmh6mmc7lpr" path="res://Assets/ProductAssets/Icons/NMP_Icon.png" id="1_i67d0"]
+[ext_resource type="StyleBox" uid="uid://e8llck7met0n" path="res://Assets/Styleboxes/ProductListItemStylebox.tres" id="1_iqg18"]
+[ext_resource type="StyleBox" uid="uid://diwxwp1dkx443" path="res://Assets/Styleboxes/ContainerStylebox.tres" id="1_jc5gd"]
+[ext_resource type="Script" uid="uid://dmtfdaf8cknlw" path="res://Scripts/ProductListItem.gd" id="2_ks7n8"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_i67d0"]
+
+[node name="ProductListItem" type="PanelContainer" groups=["Stylebox Haver"]]
+custom_minimum_size = Vector2(220, 420)
+size_flags_vertical = 0
+theme_override_styles/panel = ExtResource("1_iqg18")
+script = ExtResource("2_ks7n8")
+metadata/StyleboxName = &"ProductListItemStylebox"
+
+[node name="Container" type="VBoxContainer" parent="."]
+custom_minimum_size = Vector2(200, 400)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="Void0" type="Panel" parent="Container"]
+self_modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(0, 5)
+layout_mode = 2
+
+[node name="IconContainer" type="PanelContainer" parent="Container" groups=["Stylebox Haver"]]
+layout_mode = 2
+theme_override_styles/panel = ExtResource("1_jc5gd")
+metadata/StyleboxName = &"ContainerStylebox"
+
+[node name="Icon" type="TextureRect" parent="Container/IconContainer"]
+texture_filter = 1
+custom_minimum_size = Vector2(190, 190)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+texture = ExtResource("1_i67d0")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Void1" type="Panel" parent="Container"]
+self_modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(0, 10)
+layout_mode = 2
+
+[node name="NameContainer" type="PanelContainer" parent="Container" groups=["Stylebox Haver"]]
+layout_mode = 2
+theme_override_styles/panel = ExtResource("1_jc5gd")
+metadata/StyleboxName = &"ContainerStylebox"
+
+[node name="Container" type="VBoxContainer" parent="Container/NameContainer"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="Container/NameContainer/Container"]
+layout_mode = 2
+text = "Nat Music Programme"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Subtitle" type="Label" parent="Container/NameContainer/Container"]
+layout_mode = 2
+text = "(NMP)"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Void2" type="Panel" parent="Container"]
+self_modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(0, 10)
+layout_mode = 2
+
+[node name="CategoriesContainer" type="PanelContainer" parent="Container" groups=["Stylebox Haver"]]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = ExtResource("1_jc5gd")
+metadata/StyleboxName = &"ContainerStylebox"
+
+[node name="Categories" type="Label" parent="Container/CategoriesContainer"]
+layout_mode = 2
+size_flags_vertical = 1
+theme_override_font_sizes/font_size = 13
+text = "Software"
+horizontal_alignment = 1
+
+[node name="Void3" type="Panel" parent="Container"]
+self_modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(0, 15)
+layout_mode = 2
+
+[node name="Button" type="Button" parent="."]
+self_modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_override_styles/focus = SubResource("StyleBoxEmpty_i67d0")

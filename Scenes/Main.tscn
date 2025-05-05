@@ -1,14 +1,15 @@
-[gd_scene load_steps=10 format=3 uid="uid://bbj6gwox8hrf3"]
+[gd_scene load_steps=11 format=3 uid="uid://bbj6gwox8hrf3"]
 
 [ext_resource type="Script" uid="uid://4jt4q2l1vcnd" path="res://Scripts/Main.gd" id="1_pbw6q"]
 [ext_resource type="Texture2D" uid="uid://c5r2jud5cul40" path="res://Assets/Icons/Options.svg" id="1_rgh2o"]
 [ext_resource type="StyleBox" uid="uid://cfosmgmdu61td" path="res://Assets/Styleboxes/WindowButtonsBackgroundStylebox.tres" id="2_jw32o"]
 [ext_resource type="Texture2D" uid="uid://bmiov6kmwcsu8" path="res://Assets/Icons/Minimize.svg" id="2_pbw6q"]
-[ext_resource type="Texture2D" uid="uid://cmym3i10dhv2p" path="res://Assets/Icons/Downloaded.svg" id="2_vy5pj"]
+[ext_resource type="Material" uid="uid://dtgqlxavrs2sx" path="res://Assets/Materials/AppBodyMaterial.tres" id="3_4kpch"]
 [ext_resource type="Texture2D" uid="uid://pwret2dpnhpd" path="res://Assets/Icons/Products.svg" id="3_bmxlf"]
 [ext_resource type="Texture2D" uid="uid://bx25s1kvyvirg" path="res://Assets/Icons/Fullscreen.svg" id="3_v1gob"]
 [ext_resource type="Texture2D" uid="uid://bkadpwjc70qta" path="res://Assets/Icons/Close.svg" id="4_jw32o"]
 [ext_resource type="PackedScene" uid="uid://3rko5u56gi5j" path="res://Scenes/PopupPage.tscn" id="6_v1gob"]
+[ext_resource type="StyleBox" uid="uid://b4cs2dxb1rg2j" path="res://Assets/Styleboxes/PopupPageStylebox.tres" id="10_bmxlf"]
 
 [node name="Main" type="Control"]
 custom_minimum_size = Vector2(1920, 1080)
@@ -41,7 +42,7 @@ custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 color = Color(0.0666667, 0.0666667, 0.0745098, 1)
 
-[node name="VBoxContainer" type="VBoxContainer" parent="Camera/ScreenContainer/MainContainer/SidePanel"]
+[node name="Container" type="VBoxContainer" parent="Camera/ScreenContainer/MainContainer/SidePanel"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -49,28 +50,26 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="ScrollContainer" type="ScrollContainer" parent="Camera/ScreenContainer/MainContainer/SidePanel/VBoxContainer"]
+[node name="ScrollContainer" type="ScrollContainer" parent="Camera/ScreenContainer/MainContainer/SidePanel/Container"]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="List" type="VBoxContainer" parent="Camera/ScreenContainer/MainContainer/SidePanel/VBoxContainer/ScrollContainer"]
+[node name="List" type="VBoxContainer" parent="Camera/ScreenContainer/MainContainer/SidePanel/Container/ScrollContainer"]
 custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 size_flags_vertical = 3
 alignment = 2
 
-[node name="Separator" type="ColorRect" parent="Camera/ScreenContainer/MainContainer/SidePanel/VBoxContainer" groups=["Separator"]]
+[node name="Separator" type="ColorRect" parent="Camera/ScreenContainer/MainContainer/SidePanel/Container" groups=["Separator"]]
 custom_minimum_size = Vector2(0, 15)
 layout_mode = 2
 color = Color(0.0784314, 0.0784314, 0.0862745, 1)
 
-[node name="TogglePageButton" type="TextureButton" parent="Camera/ScreenContainer/MainContainer/SidePanel/VBoxContainer"]
+[node name="ProductsPageButton" type="TextureButton" parent="Camera/ScreenContainer/MainContainer/SidePanel/Container"]
 custom_minimum_size = Vector2(100, 100)
 layout_mode = 2
 mouse_default_cursor_shape = 2
-toggle_mode = true
-texture_normal = ExtResource("2_vy5pj")
-texture_pressed = ExtResource("3_bmxlf")
+texture_normal = ExtResource("3_bmxlf")
 ignore_texture_size = true
 stretch_mode = 5
 
@@ -84,7 +83,26 @@ layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
 
-[node name="AppBody" type="Control" parent="Camera/ScreenContainer/MainContainer/Body"]
+[node name="Container" type="VBoxContainer" parent="Camera/ScreenContainer/MainContainer/Body"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PageTitle" type="Label" parent="Camera/ScreenContainer/MainContainer/Body/Container"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 40
+text = " Apps"
+vertical_alignment = 1
+
+[node name="Container" type="Control" parent="Camera/ScreenContainer/MainContainer/Body/Container"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="AppBody" type="Control" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container"]
+unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -93,7 +111,18 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="ProductsBody" type="Control" parent="Camera/ScreenContainer/MainContainer/Body"]
+[node name="Background" type="ColorRect" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody"]
+material = ExtResource("3_4kpch")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.0470588, 0.0470588, 0.054902, 1)
+
+[node name="ProductsBody" type="Control" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container"]
+unique_name_in_owner = true
 visible = false
 layout_mode = 1
 anchors_preset = 15
@@ -102,6 +131,19 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+
+[node name="ScrollContainer" type="ScrollContainer" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/ProductsBody"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Container" type="VBoxContainer" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/ProductsBody/ScrollContainer"]
+custom_minimum_size = Vector2(1810, 0)
+layout_mode = 2
+size_flags_vertical = 3
 
 [node name="WindowButtons" type="HBoxContainer" parent="Camera/ScreenContainer"]
 custom_minimum_size = Vector2(1920, 50)
@@ -194,6 +236,96 @@ stretch_mode = 5
 [node name="PopupPage" parent="Camera/ScreenContainer" instance=ExtResource("6_v1gob")]
 visible = false
 layout_mode = 2
+
+[node name="DownloadScreen" type="ColorRect" parent="Camera/ScreenContainer"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(1920, 1080)
+layout_mode = 2
+color = Color(0, 0, 0, 0.498039)
+
+[node name="Panel" type="PanelContainer" parent="Camera/ScreenContainer/DownloadScreen" groups=["Stylebox Haver"]]
+custom_minimum_size = Vector2(810, 455.625)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -405.0
+offset_top = -227.813
+offset_right = 405.0
+offset_bottom = 227.813
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = ExtResource("10_bmxlf")
+metadata/StyleboxName = &"PopupPageStylebox"
+
+[node name="Container" type="VBoxContainer" parent="Camera/ScreenContainer/DownloadScreen/Panel"]
+layout_mode = 2
+alignment = 1
+
+[node name="Title" type="Label" parent="Camera/ScreenContainer/DownloadScreen/Panel/Container"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 25
+text = "Download In Progress..."
+
+[node name="Void0" type="Panel" parent="Camera/ScreenContainer/DownloadScreen/Panel/Container"]
+self_modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+
+[node name="Details" type="HBoxContainer" parent="Camera/ScreenContainer/DownloadScreen/Panel/Container"]
+layout_mode = 2
+alignment = 1
+
+[node name="Name" type="Label" parent="Camera/ScreenContainer/DownloadScreen/Panel/Container/Details"]
+layout_mode = 2
+text = "Name"
+
+[node name="Version" type="Label" parent="Camera/ScreenContainer/DownloadScreen/Panel/Container/Details"]
+layout_mode = 2
+text = "Version"
+
+[node name="Platform" type="Label" parent="Camera/ScreenContainer/DownloadScreen/Panel/Container/Details"]
+layout_mode = 2
+text = "Platform"
+
+[node name="Size" type="Label" parent="Camera/ScreenContainer/DownloadScreen/Panel/Container/Details"]
+layout_mode = 2
+text = "Size"
+
+[node name="Void1" type="Panel" parent="Camera/ScreenContainer/DownloadScreen/Panel/Container"]
+self_modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(0, 10)
+layout_mode = 2
+
+[node name="Time" type="Label" parent="Camera/ScreenContainer/DownloadScreen/Panel/Container"]
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Time Elapsed: 0s"
+
+[node name="Void2" type="Panel" parent="Camera/ScreenContainer/DownloadScreen/Panel/Container"]
+self_modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(0, 5)
+layout_mode = 2
+
+[node name="ProgressBar" type="ProgressBar" parent="Camera/ScreenContainer/DownloadScreen/Panel/Container"]
+custom_minimum_size = Vector2(500, 25)
+layout_mode = 2
+size_flags_horizontal = 4
+max_value = 1.0
+
+[node name="Void3" type="Panel" parent="Camera/ScreenContainer/DownloadScreen/Panel/Container"]
+self_modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(0, 10)
+layout_mode = 2
+
+[node name="WaitText" type="Label" parent="Camera/ScreenContainer/DownloadScreen/Panel/Container"]
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Please wait..."
 
 [node name="LoadingScreen" type="ColorRect" parent="Camera/ScreenContainer"]
 visible = false

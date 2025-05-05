@@ -26,6 +26,9 @@ var styleboxes : Dictionary[StringName, StyleBoxFlat] = {
 	&"CustomButtonNormalStylebox": preload("res://Assets/Styleboxes/CustomButtonNormalStylebox.tres"), 
 	&"CustomButtonHoverStylebox": preload("res://Assets/Styleboxes/CustomButtonHoverStylebox.tres"), 
 	&"CustomButtonPressedStylebox": preload("res://Assets/Styleboxes/CustomButtonPressedStylebox.tres"), 
+	&"ContainerStylebox": preload("res://Assets/Styleboxes/ContainerStylebox.tres"), 
+	&"ProductListItemStylebox": preload("res://Assets/Styleboxes/ProductListItemStylebox.tres"), 
+	&"ProductListItemHoveredStylebox": preload("res://Assets/Styleboxes/ProductListItemHoveredStylebox.tres"), 
 }
 const colours : PackedStringArray = [&"Background 1", &"Background 2", &"Separator", &"Highlight 1", &"Highlight 2"]
 
@@ -46,6 +49,11 @@ func apply_colours() -> void:
 	styleboxes[&"CustomButtonHoverStylebox"].border_color = highlight_1_colour
 	styleboxes[&"CustomButtonPressedStylebox"].bg_color = background_2_colour
 	styleboxes[&"CustomButtonPressedStylebox"].border_color = highlight_2_colour
+	styleboxes[&"ContainerStylebox"].border_color = highlight_1_colour
+	styleboxes[&"ProductListItemStylebox"].bg_color = background_2_colour
+	styleboxes[&"ProductListItemStylebox"].border_color = separator_colour
+	styleboxes[&"ProductListItemHoveredStylebox"].bg_color = background_2_colour
+	styleboxes[&"ProductListItemHoveredStylebox"].border_color = highlight_2_colour
 	for node : Control in get_tree().get_nodes_in_group(&"Stylebox Haver"):
 		#print(node.name)
 		#print(node.get_path())

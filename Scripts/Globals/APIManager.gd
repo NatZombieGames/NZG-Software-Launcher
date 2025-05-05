@@ -10,39 +10,69 @@ var clients : Dictionary[api, HTTPClient] = {
 	api.ITCH: HTTPClient.new(), 
 }
 var current_task : task = task.INACTIVE
-var download_percentage : float = 0.0:
-	set(value):
-		download_percentage = value
-		if main != null:
-			pass # do the visual updating here
+var download_percentage : float = 0.0
+var download_size : int = 0
+var mutexes : Dictionary[mutex_type, Mutex] = {
+	mutex_type.TASK: Mutex.new(), 
+	mutex_type.DOWNLOAD_PERCENTAGE: Mutex.new(), 
+	mutex_type.DOWNLOAD_SIZE: Mutex.new(), 
+}
 const api_to_api_url : Dictionary[api, String] = {
 	api.GITHUB: "https://api.github.com", 
-	api.ITCH: "https://itch.io/api/1"
+	api.ITCH: "https://itch.io"
 }
-const product_to_github_name : Dictionary[product, String] = {
+## In order of API enum.
+const product_to_api_availability : Dictionary[product, Array] = {
+	product.NPS: [true, false], 
+	product.NMP: [true, true], 
+	product.NDP: [true, false], 
+	product.MINING_IDLE: [false, true], 
+	product.UNKNOWN: [false, false], 
+}
+const github_product_to_github_name : Dictionary[product, String] = {
 	product.NPS: "Nat-Password-Software", 
 	product.NMP: "Nat-Music-Programme", 
 	product.NDP: "Nat-Documenter-Programme", 
 }
+const itch_product_to_itch_id : Dictionary[product, String] = {
+	product.NMP: "3398181", 
+	product.MINING_IDLE: "3095012", 
+}
+const product_to_product_categories : Dictionary[product, Array] = {
+	product.NPS: [product_category.SOFTWARE], 
+	product.NMP: [product_category.SOFTWARE], 
+	product.NDP: [product_category.SOFTWARE], 
+	product.MINING_IDLE: [product_category.GAME], 
+}
+const product_to_name : Dictionary[product, String] = {
+	product.NPS: "Nat Password Software", 
+	product.NMP: "Nat Music Programme", 
+	product.NDP: "Nat Documenter Programme", 
+	product.MINING_IDLE: "Mining Idle", 
+}
 const connection_timeout_threshold : int = 15
 enum api {GITHUB, ITCH}
-enum product {NPS, NMP, NDP}
+enum product {NPS, NMP, NDP, MINING_IDLE, UNKNOWN}
+enum product_category {SOFTWARE, GAME}
+enum mutex_type {TASK, DOWNLOAD_PERCENTAGE, DOWNLOAD_SIZE}
 enum task {INACTIVE, CONNECTING, FETCHING, DOWNLOADING}
 enum connection_status {CONNECTED, FAILED, TIMEOUT, CLOSED, NOT_ATTEMPTED}
 enum fetch_status {RETRIEVED, FAILED, TIMEOUT}
 enum info_types {UNKNOWN, LATEST_VERSION, EXECUTABLE_URL}
 enum executable_types {WINDOWS, LINUX}
 class fetch_response:
-	func _init(stat : fetch_status = fetch_status.FAILED, typ : info_types = info_types.UNKNOWN, resp : String = "") -> void:
+	func _init(stat : fetch_status = fetch_status.FAILED, typ : info_types = info_types.UNKNOWN, resp : String = "", new_data : Dictionary[String, Variant] = {}) -> void:
 		status = stat
 		type = typ
 		response = resp
+		data = new_data
 		return
 	var status : fetch_status = fetch_status.FAILED
 	var type : info_types = info_types.UNKNOWN
+	var data : Dictionary[String, Variant] = {}
 	var response : String = ""
 	func _get_details() -> void:
-		print("\n---\n-Status: " + fetch_status.find_key(status) + "\n-Type: " + info_types.find_key(type) + "\n-Response:\n-- " + response + "\n---\n")
+		print("\n---\n-Status: " + fetch_status.find_key(status) + "\n-Type: " + info_types.find_key(type) + "\n-Data: " + str(data) + "\n-Response:\n-- " + response + "\n---\n")
 		return
 
 func _get_api_details(target : api) -> void:
@@ -58,6 +88,9 @@ func close_connection(target : api) -> void:
 	clients[target].close()
 	connection_statuses[target] = connection_status.CLOSED
 	return
+
+func is_available_in_api(prod : product, app : api) -> bool:
+	return product_to_api_availability[prod][app]
 
 func attempt_connection(target : api) -> connection_status:
 	current_task = task.CONNECTING
@@ -78,7 +111,7 @@ func attempt_connection(target : api) -> connection_status:
 				if not continue_attempt:
 					status = connection_status.TIMEOUT
 			_:
-				print("!!! Failing status: ", client.get_status())
+				print("!!! Connection Attempt Failing status: ", client.get_status())
 				continue_attempt = false
 				status = connection_status.FAILED
 	connection_statuses[target] = status
@@ -94,18 +127,31 @@ func fetch_info(target : api, prod : product, info : info_types, exec_type : exe
 	var continue_attempt : bool = true
 	var attempt_start_time : float = Time.get_unix_time_from_system()
 	var status : fetch_status = fetch_status.FAILED
+	var fetch_resp : fetch_response = fetch_response.new(status, info, "", {"platform": executable_types.find_key(exec_type)})
 	var response : String = ""
 	match target:
 		api.GITHUB:
-			print("/repos/NatZombieGames/" + product_to_github_name[prod] + "/releases/latest")
-			print('{"owner":"natzombiegames","repo":"' + product_to_github_name[prod].to_snake_case() + '"}')
+			print("/repos/NatZombieGames/" + github_product_to_github_name[prod] + "/releases/latest")
+			print('{"owner":"natzombiegames","repo":"' + github_product_to_github_name[prod].to_snake_case() + '"}')
 			match info:
 				info_types.LATEST_VERSION, info_types.EXECUTABLE_URL:
 					client.request(
 						HTTPClient.METHOD_GET, 
-						"/repos/NatZombieGames/" + product_to_github_name[prod] + "/releases/latest", 
+						"/repos/NatZombieGames/" + github_product_to_github_name[prod] + "/releases/latest", 
 						["accept:application/vnd.github+json", "X-GitHub-Api-Version:2022-11-28"], 
-						'{"owner":"natzombiegames","repo":"' + product_to_github_name[prod].to_snake_case() + '"}'
+						'{"owner":"natzombiegames","repo":"' + github_product_to_github_name[prod].to_snake_case() + '"}'
+						)
+		api.ITCH:
+			print("/api/1/" + UserManager.user_settings[UserManager.setting_key.ItchAPIKey] + "/game/" + itch_product_to_itch_id[prod] + "/uploads")
+			match info:
+				info_types.EXECUTABLE_URL:
+					if not is_available_in_api(prod, target):
+						return fetch_response.new()
+					client.request(
+						HTTPClient.METHOD_GET, 
+						"/api/1/" + UserManager.user_settings[UserManager.setting_key.ItchAPIKey] + "/game/" + itch_product_to_itch_id[prod] + "/uploads", 
+						["accept:json"], 
+						""
 						)
 	while continue_attempt:
 		client.poll()
@@ -119,33 +165,40 @@ func fetch_info(target : api, prod : product, info : info_types, exec_type : exe
 						download_percentage = 0.0
 						var length : int = maxi(1, client.get_response_body_length())
 						var response_json : Dictionary[String, Variant]
-						var assets : Array[Variant] = []
 						print("info length: ", length)
 						while len(response) < length:
 							response += client.read_response_body_chunk().get_string_from_utf8()
 							download_percentage = float(len(response)) / float(length)
 							print("! Info Download percentage: ", download_percentage * 100, "%")
-							await get_tree().process_frame
 						print("info res length at end: ", len(response))
 						#print("\n", response, "\n\n", JSON.parse_string(response), "\n\n", JSON.parse_string(response)["assets"][0]["browser_download_url"], "\n")
 						response_json.assign(JSON.parse_string(response))
-						match info:
-							info_types.LATEST_VERSION:
-								response = response_json["name"]
-								status = fetch_status.RETRIEVED
-							info_types.EXECUTABLE_URL:
-								assets = response_json["assets"]
-								status = fetch_status.FAILED
-								match exec_type:
-									executable_types.WINDOWS:
-										for asset : Dictionary in assets:
-											if asset["name"].ends_with(".exe"):
+						#print("resp json: ", response_json)
+						fetch_resp.data["size"] = length
+						match target:
+							api.GITHUB:
+								fetch_resp.data["version"] = response_json["name"]
+								match info:
+									info_types.LATEST_VERSION:
+										response = response_json["name"]
+										status = fetch_status.RETRIEVED
+									info_types.EXECUTABLE_URL:
+										status = fetch_status.FAILED
+										for asset : Dictionary in response_json["assets"]:
+											if [asset["name"].ends_with(".exe"), not asset["name"].ends_with(".exe")][exec_type]:
 												response = asset["browser_download_url"]
 												status = fetch_status.RETRIEVED
-									executable_types.LINUX:
-										for asset : Dictionary in assets:
-											if not asset["name"].ends_with(".exe"):
-												response = asset["browser_download_url"]
+							api.ITCH:
+								fetch_resp.data["version"] = response_json["uploads"][0]["display_name"].replace(response_json["uploads"][0]["filename"] + " ", "")
+								match info:
+									info_types.LATEST_VERSION:
+										response = fetch_resp.data["version"]
+										status = fetch_status.RETRIEVED
+									info_types.EXECUTABLE_URL:
+										status = fetch_status.FAILED
+										for upload : Dictionary in response_json["uploads"]:
+											if [upload["p_windows"], upload["p_linux"]][exec_type] == true:
+												response = "https://itch.io/api/1/" + str(UserManager.user_settings[UserManager.setting_key.ItchAPIKey]) + "/upload/" + str(upload["id"]) + "/download"
 												status = fetch_status.RETRIEVED
 						#print("\n", response, "\n")
 				continue_attempt = false
@@ -157,16 +210,34 @@ func fetch_info(target : api, prod : product, info : info_types, exec_type : exe
 				print(client.get_status())
 				continue_attempt = false
 	current_task = task.INACTIVE
-	return fetch_response.new(status, info, response)
+	fetch_resp.response = response
+	fetch_resp.status = status
+	return fetch_resp
 
-func download_executable(url : String, prod : product) -> PackedByteArray:
+func download_executable(url : String, prod : product, fetch_data : Dictionary[String, Variant], target : api) -> PackedByteArray:
+	var thread : Thread = Thread.new()
+	thread.start(Callable(self, "_threaded_download_executable").bindv([url, prod, target]))
+	var start_time : float = Time.get_unix_time_from_system()
+	while thread.is_alive():
+		await get_tree().process_frame
+		mutexes[mutex_type.DOWNLOAD_SIZE].lock()
+		main.update_download_visuals(product.find_key(prod), fetch_data["version"], fetch_data["platform"], download_size, Time.get_unix_time_from_system() - start_time, download_percentage)
+		mutexes[mutex_type.DOWNLOAD_SIZE].unlock()
+	return thread.wait_to_finish()
+
+func _threaded_download_executable(url : String, prod : product, target : api) -> PackedByteArray:
 	var result : PackedByteArray = []
 	var client : HTTPClient = HTTPClient.new()
 	var continue_attempt : bool = true
 	var attempt_start_time : float = Time.get_unix_time_from_system()
 	print("url: ", url, "\nhost: ", "https://" + url.right(-8).get_slice("/", 0))
 	client.connect_to_host("https://" + url.right(-8).get_slice("/", 0))
+	mutexes[mutex_type.TASK].lock()
 	current_task = task.CONNECTING
+	mutexes[mutex_type.TASK].unlock()
+	mutexes[mutex_type.DOWNLOAD_PERCENTAGE].lock()
+	download_percentage = 0.0
+	mutexes[mutex_type.DOWNLOAD_PERCENTAGE].unlock()
 	print("here 1")
 	while continue_attempt:
 		client.poll()
@@ -183,14 +254,26 @@ func download_executable(url : String, prod : product) -> PackedByteArray:
 		print("unable to connect during exec download :(")
 		return result
 	print("here 3")
-	print(url.right(len("https://" + url.right(-8).get_slice("/", 0)) * -1))
-	client.request(
-		HTTPClient.METHOD_GET, 
-		url.right(len("https://" + url.right(-8).get_slice("/", 0)) * -1), 
-		["X-GitHub-Api-Version:2022-11-28"], 
-		'{"owner":"natzombiegames","repo":"' + product_to_github_name[prod].to_snake_case() + '"}'
-		)
+	var request_target : String = url.right(len("https://" + url.right(-8).get_slice("/", 0)) * -1)
+	print(request_target)
+	match target:
+		api.GITHUB:
+			client.request(
+				HTTPClient.METHOD_GET, 
+				request_target, 
+				["X-GitHub-Api-Version:2022-11-28"], 
+				'{"owner":"natzombiegames","repo":"' + github_product_to_github_name[prod].to_snake_case() + '"}'
+				)
+		api.ITCH:
+			client.request(
+				HTTPClient.METHOD_GET, 
+				request_target, 
+				["accept:json"], 
+				""
+				)
+	mutexes[mutex_type.TASK].lock()
 	current_task = task.DOWNLOADING
+	mutexes[mutex_type.TASK].unlock()
 	continue_attempt = true
 	while continue_attempt:
 		client.poll()
@@ -200,16 +283,19 @@ func download_executable(url : String, prod : product) -> PackedByteArray:
 					HTTPClient.ResponseCode.RESPONSE_OK:
 						var length : int = maxi(1, client.get_response_body_length())
 						var chunk : PackedByteArray
-						print("\n\n\nDOWNLOADING EXEC!!!!!\n\n\n")
+						print("\n\n\nDOWNLOADING EXEC!!!!! " + url + "\n\n\n")
 						print("length: ", length)
+						mutexes[mutex_type.DOWNLOAD_SIZE].lock()
+						download_size = length
+						mutexes[mutex_type.DOWNLOAD_SIZE].unlock()
 						while len(result) < length:
 							chunk = client.read_response_body_chunk()
 							result.append_array(chunk)
+							mutexes[mutex_type.DOWNLOAD_PERCENTAGE].lock()
 							download_percentage = float(len(result)) / float(length)
+							mutexes[mutex_type.DOWNLOAD_PERCENTAGE].unlock()
 							#print("Downloaded Chunk len: ", len(chunk))
 							#print("! Download percentage: ", download_percentage * 100, "%")
-							## This is here to make sure the visuals update to tell the user how far along the download is
-							await get_tree().process_frame
 						print("done?!?!?!??!?!?!?! please?!?!??!")
 						print("res length at end: ", len(chunk))
 						#print("\n", chunk, "\n")
@@ -218,9 +304,14 @@ func download_executable(url : String, prod : product) -> PackedByteArray:
 						var resp_heads : Array = client.get_response_headers()
 						resp_heads.map(func(item : String) -> String: print(resp_heads.find(item), ": ", item, "\n-"); return item)
 						print(len(resp_heads))
-						#print(resp_heads)
+						print(resp_heads)
 						print("\nredirect :(")
-						result = await download_executable(resp_heads[4].right(-10), prod)
+						match target:
+							api.GITHUB:
+								result = _threaded_download_executable(resp_heads[4].right(-10), prod, target)
+						continue_attempt = false
+					HTTPClient.ResponseCode.RESPONSE_TOO_MANY_REQUESTS:
+						print("You have been rate limited lol")
 						continue_attempt = false
 					_:
 						print("uh oh i got here :(, ", client.get_response_code())
@@ -229,7 +320,11 @@ func download_executable(url : String, prod : product) -> PackedByteArray:
 				continue_attempt = (int(Time.get_unix_time_from_system() - attempt_start_time) < connection_timeout_threshold)
 			_:
 				print("\n\nSTATUS!!!!!!!: ", client.get_status())
+				print(client.get_response_headers())
+				print(client.get_response_code())
 				continue_attempt = false
 	print("i got here with my response during exec return")
+	mutexes[mutex_type.TASK].lock()
 	current_task = task.INACTIVE
+	mutexes[mutex_type.TASK].unlock()
 	return result

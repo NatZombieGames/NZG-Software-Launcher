@@ -4,8 +4,13 @@ extends Node
 @export var user_settings : Dictionary[setting_key, Variant] = {
 	setting_key.ColourSettings: {}, 
 	setting_key.DefaultDownloadLocation: "", 
+	setting_key.ItchAPIKey: "", 
+	setting_key.ProductDataList: [
+		ProductData.new(APIManager.product.NPS), ProductData.new(APIManager.product.NMP), 
+		ProductData.new(APIManager.product.NDP), ProductData.new(APIManager.product.MINING_IDLE)
+		]
 }
-enum setting_key {ColourSettings, DefaultDownloadLocation}
+enum setting_key {ColourSettings, DefaultDownloadLocation, ItchAPIKey, ProductDataList}
 
 func _init() -> void:
 	user_settings[setting_key.ColourSettings] = ColourManager.get_colour_settings()

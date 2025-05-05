@@ -1,5 +1,6 @@
 extends Control
 
+const product_list : PackedScene = preload("res://Scenes/ProductsList.tscn")
 var loading : bool = true:
 	set(value):
 		loading = value
@@ -43,20 +44,68 @@ func _ready() -> void:
 			return)
 	%CloseButton.texture_normal = IconLoader.icons[&"Close"]
 	%CloseButton.pressed.connect(Callable(self, &"_exit"))
-	@warning_ignore_start("static_called_on_instance")
-	%MainContainer/SidePanel/VBoxContainer/TogglePageButton.texture_normal = IconLoader.load_svg_to_img("res://Assets/Icons/Downloaded.svg", 3.0)
-	%MainContainer/SidePanel/VBoxContainer/TogglePageButton.texture_pressed = IconLoader.load_svg_to_img("res://Assets/Icons/Products.svg", 3.0)
-	@warning_ignore_restore("static_called_on_instance")
+	@warning_ignore("static_called_on_instance")
+	%MainContainer/SidePanel/Container/ProductsPageButton.texture_normal = IconLoader.load_svg_to_img("res://Assets/Icons/Products.svg", 3.0)
+	%MainContainer/SidePanel/Container/ProductsPageButton.pressed.connect(func() -> void: %AppBody.visible = false; %ProductsBody.visible = true; %MainContainer/Body/Container/PageTitle.text = " Products Page"; return)
 	$Camera/ScreenContainer/PopupPage.data.assign({&"Settings1": preload("res://Scenes/SettingsPage.tscn"), &"Settings2": preload("res://Scenes/SettingsPage.tscn")})
 	$Camera/ScreenContainer/PopupPage.data = $Camera/ScreenContainer/PopupPage.data
+	populate_products_page()
+	%AppBody.visible = true
+	%ProductsBody.visible = false
 	#
 	loading = false
-	#APIManager.attempt_connection(APIManager.api.GITHUB)
-	#var info : APIManager.fetch_response = await APIManager.fetch_info(APIManager.api.GITHUB, APIManager.product.NMP, APIManager.info_types.EXECUTABLE_URL, APIManager.executable_types.WINDOWS)
-	#info._get_details()
-	#var file : FileAccess = FileAccess.open(OS.get_executable_path().get_base_dir() + "/is this nmp.exe", FileAccess.WRITE)
-	#file.store_buffer(await APIManager.download_executable(info.response, APIManager.product.NPS))
-	#file.close()
+	await get_tree().create_timer(0.5).timeout
+	#initiate_download("testing.exe", APIManager.product.NMP, APIManager.api.ITCH, APIManager.info_types.EXECUTABLE_URL, OS.get_executable_path().get_base_dir())
+	return
+
+func populate_products_page() -> void:
+	while %ProductsBody/ScrollContainer/Container.get_child_count() < len(APIManager.product_category.keys()):
+		%ProductsBody/ScrollContainer/Container.add_child(product_list.instantiate())
+	for category : String in APIManager.product_category.keys():
+		%ProductsBody/ScrollContainer/Container.get_child(APIManager.product_category[category]).title = category.capitalize()
+	for product : APIManager.product in APIManager.product_to_product_categories.keys():
+		for category : APIManager.product_category in APIManager.product_to_product_categories[product]:
+			%ProductsBody/ScrollContainer/Container.get_child(category).products.append(product)
+			%ProductsBody/ScrollContainer/Container.get_child(category).update_products_list()
+	return
+
+func initiate_download(downloaded_file_name : String, product : APIManager.product, api : APIManager.api, info_type : APIManager.info_types, write_location : String = UserManager.user_settings[UserManager.setting_key.DefaultDownloadLocation], exec_type : APIManager.executable_types = APIManager.executable_types.WINDOWS) -> void:
+	var info : APIManager.fetch_response = APIManager.fetch_response.new()
+	var attempts : int = 0
+	if APIManager.attempt_connection(api) != APIManager.connection_status.CONNECTED:
+		%DownloadScreen.visible = false
+		print("failed here :(")
+		return
+	while attempts < 2 and info.status != APIManager.fetch_status.RETRIEVED:
+		info = APIManager.fetch_info(api, product, info_type, exec_type)
+		info._get_details()
+		attempts += 1
+		await get_tree().create_timer(0.1).timeout
+	if info.status != APIManager.fetch_status.RETRIEVED:
+		%DownloadScreen.visible = false
+		print("failed there :(")
+		return
+	var file : FileAccess = FileAccess.open(write_location + "/" + downloaded_file_name, FileAccess.WRITE)
+	var buffer : PackedByteArray = await APIManager.download_executable(info.response, product, info.data, api)
+	%DownloadScreen/Panel/Container/Title.text = "File Writing In Progress..."
+	%DownloadScreen/Panel/Container/ProgressBar.value = 0.0
+	file.store_buffer(buffer)
+	%DownloadScreen/Panel/Container/ProgressBar.value = 0.5
+	file.close()
+	%DownloadScreen/Panel/Container/ProgressBar.value = 1.0
+	await get_tree().process_frame
+	%DownloadScreen.visible = false
+	return
+
+func update_download_visuals(target_name : String, version : String, platform : String, download_size : int, time_elapsed : float, progress : float) -> void:
+	%DownloadScreen.visible = true
+	%DownloadScreen/Panel/Container/Title.text = "Download In Progress..."
+	%DownloadScreen/Panel/Container/Details/Name.text = target_name
+	%DownloadScreen/Panel/Container/Details/Version.text = version
+	%DownloadScreen/Panel/Container/Details/Platform.text = platform
+	%DownloadScreen/Panel/Container/Details/Size.text = String.humanize_size(download_size)
+	%DownloadScreen/Panel/Container/Time.text = "Time Elapsed: " + str(time_elapsed).left(str(time_elapsed).find(".") + 3) + " | Time To Completion Estimate: " + str(int(maxf(time_elapsed, 0.1) / maxf(progress, 0.1)))
+	%DownloadScreen/Panel/Container/ProgressBar.value = progress
 	return
 
 func _exit() -> void:

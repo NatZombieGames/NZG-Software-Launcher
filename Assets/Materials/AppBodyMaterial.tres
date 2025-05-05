@@ -1,0 +1,9 @@
+[gd_resource type="ShaderMaterial" load_steps=3 format=3 uid="uid://dtgqlxavrs2sx"]
+
+[ext_resource type="Shader" uid="uid://wtsje0fjlvid" path="res://Assets/Shaders/AppBodyShader.gdshader" id="1_pfdkg"]
+[ext_resource type="Texture2D" uid="uid://bywmh6mmc7lpr" path="res://Assets/ProductAssets/Icons/NMP_Icon.png" id="2_blylg"]
+
+[resource]
+shader = ExtResource("1_pfdkg")
+shader_parameter/icon = ExtResource("2_blylg")
+shader_parameter/scroll_progress = 0.3725
