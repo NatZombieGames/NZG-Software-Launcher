@@ -1,10 +1,14 @@
 extends Node
 
 var icons : Dictionary[StringName, ImageTexture]
+var product_icons : Dictionary[APIManager.product, ImageTexture] = {}
 var finished_loading_icons : bool = false
 signal finished_loading_icons_signal
 
 func _init() -> void:
+	for product : String in APIManager.product.keys():
+		if product != "UNKNOWN":
+			product_icons[APIManager.product[product]] = ImageTexture.create_from_image(load("res://Assets/ProductAssets/Icons/" + product + "_Icon.png").get_image())
 	for icon : String in DirAccess.get_files_at("res://Assets/Icons"):
 		if icon.get_extension() == "svg":
 			icons[StringName(icon.get_basename())] = load_svg_to_img("res://Assets/Icons/" + icon, 2.0)

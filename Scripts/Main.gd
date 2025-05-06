@@ -1,6 +1,7 @@
 extends Control
 
 const product_list : PackedScene = preload("res://Scenes/ProductsList.tscn")
+const custom_texture_button : PackedScene = preload("res://Scenes/CustomTextureButton.tscn")
 var loading : bool = true:
 	set(value):
 		loading = value
@@ -9,6 +10,7 @@ var loading : bool = true:
 		else:
 			await create_tween().tween_property($Camera/ScreenContainer/LoadingScreen, "modulate:a", 0, 0.15).from(1).finished
 			$Camera/ScreenContainer/LoadingScreen.visible = false
+var open_app : APIManager.product = APIManager.product.UNKNOWN
 
 # DONT FORGET TO CREDIT FOR THE FONT WHICH IS 'Ubuntu (Light)' FROM GOOGLE FONTS!!!!!!!!
 
@@ -20,10 +22,10 @@ func _ready() -> void:
 	var to_apply : Dictionary[StringName, Color]
 	to_apply.assign(UserManager.user_settings[UserManager.setting_key.ColourSettings])
 	ColourManager.apply_colour_settings(to_apply)
-	$Camera/ScreenContainer/WindowButtons/DragWindowButton.button_down.connect(func() -> void:
+	%Header/Container/WindowButtons/DragWindowButton.button_down.connect(func() -> void:
 		var starting_window_pos : Vector2i = DisplayServer.window_get_position()
 		var starting_mouse_pos : Vector2i = DisplayServer.mouse_get_position()
-		while $Camera/ScreenContainer/WindowButtons/DragWindowButton.button_pressed:
+		while %Header/Container/WindowButtons/DragWindowButton.button_pressed:
 			DisplayServer.window_set_position(starting_window_pos + (DisplayServer.mouse_get_position() - starting_mouse_pos))
 			DisplayServer.cursor_set_shape(DisplayServer.CURSOR_DRAG)
 			await get_tree().process_frame
@@ -44,18 +46,77 @@ func _ready() -> void:
 			return)
 	%CloseButton.texture_normal = IconLoader.icons[&"Close"]
 	%CloseButton.pressed.connect(Callable(self, &"_exit"))
+	%AppBody/Container/ScrollBar.value_changed.connect(
+		func(value : float) -> void: 
+			%AppBody/Background.material.set(&"shader_parameter/scroll_progress", 0.0)
+			%AppContent.position.y = 0.0
+			if %AppContent.size.y > %AppBody/Container/ContentContainer.size.y:
+				%AppBody/Background.material.set(&"shader_parameter/scroll_progress", value)
+				%AppContent.position.y = ((%AppContent.size.y - %AppBody/Container/ContentContainer.size.y) * value) * -1.0
+			return)
 	@warning_ignore("static_called_on_instance")
 	%MainContainer/SidePanel/Container/ProductsPageButton.texture_normal = IconLoader.load_svg_to_img("res://Assets/Icons/Products.svg", 3.0)
-	%MainContainer/SidePanel/Container/ProductsPageButton.pressed.connect(func() -> void: %AppBody.visible = false; %ProductsBody.visible = true; %MainContainer/Body/Container/PageTitle.text = " Products Page"; return)
+	%MainContainer/SidePanel/Container/ProductsPageButton.pressed.connect(func() -> void: %AppBody.visible = false; %ProductsBody.visible = true; %Header/Container/PageTitle.text = "  Products"; return)
 	$Camera/ScreenContainer/PopupPage.data.assign({&"Settings1": preload("res://Scenes/SettingsPage.tscn"), &"Settings2": preload("res://Scenes/SettingsPage.tscn")})
 	$Camera/ScreenContainer/PopupPage.data = $Camera/ScreenContainer/PopupPage.data
 	populate_products_page()
-	%AppBody.visible = true
-	%ProductsBody.visible = false
+	%AppBody.visible = false
+	%ProductsBody.visible = true
+	populate_shortcut_list()
 	#
 	loading = false
-	await get_tree().create_timer(0.5).timeout
+	await get_tree().create_timer(5.5).timeout
 	#initiate_download("testing.exe", APIManager.product.NMP, APIManager.api.ITCH, APIManager.info_types.EXECUTABLE_URL, OS.get_executable_path().get_base_dir())
+	return
+
+func _input(event: InputEvent) -> void:
+	if event.get_class() in ["InputEventMouseMotion", "InputEventMouseButton"]:
+		return
+	var prod_shorts : Array[APIManager.product]
+	prod_shorts.assign(UserManager.user_settings[UserManager.setting_key.ProductShortcuts])
+	for i : int in range(0, 10):
+		if i > len(prod_shorts):
+			break
+		if event.is_action_pressed(StringName("AppShortcut" + str(i+1)), false, true):
+			open_app_page(prod_shorts[i])
+			break
+	return
+
+func populate_shortcut_list() -> void:
+	var prod_shorts : Array[APIManager.product]
+	prod_shorts.assign(UserManager.user_settings[UserManager.setting_key.ProductShortcuts])
+	prod_shorts.reverse()
+	while %ShortcutList.get_child_count() < len(prod_shorts):
+		%ShortcutList.add_child(custom_texture_button.instantiate())
+	for child : Control in %ShortcutList.get_children(): child.visible = false
+	for i : int in range(0, len(prod_shorts)):
+		%ShortcutList.get_child(i).button.texture_normal = IconLoader.product_icons[prod_shorts[i]]
+		%ShortcutList.get_child(i).pressed_callable = Callable(self, &"open_app_page").bind(prod_shorts[i])
+		%ShortcutList.get_child(i).visible = true
+	await get_tree().process_frame
+	for child : Control in %ShortcutList.get_children(): child.custom_minimum_size.y = child.size.x
+	return
+
+func open_app_page(app : APIManager.product) -> void:
+	open_app = app
+	UserManager.user_settings[UserManager.setting_key.ProductShortcuts].erase(app)
+	UserManager.user_settings[UserManager.setting_key.ProductShortcuts].insert(0, app)
+	%Header/Container/PageTitle.text = "  App"
+	%AppBody/Background.texture = IconLoader.product_icons[app]
+	%AppContent/AppName.text = "   " + APIManager.product_to_name[app]
+	%AppContent/AppAcronym.text = ""
+	if APIManager.product_category.SOFTWARE in APIManager.product_to_product_categories[app]:
+		%AppContent/AppAcronym.text = "       (" + APIManager.product.find_key(app) + ")"
+	%AppContent/InfoGreaterContainer/InfoContainer/InfoLabel.text = "Info:"
+	var app_info : Dictionary[String, String] = {
+		"Name": APIManager.product_to_name[app], 
+		"Categories": str(Array(APIManager.product_to_product_categories[app]).map(func(item : APIManager.product_category) -> String: return APIManager.product_category.find_key(item).capitalize())).replace('"', ""), 
+		}
+	for key : String in app_info:
+		%AppContent/InfoGreaterContainer/InfoContainer/InfoLabel.text += "\n    " + key + ": " + app_info[key]
+	%AppBody.visible = true
+	%ProductsBody.visible = false
+	populate_shortcut_list()
 	return
 
 func populate_products_page() -> void:

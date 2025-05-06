@@ -1,0 +1,7 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://by0c8y7t2s4or"]
+
+[ext_resource type="Shader" uid="uid://f2gvonx08des" path="res://Assets/Shaders/AppBodyBackgroundShader.gdshader" id="1_mpbbn"]
+
+[resource]
+shader = ExtResource("1_mpbbn")
+shader_parameter/scroll_progress = 0.0

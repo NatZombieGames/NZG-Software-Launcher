@@ -38,4 +38,5 @@ var categories : Array[APIManager.product_category] = []:
 func _ready() -> void:
 	$Button.mouse_entered.connect(func() -> void: self.set(&"theme_override_styles/panel", ColourManager.styleboxes[&"ProductListItemHoveredStylebox"]); return)
 	$Button.mouse_exited.connect(func() -> void: self.set(&"theme_override_styles/panel", ColourManager.styleboxes[&"ProductListItemStylebox"]); return)
+	$Button.pressed.connect(func() -> void: get_node("/root/Main").open_app_page(product); return)
 	return

@@ -5,12 +5,11 @@ extends Node
 	setting_key.ColourSettings: {}, 
 	setting_key.DefaultDownloadLocation: "", 
 	setting_key.ItchAPIKey: "", 
-	setting_key.ProductDataList: [
-		ProductData.new(APIManager.product.NPS), ProductData.new(APIManager.product.NMP), 
-		ProductData.new(APIManager.product.NDP), ProductData.new(APIManager.product.MINING_IDLE)
-		]
+	setting_key.ProductToInstallLocation: {}, 
+	setting_key.ProductShortcuts: [], 
 }
-enum setting_key {ColourSettings, DefaultDownloadLocation, ItchAPIKey, ProductDataList}
+enum setting_key {
+	ColourSettings, DefaultDownloadLocation, ItchAPIKey, ProductToInstallLocation, ProductShortcuts}
 
 func _init() -> void:
 	user_settings[setting_key.ColourSettings] = ColourManager.get_colour_settings()
