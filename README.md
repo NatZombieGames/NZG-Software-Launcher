@@ -1,7 +1,7 @@
 # NZG Software Launcher #
 Programme to launch and manage all other NZG products.
 
-![NMP Logo](Assets/NMP_Icon.png)
+![NSL Logo](Assets/NSL_Icon.png)
 
 > [!Note]
 > If you just want to use the app, please see the 'Releases' tab on the right for stable builds, for more information see below.
