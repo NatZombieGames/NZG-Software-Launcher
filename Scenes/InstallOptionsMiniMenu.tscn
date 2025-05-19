@@ -1,0 +1,18 @@
+[gd_scene load_steps=3 format=3 uid="uid://din2pcaxhixyc"]
+
+[ext_resource type="PackedScene" uid="uid://cd33gvegau1vp" path="res://Scenes/CustomButton.tscn" id="1_2lk5h"]
+[ext_resource type="Script" uid="uid://b74ulqf32qm0a" path="res://Scripts/InstallOptionsMiniMenu.gd" id="1_e1iwh"]
+
+[node name="InstallOptionsMiniMenu" type="VBoxContainer"]
+custom_minimum_size = Vector2(584, 729)
+offset_right = 584.0
+offset_bottom = 729.0
+script = ExtResource("1_e1iwh")
+
+[node name="Void0" type="Panel" parent="."]
+self_modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+
+[node name="Reinstall" parent="." instance=ExtResource("1_2lk5h")]
+layout_mode = 2
+text = " Reinstall "

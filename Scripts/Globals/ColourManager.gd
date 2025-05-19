@@ -62,7 +62,8 @@ func apply_colours() -> void:
 		#print(styleboxes.keys())
 		match node.get_class():
 			"PanelContainer":
-				node.set(&"theme_override_styles/panel", styleboxes[node.get_meta(&"StyleboxName", &"")])
+				if not node.get_meta(&"CustomTextureButton", false):
+					node.set(&"theme_override_styles/panel", styleboxes[node.get_meta(&"StyleboxName", &"")])
 			"Button":
 				for box : String in ["normal", "pressed", "hover"]:
 					node.set(StringName("theme_override_styles/" + box), styleboxes[StringName(String(node.get_meta(&"StyleboxName", &"")) + box.capitalize() + "Stylebox")])

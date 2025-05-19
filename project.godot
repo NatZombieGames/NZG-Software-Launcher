@@ -12,13 +12,14 @@ config_version=5
 
 config/name="NZG Software Launcher"
 config/description="Programme to launch and manage all other NZG products."
-config/version="0.0.4"
+config/version="0.0.5"
 run/main_scene="uid://bbj6gwox8hrf3"
 config/features=PackedStringArray("4.4", "Mobile")
 run/max_fps=30
 run/low_processor_mode=true
 boot_splash/bg_color=Color(0.141176, 0.141176, 0.141176, 0)
-config/icon="uid://c1op1ksgcfytd"
+config/icon="uid://d3hmw36usl53l"
+config/windows_native_icon="res://Assets/NSL_Icon.ico"
 
 [autoload]
 
@@ -26,6 +27,7 @@ IconLoader="*res://Scripts/Globals/IconLoader.gd"
 ColourManager="*res://Scripts/Globals/ColourManager.gd"
 UserManager="*res://Scripts/Globals/UserManager.gd"
 APIManager="*res://Scripts/Globals/APIManager.gd"
+GeneralManager="*res://Scripts/Globals/GeneralManager.gd"
 
 [display]
 

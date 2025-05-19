@@ -1,0 +1,7 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://cah2pa4rbw5up"]
+
+[ext_resource type="Shader" uid="uid://epdtorrhvybd" path="res://Assets/Shaders/TextureRotatorShader.gdshader" id="1_5dkeu"]
+
+[resource]
+shader = ExtResource("1_5dkeu")
+shader_parameter/speed = 10.0

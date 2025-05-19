@@ -1,0 +1,29 @@
+[gd_scene format=3 uid="uid://6fswincmn5w5"]
+
+[node name="DetailsPage" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -20.0
+offset_right = 20.0
+offset_bottom = 18.3333
+grow_horizontal = 2
+theme_override_constants/line_spacing = 6
+text = "Details / Extra Info
+
+All icons except that of the NatZombieGames logo and other NatZombieGames products
+are sourced from Google Icons.
+This software's sourcecode is hosted freely available on GitHub.
+The primary font used by this software is 'Ubuntu (Light)' sourced from Google Fonts.
+This software is made in and powered by the Godot game engine.
+"
+horizontal_alignment = 1

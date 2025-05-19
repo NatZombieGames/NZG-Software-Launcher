@@ -1,0 +1,18 @@
+[gd_scene load_steps=5 format=3 uid="uid://criprosp5wsas"]
+
+[ext_resource type="StyleBox" uid="uid://bm542tk7b6khg" path="res://Assets/Styleboxes/CustomButtonHoverStylebox.tres" id="1_r1coj"]
+[ext_resource type="StyleBox" uid="uid://bvxsergw4pm0c" path="res://Assets/Styleboxes/CustomButtonPressedStylebox.tres" id="2_mnuej"]
+[ext_resource type="StyleBox" uid="uid://dd8il7ghk2ph2" path="res://Assets/Styleboxes/CustomButtonNormalStylebox.tres" id="3_d3ja2"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ru1oe"]
+
+[node name="CustomColourPickerButton" type="ColorPickerButton" groups=["Stylebox Haver"]]
+offset_right = 8.0
+offset_bottom = 8.0
+mouse_default_cursor_shape = 2
+theme_override_styles/focus = SubResource("StyleBoxEmpty_ru1oe")
+theme_override_styles/hover = ExtResource("1_r1coj")
+theme_override_styles/pressed = ExtResource("2_mnuej")
+theme_override_styles/normal = ExtResource("3_d3ja2")
+text = " Pick Colour "
+metadata/StyleboxName = &"CustomButton"

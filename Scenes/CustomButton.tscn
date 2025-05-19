@@ -9,6 +9,8 @@
 [node name="CustomButton" type="Button" groups=["Stylebox Haver"]]
 offset_right = 8.0
 offset_bottom = 8.0
+size_flags_horizontal = 4
+size_flags_vertical = 4
 mouse_default_cursor_shape = 2
 theme_override_styles/focus = SubResource("StyleBoxEmpty_cf10v")
 theme_override_styles/hover = ExtResource("1_tvl3p")

@@ -1,0 +1,38 @@
+[gd_scene load_steps=3 format=3 uid="uid://d21gh2bw8tnc2"]
+
+[ext_resource type="Script" uid="uid://cvprahqcg3mgr" path="res://Scripts/OtherOptionsMiniMenu.gd" id="1_0fldu"]
+[ext_resource type="PackedScene" uid="uid://cd33gvegau1vp" path="res://Scenes/CustomButton.tscn" id="1_r3l00"]
+
+[node name="OtherOptionsMiniMenu" type="VBoxContainer"]
+custom_minimum_size = Vector2(584, 729)
+offset_right = 584.0
+offset_bottom = 729.0
+theme_override_constants/separation = 10
+script = ExtResource("1_0fldu")
+
+[node name="Void0" type="Panel" parent="."]
+self_modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+
+[node name="Move" parent="." instance=ExtResource("1_r3l00")]
+layout_mode = 2
+text = " Move Executable "
+
+[node name="ChangeDestination" parent="." instance=ExtResource("1_r3l00")]
+layout_mode = 2
+text = " Change Target Executable "
+
+[node name="Delete" parent="." instance=ExtResource("1_r3l00")]
+layout_mode = 2
+text = " Delete "
+
+[node name="FileDialog" type="FileDialog" parent="."]
+title = "Pick New Executable Location"
+initial_position = 1
+popup_window = true
+force_native = true
+ok_button_text = "Confirm Location"
+dialog_hide_on_ok = true
+mode_overrides_title = false
+access = 2
+use_native_dialog = true

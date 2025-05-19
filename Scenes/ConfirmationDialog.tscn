@@ -1,0 +1,52 @@
+[gd_scene load_steps=3 format=3 uid="uid://bvfwr4hnvcofl"]
+
+[ext_resource type="Script" uid="uid://cyf5i154r7taj" path="res://Scripts/ConfirmationDialog.gd" id="1_seqpj"]
+[ext_resource type="StyleBox" uid="uid://b4cs2dxb1rg2j" path="res://Assets/Styleboxes/PopupPageStylebox.tres" id="1_sw814"]
+
+[node name="ConfirmationDialog" type="ColorRect"]
+custom_minimum_size = Vector2(1920, 1080)
+color = Color(0, 0, 0, 0.498039)
+script = ExtResource("1_seqpj")
+
+[node name="Panel" type="PanelContainer" parent="." groups=["Stylebox Haver"]]
+custom_minimum_size = Vector2(1080, 607.5)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -540.0
+offset_top = -303.75
+offset_right = 540.0
+offset_bottom = 303.75
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = ExtResource("1_sw814")
+metadata/StyleboxName = &"PopupPageStylebox"
+
+[node name="Container" type="VBoxContainer" parent="Panel"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="ScrollContainer" type="ScrollContainer" parent="Panel/Container"]
+custom_minimum_size = Vector2(0, 400)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Text" type="Label" parent="Panel/Container/ScrollContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Separator" type="ColorRect" parent="Panel/Container" groups=["Separator"]]
+custom_minimum_size = Vector2(0, 15)
+layout_mode = 2
+color = Color(0.0784314, 0.0784314, 0.0862745, 1)
+
+[node name="Buttons" type="HFlowContainer" parent="Panel/Container"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 175)
+layout_mode = 2
+alignment = 1
