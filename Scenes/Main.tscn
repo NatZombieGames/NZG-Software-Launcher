@@ -1,23 +1,29 @@
-[gd_scene load_steps=19 format=3 uid="uid://bbj6gwox8hrf3"]
+[gd_scene load_steps=25 format=3 uid="uid://bbj6gwox8hrf3"]
 
 [ext_resource type="Script" uid="uid://4jt4q2l1vcnd" path="res://Scripts/Main.gd" id="1_pbw6q"]
 [ext_resource type="Texture2D" uid="uid://c5r2jud5cul40" path="res://Assets/Icons/Options.svg" id="1_rgh2o"]
 [ext_resource type="Texture2D" uid="uid://d3hmw36usl53l" path="res://Assets/NSL_Icon.png" id="2_frkhe"]
 [ext_resource type="StyleBox" uid="uid://cfosmgmdu61td" path="res://Assets/Styleboxes/WindowButtonsBackgroundStylebox.tres" id="2_jw32o"]
 [ext_resource type="Texture2D" uid="uid://bmiov6kmwcsu8" path="res://Assets/Icons/Minimize.svg" id="2_pbw6q"]
+[ext_resource type="Texture2D" uid="uid://bh1v5jsk6tjtn" path="res://Assets/Icons/Social.svg" id="3_0sclb"]
 [ext_resource type="Texture2D" uid="uid://pwret2dpnhpd" path="res://Assets/Icons/Products.svg" id="3_bmxlf"]
 [ext_resource type="Texture2D" uid="uid://bx25s1kvyvirg" path="res://Assets/Icons/Fullscreen.svg" id="3_v1gob"]
 [ext_resource type="PackedScene" uid="uid://cd33gvegau1vp" path="res://Scenes/CustomButton.tscn" id="4_4kpch"]
 [ext_resource type="Texture2D" uid="uid://bkadpwjc70qta" path="res://Assets/Icons/Close.svg" id="4_jw32o"]
-[ext_resource type="Material" uid="uid://c7sdrytp52pvp" path="res://Assets/Materials/SettingsIconMaterial.tres" id="5_2w5on"]
+[ext_resource type="Material" uid="uid://c7sdrytp52pvp" path="res://Assets/Materials/RotationMaterial.tres" id="5_2w5on"]
 [ext_resource type="PackedScene" uid="uid://3rko5u56gi5j" path="res://Scenes/PopupPage.tscn" id="6_v1gob"]
 [ext_resource type="Material" uid="uid://by0c8y7t2s4or" path="res://Assets/Materials/AppBodyBackgroundMaterial.tres" id="8_grg3l"]
 [ext_resource type="Texture2D" uid="uid://bywmh6mmc7lpr" path="res://Assets/ProductAssets/Icons/NMP_Icon.png" id="9_grg3l"]
 [ext_resource type="StyleBox" uid="uid://b4cs2dxb1rg2j" path="res://Assets/Styleboxes/PopupPageStylebox.tres" id="10_bmxlf"]
 [ext_resource type="PackedScene" uid="uid://bvfwr4hnvcofl" path="res://Scenes/ConfirmationDialog.tscn" id="13_1p5hy"]
 [ext_resource type="PackedScene" uid="uid://br23cm80r3ixc" path="res://Scenes/MiniMenu.tscn" id="13_346fj"]
+[ext_resource type="Material" uid="uid://cl8ulureoog5y" path="res://Assets/Materials/VerticalRevealMaterial.tres" id="14_3tgeq"]
 [ext_resource type="Material" uid="uid://cah2pa4rbw5up" path="res://Assets/Materials/TextureRotatorMaterial.tres" id="15_erwvk"]
+[ext_resource type="Texture2D" uid="uid://r5tyk21jgq03" path="res://Assets/Logos/GitHub.png" id="15_jyqft"]
 [ext_resource type="Texture2D" uid="uid://bxttaj5s33aqj" path="res://Assets/Icons/LoadingIcon.svg" id="16_2w5on"]
+[ext_resource type="Texture2D" uid="uid://dsfyccs2b7sd0" path="res://Assets/Logos/ItchIo.png" id="16_3tgeq"]
+[ext_resource type="Texture2D" uid="uid://byitimdgka8tq" path="res://Assets/Logos/Youtube.png" id="17_c4ay3"]
+[ext_resource type="Texture2D" uid="uid://01xdah0h7c2f" path="res://Assets/Logos/Discord.png" id="18_aht7i"]
 
 [node name="Main" type="Control"]
 custom_minimum_size = Vector2(1920, 1080)
@@ -63,6 +69,15 @@ custom_minimum_size = Vector2(100, 100)
 layout_mode = 2
 texture = ExtResource("2_frkhe")
 expand_mode = 1
+stretch_mode = 5
+
+[node name="SocialsButton" type="TextureButton" parent="Camera/ScreenContainer/MainContainer/SidePanel/Container"]
+custom_minimum_size = Vector2(100, 100)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+toggle_mode = true
+texture_normal = ExtResource("3_0sclb")
+ignore_texture_size = true
 stretch_mode = 5
 
 [node name="Void" type="Panel" parent="Camera/ScreenContainer/MainContainer/SidePanel/Container"]
@@ -151,7 +166,7 @@ layout_mode = 2
 self_modulate = Color(1, 1, 1, 0)
 layout_mode = 2
 size_flags_horizontal = 3
-mouse_default_cursor_shape = 2
+mouse_default_cursor_shape = 3
 
 [node name="Void1" type="Panel" parent="Camera/ScreenContainer/MainContainer/Body/Container/Header/Container/WindowButtons"]
 self_modulate = Color(1, 1, 1, 0)
@@ -306,46 +321,55 @@ self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(0, 75)
 layout_mode = 2
 
-[node name="ActionButtonsContainer" type="HBoxContainer" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent"]
+[node name="ActionButtonsGreaterContainer" type="HBoxContainer" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent"]
 custom_minimum_size = Vector2(0, 100)
 layout_mode = 2
-theme_override_constants/separation = 30
 
-[node name="Void0" type="Panel" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent/ActionButtonsContainer"]
+[node name="Void0" type="Panel" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent/ActionButtonsGreaterContainer"]
 self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(170, 0)
 layout_mode = 2
 
-[node name="LaunchButton" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent/ActionButtonsContainer" instance=ExtResource("4_4kpch")]
+[node name="ActionButtonsContainer" type="HFlowContainer" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent/ActionButtonsGreaterContainer"]
+custom_minimum_size = Vector2(1600, 100)
+layout_mode = 2
+size_flags_horizontal = 0
+
+[node name="LaunchButton" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent/ActionButtonsGreaterContainer/ActionButtonsContainer" instance=ExtResource("4_4kpch")]
 layout_mode = 2
 theme_override_font_sizes/font_size = 30
 text = " Launch "
 metadata/FileTargetState = 0
 
-[node name="UpdateButton" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent/ActionButtonsContainer" instance=ExtResource("4_4kpch")]
+[node name="UpdateButton" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent/ActionButtonsGreaterContainer/ActionButtonsContainer" instance=ExtResource("4_4kpch")]
 layout_mode = 2
 theme_override_font_sizes/font_size = 30
 text = " Update "
 
-[node name="SourceButton" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent/ActionButtonsContainer" instance=ExtResource("4_4kpch")]
+[node name="SourceButton" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent/ActionButtonsGreaterContainer/ActionButtonsContainer" instance=ExtResource("4_4kpch")]
 layout_mode = 2
 theme_override_font_sizes/font_size = 30
-text = " Go To Source "
+text = " Show In Filesystem "
 
-[node name="InstallOptionsButton" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent/ActionButtonsContainer" instance=ExtResource("4_4kpch")]
+[node name="InstallOptionsButton" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent/ActionButtonsGreaterContainer/ActionButtonsContainer" instance=ExtResource("4_4kpch")]
 layout_mode = 2
 theme_override_font_sizes/font_size = 30
 text = " Install Options "
 
-[node name="OtherOptionsButton" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent/ActionButtonsContainer" instance=ExtResource("4_4kpch")]
+[node name="OtherOptionsButton" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent/ActionButtonsGreaterContainer/ActionButtonsContainer" instance=ExtResource("4_4kpch")]
 layout_mode = 2
 theme_override_font_sizes/font_size = 30
 text = " Other Options "
 
-[node name="PointButton" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent/ActionButtonsContainer" instance=ExtResource("4_4kpch")]
+[node name="PointButton" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent/ActionButtonsGreaterContainer/ActionButtonsContainer" instance=ExtResource("4_4kpch")]
 layout_mode = 2
 theme_override_font_sizes/font_size = 30
 text = " Point To Existing Executable "
+
+[node name="WebSourceButton" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent/ActionButtonsGreaterContainer/ActionButtonsContainer" instance=ExtResource("4_4kpch")]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = " Go To Source "
 
 [node name="Void2" type="Panel" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent"]
 self_modulate = Color(1, 1, 1, 0)
@@ -404,6 +428,182 @@ grow_vertical = 2
 custom_minimum_size = Vector2(1810, 0)
 layout_mode = 2
 size_flags_vertical = 3
+
+[node name="SocialsPopupContainer" type="Control" parent="Camera/ScreenContainer"]
+custom_minimum_size = Vector2(1920, 1080)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="SocialsPopup" type="PanelContainer" parent="Camera/ScreenContainer/SocialsPopupContainer" groups=["Stylebox Haver"]]
+unique_name_in_owner = true
+visible = false
+material = ExtResource("14_3tgeq")
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 115.0
+offset_top = 105.0
+offset_right = -1605.0
+offset_bottom = -739.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_styles/panel = ExtResource("10_bmxlf")
+metadata/StyleboxName = &"PopupPageStylebox"
+
+[node name="Container" type="VBoxContainer" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup"]
+layout_mode = 2
+
+[node name="Void" type="Panel" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container"]
+self_modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+
+[node name="Row1" type="HBoxContainer" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container"]
+layout_mode = 2
+alignment = 1
+
+[node name="Void" type="Panel" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row1"]
+self_modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(10, 0)
+layout_mode = 2
+
+[node name="Icon" type="TextureRect" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row1"]
+texture_filter = 1
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+texture = ExtResource("15_jyqft")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Void2" type="Panel" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row1"]
+self_modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="LinkButton" type="LinkButton" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row1"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 25
+text = "Github"
+uri = "https://github.com/NatZombieGames"
+
+[node name="Void3" type="Panel" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row1"]
+self_modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(10, 0)
+layout_mode = 2
+
+[node name="Row2" type="HBoxContainer" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container"]
+layout_mode = 2
+alignment = 1
+
+[node name="Void" type="Panel" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row2"]
+self_modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(10, 0)
+layout_mode = 2
+
+[node name="Icon" type="TextureRect" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row2"]
+texture_filter = 1
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+texture = ExtResource("16_3tgeq")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Void2" type="Panel" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row2"]
+self_modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="LinkButton" type="LinkButton" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row2"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 25
+text = "Itch.io"
+uri = "https://natzombiegames.itch.io"
+
+[node name="Void3" type="Panel" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row2"]
+self_modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(10, 0)
+layout_mode = 2
+
+[node name="Row3" type="HBoxContainer" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container"]
+layout_mode = 2
+alignment = 1
+
+[node name="Void" type="Panel" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row3"]
+self_modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(10, 0)
+layout_mode = 2
+
+[node name="Icon" type="TextureRect" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row3"]
+texture_filter = 3
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+texture = ExtResource("17_c4ay3")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Void2" type="Panel" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row3"]
+self_modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="LinkButton" type="LinkButton" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row3"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 25
+text = "Youtube"
+uri = "https://www.youtube.com/@NatZombieGames"
+
+[node name="Void3" type="Panel" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row3"]
+self_modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(10, 0)
+layout_mode = 2
+
+[node name="Row4" type="HBoxContainer" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container"]
+layout_mode = 2
+alignment = 1
+
+[node name="Void" type="Panel" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row4"]
+self_modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(10, 0)
+layout_mode = 2
+
+[node name="Icon" type="TextureRect" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row4"]
+texture_filter = 1
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+texture = ExtResource("18_aht7i")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Void2" type="Panel" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row4"]
+self_modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="LinkButton" type="LinkButton" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row4"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 25
+text = "Discord"
+uri = "https://discord.gg/wcZGjeXPNK"
+
+[node name="Void3" type="Panel" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row4"]
+self_modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(10, 0)
+layout_mode = 2
+
+[node name="Void2" type="Panel" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container"]
+self_modulate = Color(1, 1, 1, 0)
+layout_mode = 2
 
 [node name="MiniMenu" parent="Camera/ScreenContainer" instance=ExtResource("13_346fj")]
 visible = false

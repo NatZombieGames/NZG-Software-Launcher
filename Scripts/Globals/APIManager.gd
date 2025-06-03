@@ -10,6 +10,7 @@ var clients : Dictionary[api, HTTPClient] = {
 	api.ITCH: HTTPClient.new(), 
 }
 var latest_version_cache : Dictionary[StringName, fetch_response] = {}
+var valid_api_key_cache : Dictionary[api, bool] = {}
 var current_task : task = task.INACTIVE
 var download_progress : int = 0
 var download_size : int = 0
@@ -22,6 +23,14 @@ const api_to_api_url : Dictionary[api, String] = {
 	api.GITHUB: "https://api.github.com", 
 	api.ITCH: "https://itch.io"
 }
+const api_to_api_name : Dictionary[api, String] = {
+	api.GITHUB: "GitHub", 
+	api.ITCH: "Itch.io", 
+}
+const api_requires_key : Dictionary[api, bool] = {
+	api.GITHUB: false, 
+	api.ITCH: true, 
+}
 ## In order of API enum.
 const product_to_api_availability : Dictionary[product, Array] = {
 	product.NPS: [true, false], 
@@ -29,6 +38,14 @@ const product_to_api_availability : Dictionary[product, Array] = {
 	product.NDP: [true, false], 
 	product.MINING_IDLE: [false, true], 
 	product.UNKNOWN: [false, false], 
+}
+## In order of API enum.
+const product_to_source : Dictionary[product, Array] = {
+	product.NPS: ["https://github.com/NatZombieGames/Nat-Password-Software", ""], 
+	product.NMP: ["https://github.com/NatZombieGames/Nat-Music-Programme", "https://natzombiegames.itch.io/nat-music-programme"], 
+	product.NDP: ["https://github.com/NatZombieGames/Nat-Documenter-Programme", ""], 
+	product.MINING_IDLE: ["", "https://natzombiegames.itch.io/mining-idle"], 
+	product.UNKNOWN: ["", ""], 
 }
 const github_product_to_github_name : Dictionary[product, String] = {
 	product.NPS: "Nat-Password-Software", 
@@ -40,9 +57,9 @@ const itch_product_to_itch_id : Dictionary[product, String] = {
 	product.MINING_IDLE: "3095012", 
 }
 const product_to_product_categories : Dictionary[product, Array] = {
-	product.NPS: [product_category.SOFTWARE], 
-	product.NMP: [product_category.SOFTWARE], 
-	product.NDP: [product_category.SOFTWARE], 
+	product.NPS: [product_category.SOFTWARE, product_category.OPEN_SOURCE], 
+	product.NMP: [product_category.SOFTWARE, product_category.OPEN_SOURCE], 
+	product.NDP: [product_category.SOFTWARE, product_category.OPEN_SOURCE], 
 	product.MINING_IDLE: [product_category.GAME], 
 }
 const product_to_name : Dictionary[product, String] = {
@@ -54,11 +71,13 @@ const product_to_name : Dictionary[product, String] = {
 const connection_timeout_threshold : int = 5
 enum api {GITHUB, ITCH, UNKNOWN}
 enum product {NPS, NMP, NDP, MINING_IDLE, UNKNOWN}
-enum product_category {SOFTWARE, GAME}
+enum product_category {SOFTWARE, GAME, OPEN_SOURCE}
 enum mutex_type {TASK, DOWNLOAD_PROGRESS, DOWNLOAD_SIZE}
 enum task {INACTIVE, CONNECTING, FETCHING, DOWNLOADING}
 enum connection_status {CONNECTED, FAILED, TIMEOUT, CLOSED, NOT_ATTEMPTED}
 enum fetch_status {RETRIEVED, FAILED, TIMEOUT}
+enum key_validation_responses {VALID, INVALID, UNKNOWN}
+enum key_validation_response_details {FAILED_TO_CONNECT, FAILED_TO_READ_RESPONSE, UNNECESSARY, UNREADABLE_KEY, INVALID_KEY, NONE}
 enum info_types {UNKNOWN, LATEST_VERSION, EXECUTABLE_URL}
 enum platforms {UNKNOWN, WINDOWS, LINUX}
 class fetch_response:
@@ -74,6 +93,16 @@ class fetch_response:
 		return
 	func _get_details() -> void:
 		print("\n---\n-Status: " + fetch_status.find_key(status) + "\n-Type: " + info_types.find_key(type) + "\n-Data: " + str(data) + "\n-Response:\n-- " + response + "\n---\n")
+		return
+class key_validation_response:
+	var response : key_validation_responses = key_validation_responses.UNKNOWN
+	var details : key_validation_response_details = key_validation_response_details.NONE
+	func _init(resp : key_validation_responses = key_validation_responses.UNKNOWN, dets : key_validation_response_details = key_validation_response_details.NONE) -> void:
+		response = resp
+		details = dets
+		return
+	func _get_details() -> void:
+		print("\n---\n-Response: " + key_validation_responses.find_key(response) + "\n-Details: " + key_validation_response_details.find_key(details) + "\n---")
 		return
 
 func _notification(notif : int) -> void:
@@ -148,23 +177,23 @@ func attempt_connection(target : api) -> connection_status:
 func fetch_info(target : api, prod : product, info : info_types, exec_type : platforms = platforms.WINDOWS, get_from_cache : bool = true, cache_result : bool = true) -> fetch_response:
 	var cache_key : StringName = _create_cache_key(target, prod)
 	print("fetch info cache key: ", cache_key)
-	if get_from_cache and cache_key in latest_version_cache.keys():
+	if get_from_cache and info == info_types.LATEST_VERSION and cache_key in latest_version_cache.keys():
 		print("fetch info got stuff from cache")
 		return latest_version_cache[cache_key]
-	if not connection_statuses[target] == connection_status.CONNECTED or clients[target].get_status() != HTTPClient.Status.STATUS_CONNECTED:
+	if connection_statuses[target] != connection_status.CONNECTED or clients[target].get_status() != HTTPClient.Status.STATUS_CONNECTED:
 		print("not connected when trying to fetch info")
 		return fetch_response.new()
 	print("got past cache and connection check stages; fetching info")
-	current_task = task.FETCHING
-	var client : HTTPClient = clients[target]
-	var continue_attempt : bool = true
-	var attempt_start_time : float = Time.get_unix_time_from_system()
-	var status : fetch_status = fetch_status.FAILED
-	var fetch_resp : fetch_response = fetch_response.new(status, info, "", {"platform": platforms.find_key(exec_type)})
-	var response : String = ""
 	if not is_available_in_api(prod, target):
 		print("you cannae get that from there pal")
 		return fetch_response.new()
+	current_task = task.FETCHING
+	var client : HTTPClient = clients[target]
+	var continue_attempt : bool = true
+	var status : fetch_status = fetch_status.FAILED
+	var fetch_resp : fetch_response = fetch_response.new(status, info, "", {"platform": platforms.find_key(exec_type)})
+	var response : String = ""
+	var attempt_start_time : float = Time.get_unix_time_from_system()
 	match target:
 		api.GITHUB:
 			print("/repos/NatZombieGames/" + github_product_to_github_name[prod] + "/releases/latest")
@@ -178,12 +207,21 @@ func fetch_info(target : api, prod : product, info : info_types, exec_type : pla
 						'{"owner":"natzombiegames","repo":"' + github_product_to_github_name[prod].to_snake_case() + '"}'
 						)
 		api.ITCH:
-			if len(UserManager.settings[&"ItchAPIKey"]) < 1:
-				print("Ya dont ave an itch key ya dim fuck")
-				return fetch_response.new()
+			var key_validation : key_validation_response = validate_key(api.ITCH)
+			match key_validation.response:
+				key_validation_responses.VALID:
+					pass
+				key_validation_responses.INVALID:
+					get_node("/root/Main").get_confirmation("Your Itch.io key has been found to be invalid and therefor you are unable to use Itch.io services, please check your key is valid and try again.\n\nError details: " + key_validation_response_details.find_key(key_validation.details).capitalize(), ["OK"])
+					current_task = task.INACTIVE
+					return fetch_response.new()
+				key_validation_responses.UNKNOWN:
+					get_node("/root/Main").get_confirmation("Your Itch.io key was unable to be checked, as such until it is validated no Itch.io services can be used.", ["OK"])
+					current_task = task.INACTIVE
+					return fetch_response.new()
 			print("/api/1/" + UserManager.settings[&"ItchAPIKey"] + "/game/" + itch_product_to_itch_id[prod] + "/uploads")
 			match info:
-				info_types.EXECUTABLE_URL:
+				info_types.LATEST_VERSION, info_types.EXECUTABLE_URL:
 					client.request(
 						HTTPClient.METHOD_GET, 
 						"/api/1/" + UserManager.settings[&"ItchAPIKey"] + "/game/" + itch_product_to_itch_id[prod] + "/uploads", 
@@ -194,7 +232,7 @@ func fetch_info(target : api, prod : product, info : info_types, exec_type : pla
 		client.poll()
 		match client.get_status():
 			HTTPClient.Status.STATUS_BODY:
-				print(client.get_response_code())
+				print("fetch info resp code: ", client.get_response_code())
 				match client.get_response_code():
 					HTTPClient.ResponseCode.RESPONSE_OK:
 						mutexes[mutex_type.TASK].lock()
@@ -228,7 +266,8 @@ func fetch_info(target : api, prod : product, info : info_types, exec_type : pla
 												response = asset["browser_download_url"]
 												status = fetch_status.RETRIEVED
 							api.ITCH:
-								fetch_resp.data["version"] = response_json["uploads"][0]["display_name"].replace(response_json["uploads"][0]["filename"] + " ", "")
+								fetch_resp.data["version"] = response_json["uploads"][0]["display_name"]
+								fetch_resp.data["version"] = fetch_resp.data["version"].right(len(fetch_resp.data["version"]) - 1 - fetch_resp.data["version"].to_lower().rfind("v"))
 								match info:
 									info_types.LATEST_VERSION:
 										response = fetch_resp.data["version"]
@@ -242,6 +281,11 @@ func fetch_info(target : api, prod : product, info : info_types, exec_type : pla
 												fetch_resp.data["upload_id"] = upload["id"]
 												status = fetch_status.RETRIEVED
 						#print("\n", response, "\n")
+					HTTPClient.ResponseCode.RESPONSE_TOO_MANY_REQUESTS:
+						print("You have been rate limited lol")
+						get_node("/root/Main").get_confirmation("You have been rate-limited from " + api_to_api_name[target] + ".\nYou will need to wait before you can use their service again, the time can vary so please check back later and try again.", ["OK"])
+					_:
+						print("unhandled response code during fetch info :(")
 				continue_attempt = false
 			HTTPClient.Status.STATUS_REQUESTING:
 				continue_attempt = (int(Time.get_unix_time_from_system() - attempt_start_time) < connection_timeout_threshold)
@@ -257,7 +301,68 @@ func fetch_info(target : api, prod : product, info : info_types, exec_type : pla
 		match info:
 			info_types.LATEST_VERSION:
 				latest_version_cache[cache_key] = fetch_resp
+	attempt_connection(target)
 	return fetch_resp
+
+func validate_key(key_api : api) -> key_validation_response:
+	if valid_api_key_cache.get(key_api, false) == true:
+		return key_validation_response.new(key_validation_responses.VALID, key_validation_response_details.NONE)
+	if not api_requires_key[key_api]:
+		return key_validation_response.new(key_validation_responses.VALID, key_validation_response_details.UNNECESSARY)
+	if len(UserManager.settings[UserManager.api_to_api_key_setting_name[key_api]]) < 1:
+		return key_validation_response.new(key_validation_responses.INVALID, key_validation_response_details.UNREADABLE_KEY)
+	var client : HTTPClient = clients[key_api]
+	if client.get_status() != HTTPClient.Status.STATUS_CONNECTED:
+		var attemps : int = 0
+		while attemps < 2:
+			attempt_connection(key_api)
+			if client.get_status() == HTTPClient.Status.STATUS_CONNECTED:
+				attemps = 2
+			attemps += 1
+	if client.get_status() != HTTPClient.Status.STATUS_CONNECTED:
+		return key_validation_response.new(key_validation_responses.INVALID, key_validation_response_details.FAILED_TO_CONNECT)
+	match key_api:
+		api.ITCH:
+			client.request(
+				HTTPClient.METHOD_GET,
+				"/api/1/" + UserManager.settings[&"ItchAPIKey"] + "/credentials/info",
+				["accept:json"]
+				)
+	var starting_time : float = Time.get_unix_time_from_system()
+	var continue_attempt : bool = true
+	while continue_attempt:
+		client.poll()
+		match client.get_status():
+			HTTPClient.Status.STATUS_BODY:
+				match client.get_response_code():
+					HTTPClient.ResponseCode.RESPONSE_OK:
+						var response : String = ""
+						var length : int = maxi(1, client.get_response_body_length())
+						print(client.get_response_headers())
+						print("resp code: ", client.get_response_code())
+						print("status: ", client.get_status())
+						print("length: ", length)
+						while len(response) < length:
+							response += client.read_response_body_chunk().get_string_from_utf8()
+						match key_api:
+							api.ITCH:
+								if JSON.parse_string(response)["type"] == "key":
+									valid_api_key_cache[api.ITCH] = true
+									return key_validation_response.new(key_validation_responses.VALID, key_validation_response_details.NONE)
+						continue_attempt = false
+					HTTPClient.ResponseCode.RESPONSE_TOO_MANY_REQUESTS:
+						print("You have been rate limited lol")
+						get_node("/root/Main").get_confirmation("You have been rate-limited from " + api_to_api_name[key_api] + ".\nYou will need to wait before you can use their service again, the time can vary so please check back later and try again.", ["OK"])
+						continue_attempt = false
+					_:
+						print("uh ohhh, no good: ", client.get_response_code())
+						continue_attempt = false
+			HTTPClient.Status.STATUS_REQUESTING:
+				continue_attempt = (Time.get_unix_time_from_system() - starting_time) < connection_timeout_threshold
+			_:
+				print("uh ow, ewwor: ", client.get_status())
+				continue_attempt = false
+	return key_validation_response.new(key_validation_responses.INVALID, key_validation_response_details.FAILED_TO_CONNECT)
 
 func download_executable(url : String, prod : product, fetch_data : Dictionary[String, Variant], target : api) -> PackedByteArray:
 	var thread : Thread = Thread.new()
@@ -366,6 +471,7 @@ func _threaded_download_executable(url : String, prod : product, target : api) -
 						continue_attempt = false
 					HTTPClient.ResponseCode.RESPONSE_TOO_MANY_REQUESTS:
 						print("You have been rate limited lol")
+						get_node("/root/Main").get_confirmation("You have been rate-limited from " + api_to_api_name[target] + ".\nYou will need to wait before you can use their service again, the time can vary so please check back later and try again.", ["OK"])
 						continue_attempt = false
 					_:
 						print("uh oh i got here :(, ", client.get_response_code())

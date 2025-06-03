@@ -7,8 +7,13 @@ extends Node
 	&"DefaultDownloadLocation": "", 
 	&"ItchAPIKey": "", 
 	&"DownloadMaximumPacketSize": 100_000, 
+	&"ShowAppBackground": true, 
+	&"CloseOnAppLaunch": false, 
 	&"ProductToInstallLocation": {}, 
 	&"ProductShortcuts": [], 
+}
+const api_to_api_key_setting_name : Dictionary[APIManager.api, StringName] = {
+	APIManager.api.ITCH: &"ItchAPIKey", 
 }
 
 func _init() -> void:
@@ -52,7 +57,7 @@ func load_data(path : String = default_data_path) -> void:
 	print("\n")
 	Array(config.get_section_keys(&"Data")).map(func(key : String) -> String: print(key + ": '" + str(config.get_value(&"Data", str(key))) + "'"); return key)
 	print("\n")
-	for key : StringName in config.get_section_keys(&"Data"):
+	for key : StringName in settings.keys():
 		settings.set(key, config.get_value(&"Data", key, settings[key]))
 	file.close()
 	print("! Succesfully loaded data from: '" + path + "'.")

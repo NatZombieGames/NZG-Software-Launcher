@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ce6n5tdfn5xq3"
-path="res://.godot/imported/Back.svg-a40958f329b4908a0c4362a4795595a2.ctex"
+uid="uid://dsfyccs2b7sd0"
+path="res://.godot/imported/ItchIo.png-3e4b3d1e7509456bce06dbea590864cd.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Assets/Icons/Back.svg"
-dest_files=["res://.godot/imported/Back.svg-a40958f329b4908a0c4362a4795595a2.ctex"]
+source_file="res://Assets/Logos/ItchIo.png"
+dest_files=["res://.godot/imported/ItchIo.png-3e4b3d1e7509456bce06dbea590864cd.ctex"]
 
 [params]
 
@@ -32,6 +32,3 @@ process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
 detect_3d/compress_to=1
-svg/scale=1.0
-editor/scale_with_editor_scale=false
-editor/convert_colors_with_editor_theme=false

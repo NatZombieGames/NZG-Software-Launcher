@@ -13,12 +13,13 @@ const custom_button : PackedScene = preload("res://Scenes/CustomButton.tscn")
 @export var buttons_text : PackedStringArray = ["No", "Yes"]:
 	set(value):
 		buttons_text = value
-		while %Buttons.get_child_count() > len(buttons_text): %Buttons.get_child(-1).queue_free()
-		while len(buttons_text) > %Buttons.get_child_count(): %Buttons.add_child(custom_button.instantiate())
-		for btn : Button in %Buttons.get_children(): GeneralManager.disconnect_connections(btn.pressed)
-		for i : int in range(0, %Buttons.get_child_count()): %Buttons.get_child(i).pressed.connect(Callable(self, &"btn_pressed").bind(i))
+		for btn : Button in %Buttons.get_children(): btn.queue_free()
 		for i : int in range(0, len(buttons_text)):
-			%Buttons.get_child(i).text = " " + buttons_text[i] + " "
+			%Buttons.add_child(custom_button.instantiate())
+			GeneralManager.disconnect_connections(%Buttons.get_child(-1).pressed)
+			%Buttons.get_child(-1).pressed.connect(Callable(self, &"btn_pressed").bind(i))
+			%Buttons.get_child(-1).text = " " + buttons_text[i] + " "
+			%Buttons.get_child(-1).set(&"theme_override_font_sizes/font_size", 50)
 var pressed_button : int = 0
 signal button_pressed
 

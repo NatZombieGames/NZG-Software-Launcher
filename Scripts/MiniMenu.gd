@@ -11,11 +11,11 @@ extends ColorRect
 var page : PackedScene:
 	set(value):
 		if page != value:
-			print("running :)")
 			page = value
 			for child : Node in %Body.get_children(): child.queue_free()
 			%Body.add_child(page.instantiate())
-			%Body.get_child(-1).minimenu = self
+			if "minimenu" in %Body.get_child(-1):
+				%Body.get_child(-1).minimenu = self
 
 func _ready() -> void:
 	if not IconLoader.finished_loading_icons:

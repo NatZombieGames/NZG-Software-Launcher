@@ -36,17 +36,27 @@ size_flags_horizontal = 3
 
 [node name="Text" type="Label" parent="Panel/Container/ScrollContainer"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(1064, 400)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+theme_override_font_sizes/font_size = 25
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
 
 [node name="Separator" type="ColorRect" parent="Panel/Container" groups=["Separator"]]
 custom_minimum_size = Vector2(0, 15)
 layout_mode = 2
 color = Color(0.0784314, 0.0784314, 0.0862745, 1)
 
-[node name="Buttons" type="HFlowContainer" parent="Panel/Container"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 175)
+[node name="CenterContainer" type="CenterContainer" parent="Panel/Container"]
+custom_minimum_size = Vector2(1064, 175)
 layout_mode = 2
+
+[node name="Buttons" type="HFlowContainer" parent="Panel/Container/CenterContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(1064, 0)
+layout_mode = 2
+size_flags_vertical = 4
 alignment = 1

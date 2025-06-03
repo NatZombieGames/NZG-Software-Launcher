@@ -1,0 +1,26 @@
+[gd_scene load_steps=3 format=3 uid="uid://cvaqrbd557sjf"]
+
+[ext_resource type="Script" uid="uid://bl1qtbjdwabro" path="res://Scripts/SettingsGeneralPage.gd" id="1_4xwv6"]
+[ext_resource type="PackedScene" uid="uid://cd33gvegau1vp" path="res://Scenes/CustomButton.tscn" id="1_wru2w"]
+
+[node name="SettingsGeneralPage" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_4xwv6")
+
+[node name="Container" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="CloseOnOpenBtn" parent="Container" instance=ExtResource("1_wru2w")]
+layout_mode = 2
+toggle_mode = true
+text = "Close Launcher On Launching Application ☐"

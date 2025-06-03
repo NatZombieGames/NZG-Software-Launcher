@@ -1,0 +1,37 @@
+[gd_scene load_steps=4 format=3 uid="uid://bhvxn21mpyp7"]
+
+[ext_resource type="StyleBox" uid="uid://dd8il7ghk2ph2" path="res://Assets/Styleboxes/CustomButtonNormalStylebox.tres" id="1_fad46"]
+[ext_resource type="Script" uid="uid://b82bl0yhoadis" path="res://Scripts/CustomLineEdit.gd" id="2_gwwie"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_gwwie"]
+
+[node name="CustomLineEdit" type="PanelContainer"]
+offset_right = 16.0
+offset_bottom = 16.0
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_styles/panel = ExtResource("1_fad46")
+script = ExtResource("2_gwwie")
+metadata/StyleboxName = &"CustomButton"
+
+[node name="Container" type="HBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="Container"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "LineEdit"
+vertical_alignment = 1
+
+[node name="LineEdit" type="LineEdit" parent="Container"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 30)
+layout_mode = 2
+theme_override_styles/focus = SubResource("StyleBoxEmpty_gwwie")
+keep_editing_on_text_submit = true
+context_menu_enabled = false
+emoji_menu_enabled = false
+virtual_keyboard_enabled = false
+clear_button_enabled = true
+caret_blink = true
+caret_blink_interval = 0.5

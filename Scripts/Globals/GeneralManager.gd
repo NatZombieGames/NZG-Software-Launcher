@@ -6,7 +6,7 @@ func disconnect_all_signals(obj : Object) -> void:
 	return
 
 func disconnect_connections(sig : Signal) -> void:
-	for connection : Dictionary[String, Variant] in sig.get_connections():
+	for connection : Dictionary in sig.get_connections():
 		sig.disconnect(connection["callable"])
 	return
 
@@ -48,3 +48,22 @@ func open_background_and_panel(state : bool, background : ColorRect, panel : Pan
 	#	await create_tween().tween_property($Panel, "position:y", 100, 0.15).from(135).finished
 	#	self.visible = false
 	return
+
+func open_panel_and_container(state : bool, panel : PanelContainer, container : Container) -> void:
+	if state:
+		container.modulate.a = 0
+		container.visible = true
+		panel.visible = true
+		await create_tween().tween_property(panel.material, "shader_parameter/progress", 1.0, 0.15).from(0.0).finished
+		create_tween().tween_property(container, "modulate:a", 1.0, 0.15).from(0.0)
+	else:
+		await create_tween().tween_property(container, "modulate:a", 0.0, 0.15).from(1.0).finished
+		await create_tween().tween_property(panel.material, "shader_parameter/progress", 0.0, 0.15).from(1.0).finished
+		panel.visible = false
+	return
+
+func create_gdscript(code : String) -> GDScript:
+	var script : GDScript = GDScript.new()
+	script.source_code = code
+	script.reload()
+	return script

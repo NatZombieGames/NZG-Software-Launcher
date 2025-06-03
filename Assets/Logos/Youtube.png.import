@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cxrh0005h5bbm"
-path="res://.godot/imported/Download.svg-736e17c0b7ef6f8f18223ba0c9d048ef.ctex"
+uid="uid://byitimdgka8tq"
+path="res://.godot/imported/Youtube.png-80feb82371fad9bccde0db7704cc21f1.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Assets/Icons/Download.svg"
-dest_files=["res://.godot/imported/Download.svg-736e17c0b7ef6f8f18223ba0c9d048ef.ctex"]
+source_file="res://Assets/Logos/Youtube.png"
+dest_files=["res://.godot/imported/Youtube.png-80feb82371fad9bccde0db7704cc21f1.ctex"]
 
 [params]
 
@@ -21,7 +21,7 @@ compress/lossy_quality=0.7
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=false
+mipmaps/generate=true
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""
@@ -32,6 +32,3 @@ process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
 detect_3d/compress_to=1
-svg/scale=1.0
-editor/scale_with_editor_scale=false
-editor/convert_colors_with_editor_theme=false

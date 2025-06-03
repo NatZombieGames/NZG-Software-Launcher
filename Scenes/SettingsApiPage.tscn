@@ -1,0 +1,16 @@
+[gd_scene load_steps=3 format=3 uid="uid://csmrd3in76p3c"]
+
+[ext_resource type="Script" uid="uid://y1cyd82iay2l" path="res://Scripts/SettingsApiPage.gd" id="1_5sf81"]
+[ext_resource type="PackedScene" uid="uid://bhvxn21mpyp7" path="res://Scenes/CustomLineEdit.tscn" id="2_hl086"]
+
+[node name="SettingsAPIPage" type="VBoxContainer"]
+anchors_preset = 10
+anchor_right = 1.0
+grow_horizontal = 2
+alignment = 1
+script = ExtResource("1_5sf81")
+
+[node name="ItchKey" parent="." instance=ExtResource("2_hl086")]
+layout_mode = 2
+title = "Itch.io API Key"
+min_size = Vector2(500, 30)

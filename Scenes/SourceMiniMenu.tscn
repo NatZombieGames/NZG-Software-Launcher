@@ -1,0 +1,14 @@
+[gd_scene load_steps=2 format=3 uid="uid://b347c772l0ro7"]
+
+[ext_resource type="Script" uid="uid://da1ted7sdhds" path="res://Scripts/SourceMiniMenu.gd" id="1_4nm4p"]
+
+[node name="SourceMiniMenu" type="VBoxContainer"]
+custom_minimum_size = Vector2(584, 729)
+offset_right = 584.0
+offset_bottom = 729.0
+theme_override_constants/separation = 10
+script = ExtResource("1_4nm4p")
+
+[node name="Void0" type="Panel" parent="."]
+self_modulate = Color(1, 1, 1, 0)
+layout_mode = 2

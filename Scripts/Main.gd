@@ -4,6 +4,7 @@ const product_list : PackedScene = preload("res://Scenes/ProductsList.tscn")
 const custom_texture_button : PackedScene = preload("res://Scenes/CustomTextureButton.tscn")
 const install_options_mini_menu : PackedScene = preload("res://Scenes/InstallOptionsMiniMenu.tscn")
 const other_options_mini_menu : PackedScene = preload("res://Scenes/OtherOptionsMiniMenu.tscn")
+const source_mini_menu : PackedScene = preload("res://Scenes/SourceMiniMenu.tscn")
 var loading : bool = true:
 	set(value):
 		loading = value
@@ -44,10 +45,7 @@ func _ready() -> void:
 	$Camera/ScreenContainer/LoadingScreen/Icon.texture = IconLoader.icons[&"LoadingIcon"]
 	%SettingsButton.texture_normal = IconLoader.icons[&"Options"]
 	%SettingsButton.pressed.connect(func() -> void: $Camera/ScreenContainer/PopupPage.open = true; return)
-	var settings_script : GDScript = GDScript.new()
-	settings_script.source_code = "extends TextureButton\nvar spd : float = 0.0\nfunc _init() -> void:\n\twhile true:\n\t\tawait get_tree().process_frame\n\t\tspd += (-0.001 + (0.01 * float(int(self.is_hovered()))))\n\t\tspd = clampf(spd, 0.0, 0.02)\n\t\tself.material.set('shader_parameter/rot', fposmod(self.material.get('shader_parameter/rot') + spd, 1.0))\n\treturn\n"
-	settings_script.reload()
-	%SettingsButton.set_script(settings_script)
+	%SettingsButton.set_script(GeneralManager.create_gdscript("extends TextureButton\nvar spd : float = 0.0\nfunc _init() -> void:\n\twhile true:\n\t\tawait get_tree().process_frame\n\t\tspd += (-0.001 + (0.01 * float(int(self.is_hovered()))))\n\t\tspd = clampf(spd, 0.0, 0.02)\n\t\tself.material.set('shader_parameter/rot', fposmod(self.material.get('shader_parameter/rot') + spd, 1.0))\n\treturn\n"))
 	%MinimizeButton.texture_normal = IconLoader.icons[&"Minimize"]
 	%MinimizeButton.pressed.connect(func() -> void: DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_MINIMIZED); return)
 	%FullscreenButton.texture_normal = IconLoader.icons[&"Fullscreen"]
@@ -69,16 +67,23 @@ func _ready() -> void:
 				%AppContent.position.y = ((%AppContent.size.y - %AppBody/Container/ContentContainer.size.y) * value) * -1.0
 			return)
 	@warning_ignore("static_called_on_instance")
+	%MainContainer/SidePanel/Container/SocialsButton.texture_normal = IconLoader.load_svg_to_img("res://Assets/Icons/Social.svg", 3.0)
+	%MainContainer/SidePanel/Container/SocialsButton.toggled.connect(func(state : bool) -> void: GeneralManager.open_panel_and_container(state, %SocialsPopup, %SocialsPopup/Container); return)
+	%MainContainer/SidePanel/Container/SocialsButton.set_script(GeneralManager.create_gdscript(
+		"extends TextureButton\nfunc _init() -> void:\n\twhile true:\n\t\tawait get_tree().process_frame\n\t\tif self.global_position.distance_to(get_global_mouse_position()) > 400 and self.button_pressed == true:\n\t\t\tself.button_pressed = false\n\treturn"
+		))
+	@warning_ignore("static_called_on_instance")
 	%MainContainer/SidePanel/Container/ProductsPageButton.texture_normal = IconLoader.load_svg_to_img("res://Assets/Icons/Products.svg", 3.0)
 	%MainContainer/SidePanel/Container/ProductsPageButton.pressed.connect(func() -> void: %AppBody.visible = false; %ProductsBody.visible = true; %Header/Container/PageTitle.text = "  Products"; return)
-	$Camera/ScreenContainer/PopupPage.data.assign({&"Theme Settings": preload("res://Scenes/SettingsThemePage.tscn"), &"Details": preload("res://Scenes/DetailsPage.tscn")})
+	$Camera/ScreenContainer/PopupPage.data.assign({&"General Settings": preload("res://Scenes/SettingsGeneralPage.tscn"), &"Display Settings": preload("res://Scenes/SettingsDisplayPage.tscn"), &"API Keys": preload("res://Scenes/SettingsApiPage.tscn"), &"Theme Settings": preload("res://Scenes/SettingsThemePage.tscn"), &"Details": preload("res://Scenes/SettingsDetailsPage.tscn")})
 	$Camera/ScreenContainer/PopupPage.data = $Camera/ScreenContainer/PopupPage.data
-	%AppContent/ActionButtonsContainer/LaunchButton.pressed.connect(Callable(self, &"app_button_pressed").bind(0))
-	%AppContent/ActionButtonsContainer/UpdateButton.pressed.connect(Callable(self, &"app_button_pressed").bind(1))
-	%AppContent/ActionButtonsContainer/SourceButton.pressed.connect(Callable(self, &"app_button_pressed").bind(2))
-	%AppContent/ActionButtonsContainer/InstallOptionsButton.pressed.connect(Callable(self, &"app_button_pressed").bind(3))
-	%AppContent/ActionButtonsContainer/OtherOptionsButton.pressed.connect(Callable(self, &"app_button_pressed").bind(4))
-	%AppContent/ActionButtonsContainer/PointButton.pressed.connect(Callable(self, &"app_button_pressed").bind(5))
+	%AppContent/ActionButtonsGreaterContainer/ActionButtonsContainer/LaunchButton.pressed.connect(Callable(self, &"app_button_pressed").bind(0))
+	%AppContent/ActionButtonsGreaterContainer/ActionButtonsContainer/UpdateButton.pressed.connect(Callable(self, &"app_button_pressed").bind(1))
+	%AppContent/ActionButtonsGreaterContainer/ActionButtonsContainer/SourceButton.pressed.connect(Callable(self, &"app_button_pressed").bind(2))
+	%AppContent/ActionButtonsGreaterContainer/ActionButtonsContainer/InstallOptionsButton.pressed.connect(Callable(self, &"app_button_pressed").bind(3))
+	%AppContent/ActionButtonsGreaterContainer/ActionButtonsContainer/OtherOptionsButton.pressed.connect(Callable(self, &"app_button_pressed").bind(4))
+	%AppContent/ActionButtonsGreaterContainer/ActionButtonsContainer/PointButton.pressed.connect(Callable(self, &"app_button_pressed").bind(5))
+	%AppContent/ActionButtonsGreaterContainer/ActionButtonsContainer/WebSourceButton.pressed.connect(Callable(self, &"app_button_pressed").bind(6))
 	populate_products_page()
 	$Camera/ScreenContainer/ConfirmationDialog.visible = false
 	%DownloadScreen.visible = false
@@ -90,8 +95,6 @@ func _ready() -> void:
 	$Camera/ScreenContainer/PopupPage.open = false
 	#
 	loading = false
-	#await get_tree().create_timer(5.5).timeout
-	#initiate_download("testing.exe", APIManager.product.NMP, APIManager.api.GITHUB, OS.get_executable_path().get_base_dir(), APIManager.platforms.LINUX)
 	return
 
 func _input(event: InputEvent) -> void:
@@ -116,8 +119,10 @@ func _handle_app_cli_args() -> void:
 			args[split_arg[0]] = split_arg[1]
 	#
 	if "kill_old_nsl_process" in args.keys():
-		OS.kill(args["kill_old_nsl_process"].split("|", false)[0])
-		DirAccess.remove_absolute(args["kill_old_nsl_process"].split("|", false)[1])
+		var kill_args : PackedStringArray = args["kill_old_nsl_process"].split("|", false)
+		OS.kill(int(kill_args[0]))
+		DirAccess.remove_absolute(kill_args[1])
+		DirAccess.rename_absolute(OS.get_executable_path(), kill_args[1].get_file())
 	return
 
 func app_button_pressed(button : int) -> void:
@@ -129,7 +134,7 @@ func app_button_pressed(button : int) -> void:
 		location.get_base_dir(), UserManager.platform])
 	match button:
 		0:
-			match %AppContent/ActionButtonsContainer/LaunchButton.get_meta("FileTargetState", 0):
+			match %AppContent/ActionButtonsGreaterContainer/ActionButtonsContainer/LaunchButton.get_meta("FileTargetState", 0):
 				0:
 					%PickInstallLocationDialog.visible = true
 					await %PickInstallLocationDialog.dir_selected
@@ -147,7 +152,13 @@ func app_button_pressed(button : int) -> void:
 				1:
 					overwrite_callable.call()
 				2:
+					loading = true
+					await get_tree().process_frame
 					OS.shell_open(location)
+					if UserManager.settings[&"CloseOnAppLaunch"]:
+						UserManager.save_data()
+						get_tree().quit()
+					loading = false
 		1:
 			overwrite_callable.call()
 		2:
@@ -162,6 +173,9 @@ func app_button_pressed(button : int) -> void:
 			await %PointToExecutableDialog.file_selected
 			UserManager.settings[&"ProductToInstallLocation"][APIManager.product.find_key(open_app)] = %PointToExecutableDialog.current_path
 			open_app_page(open_app)
+		6:
+			print(open_app, ", ", APIManager.product_to_name[open_app])
+			open_mini_menu("Source Locations", source_mini_menu, {&"product": open_app})
 	return
 
 func open_app_page(app : APIManager.product) -> void:
@@ -173,6 +187,7 @@ func open_app_page(app : APIManager.product) -> void:
 	UserManager.settings[&"ProductShortcuts"].insert(0, APIManager.product.find_key(app))
 	%Header/Container/PageTitle.text = "  App"
 	%AppBody/Background.texture = IconLoader.product_icons[app]
+	%AppBody/Background.visible = UserManager.settings[&"ShowAppBackground"]
 	%AppContent/AppName.text = "   " + APIManager.product_to_name[app]
 	%AppContent/AppAcronym.text = ""
 	if APIManager.product_category.SOFTWARE in APIManager.product_to_product_categories[app]:
@@ -181,13 +196,14 @@ func open_app_page(app : APIManager.product) -> void:
 	var location : String = UserManager.settings[&"ProductToInstallLocation"].get(APIManager.product.find_key(open_app), "").replace('"', "")
 	var app_info : Dictionary[String, String] = {
 		"Name": APIManager.product_to_name[app], 
-		"Categories": str(Array(APIManager.product_to_product_categories[app]).map(func(item : APIManager.product_category) -> String: return APIManager.product_category.find_key(item).capitalize())).replace('"', ""), 
+		"Categories": "", 
 		"Location": location, 
 		"Location Valid": str(len(location.replace(" ", "")) > 0 and FileAccess.file_exists(location)).capitalize(), 
 		"Executable": "", 
 		"Up To Date": "",
-		"Installed Version": "", 
+		"Installed Version": "Unknown - Can not retrieve installed version for destined path.", 
 		"Latest Version": "", 
+		"Sources": "", 
 		}
 	var installed : bool = app_info["Location Valid"].to_lower() == "true"
 	var up_to_date : bool = false
@@ -202,10 +218,10 @@ func open_app_page(app : APIManager.product) -> void:
 				APIManager.platforms.LINUX:
 					app_info["Executable"] = str(GeneralManager.mass_equal(buffer, [0x45, 0x4c, 0x46])).capitalize()
 	var available_api : APIManager.api = APIManager.get_available_api(open_app)
-	if not APIManager.connection_statuses[available_api] == APIManager.connection_status.CONNECTED:
+	if APIManager.connection_statuses[available_api] != APIManager.connection_status.CONNECTED:
 		APIManager.attempt_connection(available_api)
 	print("here")
-	var latest_version_fetch : APIManager.fetch_response = APIManager.fetch_response.new(APIManager.fetch_status.RETRIEVED, APIManager.info_types.LATEST_VERSION, "1.0.4")#APIManager.fetch_info(available_api, open_app, APIManager.info_types.LATEST_VERSION)
+	var latest_version_fetch : APIManager.fetch_response = APIManager.fetch_info(available_api, open_app, APIManager.info_types.LATEST_VERSION)
 	latest_version_fetch._get_details()
 	if latest_version_fetch.status == APIManager.fetch_status.RETRIEVED:
 		app_info["Latest Version"] = latest_version_fetch.response
@@ -219,8 +235,6 @@ func open_app_page(app : APIManager.product) -> void:
 					app_info["Installed Version"] = out[0].replace("\r", "").replace("\n", "").replace(" CLIXML", "").get_slice("<", 1)
 					if app_info["Installed Version"].replace(" ", "") == "":
 						app_info["Installed Version"] = "Unknown - Unknown error / exception happened."
-				else:
-					app_info["Installed Version"] = "Unknown - Can not retrieve installed version for destined path."
 			APIManager.platforms.LINUX:
 				if FileAccess.file_exists(location):
 					var out : Array[Variant] = []
@@ -229,20 +243,27 @@ func open_app_page(app : APIManager.product) -> void:
 					print(out[-2])
 					# I dont use linux so I cant test this so I have this here,
 					# someone else can hopefully make this work, i think this is kinda right maybe
-					app_info["Installed Version"] = "Unknown - Can not retrieve installed version on Linux platforms."
-				else:
-					app_info["Installed Version"] = "Unknown - Can not retrieve installed version for destined path."
+					app_info["Installed Version"] = "Unknown - Can not retrieve installed version on Linux platforms currently."
 		up_to_date = app_info["Latest Version"] == app_info["Installed Version"]
 	app_info["Up To Date"] = str(up_to_date).capitalize()
+	var categories : Array[APIManager.product_category]
+	categories.assign(APIManager.product_to_product_categories[app])
+	for i : int in range(0, len(categories)):
+		app_info["Categories"] += APIManager.product_category.find_key(categories[i]).capitalize() + [", ", ""][int(i == (len(categories) - 1))]
+	var api_availability : Array[bool]
+	api_availability.assign(APIManager.product_to_api_availability[open_app])
+	for i : int in range(0, len(api_availability)):
+		if api_availability[i] == true:
+			app_info["Sources"] += APIManager.api_to_api_name[i] + [", ", ""][int(i == api_availability.rfind(true))]
 	for key : String in app_info:
 		%AppContent/InfoGreaterContainer/InfoContainer/InfoLabel.text += "\n    " + key + ": " + app_info[key]
-	%AppContent/ActionButtonsContainer/LaunchButton.set_meta("FileTargetState", int(installed) + int(app_info["Executable"].to_lower() == "true"))
-	%AppContent/ActionButtonsContainer/LaunchButton.text = [" Install ", " Repair ", " Launch "][%AppContent/ActionButtonsContainer/LaunchButton.get_meta("FileTargetState", 0)]
-	%AppContent/ActionButtonsContainer/UpdateButton.visible = !up_to_date and installed
-	%AppContent/ActionButtonsContainer/SourceButton.visible = len(location.replace(" ", "")) > 0 and (location.is_absolute_path())
-	%AppContent/ActionButtonsContainer/InstallOptionsButton.visible = installed
-	%AppContent/ActionButtonsContainer/OtherOptionsButton.visible = installed
-	%AppContent/ActionButtonsContainer/PointButton.visible = !installed
+	%AppContent/ActionButtonsGreaterContainer/ActionButtonsContainer/LaunchButton.set_meta("FileTargetState", int(installed) + int(app_info["Executable"].to_lower() == "true"))
+	%AppContent/ActionButtonsGreaterContainer/ActionButtonsContainer/LaunchButton.text = [" Install ", " Repair ", " Launch "][%AppContent/ActionButtonsGreaterContainer/ActionButtonsContainer/LaunchButton.get_meta("FileTargetState", 0)]
+	%AppContent/ActionButtonsGreaterContainer/ActionButtonsContainer/UpdateButton.visible = !up_to_date and installed
+	%AppContent/ActionButtonsGreaterContainer/ActionButtonsContainer/SourceButton.visible = len(location.replace(" ", "")) > 0 and (location.is_absolute_path())
+	%AppContent/ActionButtonsGreaterContainer/ActionButtonsContainer/InstallOptionsButton.visible = installed
+	%AppContent/ActionButtonsGreaterContainer/ActionButtonsContainer/OtherOptionsButton.visible = installed
+	%AppContent/ActionButtonsGreaterContainer/ActionButtonsContainer/PointButton.visible = !installed
 	%AppBody.visible = true
 	%ProductsBody.visible = false
 	populate_shortcut_list()
@@ -294,7 +315,7 @@ func initiate_download(downloaded_file_name : String, product : APIManager.produ
 		return
 	%DownloadScreen/Panel/Container/Title.text = "Download In Progress..."
 	await GeneralManager.open_background_and_panel(true, %DownloadScreen, %DownloadScreen/Panel)
-	var file : FileAccess = FileAccess.open(write_location + "/" + downloaded_file_name, FileAccess.WRITE)
+	var file : FileAccess = FileAccess.open(write_location + "\\" + downloaded_file_name, FileAccess.WRITE)
 	var buffer : PackedByteArray = await APIManager.download_executable(info.response, product, info.data, api)
 	%DownloadScreen/Panel/Container/Title.text = "File Writing In Progress..."
 	%DownloadScreen/Panel/Container/ProgressBar.value = 0.0
@@ -316,11 +337,14 @@ func update_download_visuals(target_name : String, version : String, platform : 
 	%DownloadScreen/Panel/Container/Time.text = "Time Elapsed: " + str(time_elapsed).left(str(time_elapsed).find(".") + 3) + "s\nTime To Completion Estimate: " + str(int(maxf(time_elapsed, 0.1) / maxf(percentage, 0.1))) + "s"
 	%DownloadScreen/Panel/Container/ProgressBar.value = percentage
 	%DownloadScreen/Panel/Container/Size.text = String.humanize_size(progress) + "/" + String.humanize_size(download_size)
+	%DownloadScreen/Panel.position = Vector2(555.0, 312.188)
 	return
 
-func open_mini_menu(title : String, menu_scene : PackedScene) -> void:
+func open_mini_menu(title : String, menu_scene : PackedScene, args : Dictionary[StringName, Variant] = {}) -> void:
 	$Camera/ScreenContainer/MiniMenu.title = title
 	$Camera/ScreenContainer/MiniMenu.page = menu_scene
+	for key : StringName in args.keys():
+		$Camera/ScreenContainer/MiniMenu/Panel/Container/Body.get_child(-1).set(key, args[key])
 	$Camera/ScreenContainer/MiniMenu.open = true
 	return
 
@@ -329,7 +353,7 @@ func get_confirmation(text : String, buttons_text : PackedStringArray = ["No", "
 	$Camera/ScreenContainer/ConfirmationDialog.buttons_text = buttons_text
 	$Camera/ScreenContainer/ConfirmationDialog.open = true
 	await $Camera/ScreenContainer/ConfirmationDialog.button_pressed
-	return $Camera/ScreenContainer/ConfirmationDialog.pressed_btn
+	return $Camera/ScreenContainer/ConfirmationDialog.pressed_button
 
 func _exit() -> void:
 	loading = true

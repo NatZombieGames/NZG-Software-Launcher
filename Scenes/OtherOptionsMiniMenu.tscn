@@ -31,7 +31,6 @@ title = "Pick New Executable Location"
 initial_position = 1
 popup_window = true
 force_native = true
-ok_button_text = "Confirm Location"
 dialog_hide_on_ok = true
 mode_overrides_title = false
 access = 2

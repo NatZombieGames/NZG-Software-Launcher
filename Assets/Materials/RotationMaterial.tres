@@ -3,5 +3,6 @@
 [ext_resource type="Shader" uid="uid://dny1dpy8evk58" path="res://Assets/Shaders/RotationShader.gdshader" id="1_fn4ua"]
 
 [resource]
+resource_local_to_scene = true
 shader = ExtResource("1_fn4ua")
 shader_parameter/rot = 0.0

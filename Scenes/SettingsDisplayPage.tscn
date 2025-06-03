@@ -1,0 +1,26 @@
+[gd_scene load_steps=3 format=3 uid="uid://de1r4uhrwig2w"]
+
+[ext_resource type="PackedScene" uid="uid://cd33gvegau1vp" path="res://Scenes/CustomButton.tscn" id="1_2fc4k"]
+[ext_resource type="Script" uid="uid://cdtu5dtdvr3cw" path="res://Scripts/SettingsDisplayPage.gd" id="1_hltbl"]
+
+[node name="SettingsDisplayPage" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_hltbl")
+
+[node name="Container" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ShowAppBackgroundBtn" parent="Container" instance=ExtResource("1_2fc4k")]
+layout_mode = 2
+toggle_mode = true
+text = "Show App Background ☐"
