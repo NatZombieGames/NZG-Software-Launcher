@@ -23,4 +23,9 @@ grow_vertical = 2
 [node name="ShowAppBackgroundBtn" parent="Container" instance=ExtResource("1_2fc4k")]
 layout_mode = 2
 toggle_mode = true
-text = "Show App Background ☐"
+text = " Show App Background ☐ "
+
+[node name="InfoForNerdsBtn" parent="Container" instance=ExtResource("1_2fc4k")]
+layout_mode = 2
+toggle_mode = true
+text = " Info For Nerds ☐ "

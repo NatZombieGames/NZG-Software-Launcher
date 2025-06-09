@@ -37,16 +37,6 @@ func open_background_and_panel(state : bool, background : ColorRect, panel : Pan
 	await create_tween().tween_property(panel, "position:y", values[1][int(!state)], 0.15).from(values[1][int(state)]).finished
 	if not state:
 		background.visible = false
-	#if open:
-	#	self.visible = true
-	#	create_tween().tween_property(self, "modulate:a", 1, 0.15).from(0)
-	#	create_tween().tween_property($Panel, "modulate:a", 1, 0.15).from(0)
-	#	create_tween().tween_property($Panel, "position:y", 135, 0.15).from(170)
-	#else:
-	#	create_tween().tween_property(self, "modulate:a", 0, 0.15).from(1)
-	#	create_tween().tween_property($Panel, "modulate:a", 0, 0.15).from(1)
-	#	await create_tween().tween_property($Panel, "position:y", 100, 0.15).from(135).finished
-	#	self.visible = false
 	return
 
 func open_panel_and_container(state : bool, panel : PanelContainer, container : Container) -> void:

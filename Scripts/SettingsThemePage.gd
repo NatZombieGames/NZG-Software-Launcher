@@ -7,13 +7,10 @@ func _ready() -> void:
 	await get_tree().process_frame
 	#
 	for colour : StringName in ColourManager.colours:
-		%List/ColourStuff.add_child(HBoxContainer.new())
-		%List/ColourStuff.get_child(-1).alignment = BoxContainer.ALIGNMENT_CENTER
-		%List/ColourStuff.get_child(-1).add_child(Label.new())
-		%List/ColourStuff.get_child(-1).get_child(-1).text = colour
-		%List/ColourStuff.get_child(-1).add_child(custom_colour_picker_button.instantiate())
-		%List/ColourStuff.get_child(-1).get_child(-1).color = ColourManager.get(colour.to_snake_case() + "_colour")
-		%List/ColourStuff.get_child(-1).get_child(-1).color_changed.connect(Callable(self, "set_colour").bind(colour))
+		%List/ColourStuff.add_child(custom_colour_picker_button.instantiate())
+		%List/ColourStuff.get_child(-1).colour = ColourManager.get(colour.to_snake_case() + "_colour")
+		%List/ColourStuff.get_child(-1).title = colour
+		%List/ColourStuff.get_child(-1).colour_changed.connect(Callable(self, &"set_colour").bind(colour))
 	#
 	await get_tree().process_frame
 	%List.visible = true

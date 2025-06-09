@@ -5,6 +5,10 @@ const custom_texture_button : PackedScene = preload("res://Scenes/CustomTextureB
 const install_options_mini_menu : PackedScene = preload("res://Scenes/InstallOptionsMiniMenu.tscn")
 const other_options_mini_menu : PackedScene = preload("res://Scenes/OtherOptionsMiniMenu.tscn")
 const source_mini_menu : PackedScene = preload("res://Scenes/SourceMiniMenu.tscn")
+const alert_scene : PackedScene = preload("res://Scenes/Alert.tscn")
+@onready var download_icon : TextureButton = %DownloadIcon
+@onready var download_icon_material : ShaderMaterial = download_icon.material
+@onready var download_icon_separator : Panel = download_icon.get_parent().get_child(2)
 var loading : bool = true:
 	set(value):
 		loading = value
@@ -17,13 +21,36 @@ var soft_loading : bool = false:
 	set(value):
 		soft_loading = value
 		$Camera/ScreenContainer/SoftLoadingScreen.visible = value
+var downloading : bool = false:
+	set(value):
+		downloading = value
+		if UserManager.settings[&"InfoForNerds"]:
+			download_icon.set_deferred(&"visible", downloading)
+			download_icon_separator.set_deferred(&"visible", downloading)
+			while downloading:
+				APIManager.mutexes[APIManager.mutex_type.DOWNLOAD_PROGRESS].lock()
+				APIManager.mutexes[APIManager.mutex_type.DOWNLOAD_SIZE].lock()
+				download_icon_material.set_deferred(&"shader_parameter/progress", float(APIManager.download_progress) / float(APIManager.download_size))
+				APIManager.mutexes[APIManager.mutex_type.DOWNLOAD_PROGRESS].unlock()
+				APIManager.mutexes[APIManager.mutex_type.DOWNLOAD_SIZE].unlock()
+				await get_tree().process_frame
+var downloading_mutex : Mutex = Mutex.new()
 var open_app : APIManager.product = APIManager.product.UNKNOWN
 var get_prod_shorts_callable : Callable = (func() -> Array[APIManager.product]: var prod_shorts : Array[APIManager.product]; prod_shorts.assign(UserManager.settings[&"ProductShortcuts"].map(func(item : String) -> APIManager.product: return APIManager.product[item])); return prod_shorts)
+const settings_page_data : Dictionary[StringName, PackedScene] = {
+	&"General Settings": preload("res://Scenes/SettingsGeneralPage.tscn"), 
+	&"Display Settings": preload("res://Scenes/SettingsDisplayPage.tscn"), 
+	&"API Keys": preload("res://Scenes/SettingsApiPage.tscn"), 
+	&"Theme Settings": preload("res://Scenes/SettingsThemePage.tscn"), 
+	&"Updates": preload("res://Scenes/SettingsUpdatesPage.tscn"), 
+	&"Details": preload("res://Scenes/SettingsDetailsPage.tscn")
+	}
 
 func _ready() -> void:
 	loading = true
 	await get_tree().process_frame
 	#
+	@warning_ignore_start("static_called_on_instance")
 	APIManager.main = self
 	_handle_app_cli_args()
 	UserManager.load_data()
@@ -43,6 +70,10 @@ func _ready() -> void:
 		await IconLoader.finished_loading_icons_signal
 	$Camera/ScreenContainer/SoftLoadingScreen/Container/Icon.texture = IconLoader.icons[&"LoadingIcon"]
 	$Camera/ScreenContainer/LoadingScreen/Icon.texture = IconLoader.icons[&"LoadingIcon"]
+	%DownloadIcon.texture_normal = IconLoader.icons[&"Download"]
+	%DownloadIcon.pressed.connect(func() -> void: return)
+	%DownloadIcon.visible = false
+	%"DownloadIcon/../Void1".visible = false
 	%SettingsButton.texture_normal = IconLoader.icons[&"Options"]
 	%SettingsButton.pressed.connect(func() -> void: $Camera/ScreenContainer/PopupPage.open = true; return)
 	%SettingsButton.set_script(GeneralManager.create_gdscript("extends TextureButton\nvar spd : float = 0.0\nfunc _init() -> void:\n\twhile true:\n\t\tawait get_tree().process_frame\n\t\tspd += (-0.001 + (0.01 * float(int(self.is_hovered()))))\n\t\tspd = clampf(spd, 0.0, 0.02)\n\t\tself.material.set('shader_parameter/rot', fposmod(self.material.get('shader_parameter/rot') + spd, 1.0))\n\treturn\n"))
@@ -66,16 +97,31 @@ func _ready() -> void:
 				%AppBody/Background.material.set(&"shader_parameter/scroll_progress", value)
 				%AppContent.position.y = ((%AppContent.size.y - %AppBody/Container/ContentContainer.size.y) * value) * -1.0
 			return)
-	@warning_ignore("static_called_on_instance")
 	%MainContainer/SidePanel/Container/SocialsButton.texture_normal = IconLoader.load_svg_to_img("res://Assets/Icons/Social.svg", 3.0)
 	%MainContainer/SidePanel/Container/SocialsButton.toggled.connect(func(state : bool) -> void: GeneralManager.open_panel_and_container(state, %SocialsPopup, %SocialsPopup/Container); return)
 	%MainContainer/SidePanel/Container/SocialsButton.set_script(GeneralManager.create_gdscript(
 		"extends TextureButton\nfunc _init() -> void:\n\twhile true:\n\t\tawait get_tree().process_frame\n\t\tif self.global_position.distance_to(get_global_mouse_position()) > 400 and self.button_pressed == true:\n\t\t\tself.button_pressed = false\n\treturn"
 		))
-	@warning_ignore("static_called_on_instance")
+	%MainContainer/SidePanel/Container/AlertButton.texture_normal = IconLoader.load_svg_to_img("res://Assets/Icons/AlertRinging.svg", 3.0)
+	%MainContainer/SidePanel/Container/AlertButton.texture_hover = IconLoader.load_svg_to_img("res://Assets/Icons/AlertHovered.svg", 3.0)
+	%MainContainer/SidePanel/Container/AlertButton.texture_pressed = IconLoader.load_svg_to_img("res://Assets/Icons/AlertAcknowledged.svg", 3.0)
+	%MainContainer/SidePanel/Container/AlertButton.button_up.connect(
+		func() -> void:
+			if not %MainContainer/SidePanel/Container/AlertButton.get_meta(&"BeenPressed", false):
+				%MainContainer/SidePanel/Container/AlertButton.set_meta(&"BeenPressed", true)
+				var texture : ImageTexture = IconLoader.load_svg_to_img("res://Assets/Icons/AlertAcknowledged.svg", 3.0)
+				%MainContainer/SidePanel/Container/AlertButton.texture_normal = texture
+				%MainContainer/SidePanel/Container/AlertButton.texture_hover = texture
+				%MainContainer/SidePanel/Container/AlertButton.texture_pressed = texture
+			return)
+	%MainContainer/SidePanel/Container/AlertButton.toggled.connect(func(state : bool) -> void: GeneralManager.open_panel_and_container(state, %AlertPopup, %AlertPopup/Container); return)
+	%MainContainer/SidePanel/Container/AlertButton.set_script(GeneralManager.create_gdscript(
+		"extends TextureButton\nvar spd : float = 0.15\nfunc _init() -> void:\n\twhile not self.get_meta(&'BeenPressed', false):\n\t\tawait create_tween().tween_property(self.material, 'shader_parameter/rot', 0.0, spd).from(1.0).set_ease(Tween.EASE_OUT_IN).finished\n\t\tawait create_tween().tween_property(self.material, 'shader_parameter/rot', 1.0, spd).from(0.0).set_ease(Tween.EASE_OUT_IN).finished\n\tself.material.set('shader_parameter/rot', 0.574)\n\treturn"
+		))
+	%AlertPopup/Container/Container/ActionButton.pressed.connect(func() -> void: $Camera/ScreenContainer/PopupPage.set_page(settings_page_data.keys().find(&"Updates")); $Camera/ScreenContainer/PopupPage.open = true; %MainContainer/SidePanel/Container/AlertButton.button_pressed = false; return)
 	%MainContainer/SidePanel/Container/ProductsPageButton.texture_normal = IconLoader.load_svg_to_img("res://Assets/Icons/Products.svg", 3.0)
 	%MainContainer/SidePanel/Container/ProductsPageButton.pressed.connect(func() -> void: %AppBody.visible = false; %ProductsBody.visible = true; %Header/Container/PageTitle.text = "  Products"; return)
-	$Camera/ScreenContainer/PopupPage.data.assign({&"General Settings": preload("res://Scenes/SettingsGeneralPage.tscn"), &"Display Settings": preload("res://Scenes/SettingsDisplayPage.tscn"), &"API Keys": preload("res://Scenes/SettingsApiPage.tscn"), &"Theme Settings": preload("res://Scenes/SettingsThemePage.tscn"), &"Details": preload("res://Scenes/SettingsDetailsPage.tscn")})
+	$Camera/ScreenContainer/PopupPage.data.assign(settings_page_data)
 	$Camera/ScreenContainer/PopupPage.data = $Camera/ScreenContainer/PopupPage.data
 	%AppContent/ActionButtonsGreaterContainer/ActionButtonsContainer/LaunchButton.pressed.connect(Callable(self, &"app_button_pressed").bind(0))
 	%AppContent/ActionButtonsGreaterContainer/ActionButtonsContainer/UpdateButton.pressed.connect(Callable(self, &"app_button_pressed").bind(1))
@@ -93,8 +139,19 @@ func _ready() -> void:
 	populate_shortcut_list()
 	soft_loading = false
 	$Camera/ScreenContainer/PopupPage.open = false
+	%SocialsPopup.visible = false
+	%AlertPopup.visible = false
+	UpdateManager.main = self
+	UpdateManager.get_latest_version_info()
+	%MainContainer/SidePanel/Container/AlertButton.visible = UpdateManager.retrieved_latest_version_info and UpdateManager.latest_version != UpdateManager.current_version
+	@warning_ignore_restore("static_called_on_instance")
 	#
 	loading = false
+	await get_tree().create_timer(0.2).timeout
+	if %MainContainer/SidePanel/Container/AlertButton.visible:
+		create_alert("Update Available", "Your app version " + UpdateManager.current_version + " does not match\nthe latest version of " + UpdateManager.latest_version + ".\nYou can download the update in the\nsettings menu under the 'Updates' page.")
+	elif not UpdateManager.retrieved_latest_version_info:
+		create_alert("Update Error", "Unable to check for the latest app version\nyou can check again by restarting the app or in the\nsettings in the 'Updates' page.")
 	return
 
 func _input(event: InputEvent) -> void:
@@ -113,25 +170,23 @@ func _handle_app_cli_args() -> void:
 	var args : Dictionary[String, Variant] = {}
 	var split_arg : PackedStringArray
 	for arg : String in OS.get_cmdline_args():
-		arg = arg.right(-2)
 		if "=" in arg and len(arg.replace("=", "")) > 1:
 			split_arg = arg.split("=", false)
 			args[split_arg[0]] = split_arg[1]
+	_report_failure("Main Notification", "Cli args during app launch", {"os_args": OS.get_cmdline_args(), "user_args": OS.get_cmdline_user_args(), "keys": args.keys(), "values": args.values()})
 	#
 	if "kill_old_nsl_process" in args.keys():
-		var kill_args : PackedStringArray = args["kill_old_nsl_process"].split("|", false)
-		OS.kill(int(kill_args[0]))
-		DirAccess.remove_absolute(kill_args[1])
-		DirAccess.rename_absolute(OS.get_executable_path(), kill_args[1].get_file())
+		await get_tree().create_timer(0.1).timeout
+		DirAccess.remove_absolute(args["kill_old_nsl_process"])
+		await get_tree().create_timer(0.1).timeout
+		DirAccess.rename_absolute(OS.get_executable_path(), args["kill_old_nsl_process"].get_file())
 	return
 
 func app_button_pressed(button : int) -> void:
 	var location : String = UserManager.settings[&"ProductToInstallLocation"].get(APIManager.product.find_key(open_app), "").replace('"', "")
 	print("---\nbtn: ", button, "\nloc during app btn pressed:\n'" + location + "'\n---")
 	var overwrite_callable : Callable = Callable(self, &"initiate_download").bindv([
-		location.get_file(), open_app, 
-		APIManager.get_available_api(open_app), 
-		location.get_base_dir(), UserManager.platform])
+		location.get_file(), open_app, location.get_base_dir()])
 	match button:
 		0:
 			match %AppContent/ActionButtonsGreaterContainer/ActionButtonsContainer/LaunchButton.get_meta("FileTargetState", 0):
@@ -143,10 +198,7 @@ func app_button_pressed(button : int) -> void:
 						file_name += ".exe"
 					UserManager.settings[&"ProductToInstallLocation"][APIManager.product.find_key(open_app)] = %PickInstallLocationDialog.current_path + "\\" + file_name
 					print("file name: ", file_name, "\nselected folder: ", %PickInstallLocationDialog.current_path, "\nnew path: ", UserManager.settings[&"ProductToInstallLocation"][APIManager.product.find_key(open_app)])
-					await initiate_download(
-						file_name, open_app, 
-						APIManager.get_available_api(open_app), 
-						%PickInstallLocationDialog.current_path, UserManager.platform)
+					await initiate_download(file_name, open_app, %PickInstallLocationDialog.current_path)
 					print("here")
 					open_app_page(open_app)
 				1:
@@ -198,18 +250,20 @@ func open_app_page(app : APIManager.product) -> void:
 		"Name": APIManager.product_to_name[app], 
 		"Categories": "", 
 		"Location": location, 
-		"Location Valid": str(len(location.replace(" ", "")) > 0 and FileAccess.file_exists(location)).capitalize(), 
-		"Executable": "", 
+		"Location Valid": "", 
+		"Executable": "False", 
 		"Up To Date": "",
-		"Installed Version": "Unknown - Can not retrieve installed version for destined path.", 
-		"Latest Version": "", 
+		"Installed Version": "Unknown - Failed to retrieve information.", 
+		"Latest Release Version": "Unknown - Failed to retrieve information.", 
+		"Installed Size": "Unknown - Failed to retrieve information.", 
+		"Latest Release Size": "Unknown - Failed to retrieve information.", 
 		"Sources": "", 
 		}
-	var installed : bool = app_info["Location Valid"].to_lower() == "true"
+	var installed : bool = len(location.replace(" ", "")) > 0 and FileAccess.file_exists(location)
+	app_info["Location Valid"] = str(installed).capitalize()
 	var up_to_date : bool = false
-	app_info["Executable"] = "False"
 	if installed:
-		const platform_to_buffer_size : PackedInt32Array = [0, 2, 4]
+		const platform_to_buffer_size : PackedInt32Array = [2, 4, 0]
 		var buffer : PackedByteArray = FileAccess.open(location, FileAccess.READ).get_buffer(platform_to_buffer_size[UserManager.platform])
 		if len(buffer) == platform_to_buffer_size[UserManager.platform]:
 			match UserManager.platform:
@@ -217,34 +271,42 @@ func open_app_page(app : APIManager.product) -> void:
 					app_info["Executable"] = str((buffer[0] == 0x4d and buffer[1] == 0x5a) and location.get_extension() == "exe").capitalize()
 				APIManager.platforms.LINUX:
 					app_info["Executable"] = str(GeneralManager.mass_equal(buffer, [0x45, 0x4c, 0x46])).capitalize()
-	var available_api : APIManager.api = APIManager.get_available_api(open_app)
-	if APIManager.connection_statuses[available_api] != APIManager.connection_status.CONNECTED:
-		APIManager.attempt_connection(available_api)
 	print("here")
-	var latest_version_fetch : APIManager.fetch_response = APIManager.fetch_info(available_api, open_app, APIManager.info_types.LATEST_VERSION)
+	var fetch_thread : Thread = Thread.new()
+	fetch_thread.start(Callable(APIManager, &"fetch_info").bindv([open_app, APIManager.info_types.LATEST_VERSION]))
+	while fetch_thread.is_alive():
+		await get_tree().process_frame
+	var latest_version_fetch : APIManager.response = fetch_thread.wait_to_finish()
 	latest_version_fetch._get_details()
-	if latest_version_fetch.status == APIManager.fetch_status.RETRIEVED:
-		app_info["Latest Version"] = latest_version_fetch.response
+	if latest_version_fetch.success:
+		app_info["Latest Release Version"] = latest_version_fetch.returned_str
+		if UserManager.platform == APIManager.platforms.WINDOWS:
+			app_info["Latest Release Version"] = GeneralManager.version_to_windows_version(app_info["Latest Release Version"])
+	fetch_thread.start(Callable(APIManager, &"fetch_info").bindv([open_app, APIManager.info_types.EXECUTABLE_SIZE]))
+	while fetch_thread.is_alive():
+		await get_tree().process_frame
+	var executable_size_fetch : APIManager.response = fetch_thread.wait_to_finish()
+	if executable_size_fetch.success:
+		app_info["Latest Release Size"] = String.humanize_size(int(executable_size_fetch.returned_str))
+	if FileAccess.file_exists(location):
 		match UserManager.platform:
 			APIManager.platforms.WINDOWS:
-				app_info["Latest Version"] = GeneralManager.version_to_windows_version(app_info["Latest Version"])
-				if FileAccess.file_exists(location):
-					var out : Array[Variant]
-					var cmd : String = '(Get-Item "' + location.replace("/", "\\") + '").VersionInfo.FileVersion'
-					OS.execute("powershell.exe", ["-encodedcommand", Marshalls.raw_to_base64(cmd.to_utf16_buffer())], out, true)
-					app_info["Installed Version"] = out[0].replace("\r", "").replace("\n", "").replace(" CLIXML", "").get_slice("<", 1)
-					if app_info["Installed Version"].replace(" ", "") == "":
-						app_info["Installed Version"] = "Unknown - Unknown error / exception happened."
+				var out : Array[Variant]
+				var cmd : String = '(Get-Item "' + location.replace("/", "\\") + '").VersionInfo.FileVersion'
+				OS.execute("powershell.exe", ["-encodedcommand", Marshalls.raw_to_base64(cmd.to_utf16_buffer())], out, true)
+				app_info["Installed Version"] = out[0].replace("\r", "").replace("\n", "").replace(" CLIXML", "").get_slice("<", 1)
+				if app_info["Installed Version"].replace(" ", "") == "":
+					app_info["Installed Version"] = "Unknown - Unknown error / exception happened."
 			APIManager.platforms.LINUX:
-				if FileAccess.file_exists(location):
-					var out : Array[Variant] = []
-					OS.execute("file", ["-c", location], out, true)
-					print(out)
-					print(out[-2])
-					# I dont use linux so I cant test this so I have this here,
-					# someone else can hopefully make this work, i think this is kinda right maybe
-					app_info["Installed Version"] = "Unknown - Can not retrieve installed version on Linux platforms currently."
-		up_to_date = app_info["Latest Version"] == app_info["Installed Version"]
+				var out : Array[Variant] = []
+				OS.execute("file", ["-c", location], out, true)
+				print(out)
+				print(out[-2])
+				# I dont use linux so I cant test this so I have this here,
+				# someone else can hopefully make this work, i think this is kinda right maybe
+				app_info["Installed Version"] = "Unknown - Can not retrieve installed version on Linux platforms currently."
+		app_info["Installed Size"] = String.humanize_size(FileAccess.open(location, FileAccess.READ).get_length())
+	up_to_date = app_info["Latest Release Version"] == app_info["Installed Version"]
 	app_info["Up To Date"] = str(up_to_date).capitalize()
 	var categories : Array[APIManager.product_category]
 	categories.assign(APIManager.product_to_product_categories[app])
@@ -296,30 +358,26 @@ func populate_products_page() -> void:
 			%ProductsBody/ScrollContainer/Container.get_child(category).update_products_list()
 	return
 
-func initiate_download(downloaded_file_name : String, product : APIManager.product, api : APIManager.api, write_location : String = UserManager.settings[&"DefaultDownloadLocation"], exec_type : APIManager.platforms = APIManager.platforms.WINDOWS) -> void:
+func initiate_download(downloaded_file_name : String, product : APIManager.product, write_location : String = UserManager.settings[&"DefaultDownloadLocation"]) -> void:
 	print("initiating download")
-	var info : APIManager.fetch_response = APIManager.fetch_response.new()
-	var attempts : int = 0
-	if APIManager.attempt_connection(api) != APIManager.connection_status.CONNECTED:
-		%DownloadScreen.visible = false
-		print("failed here :(")
+	%DownloadScreen/Panel.position = Vector2(555.0, 312.188)
+	%DownloadScreen/Panel/Container/NerdInfo.visible = UserManager.settings[&"InfoForNerds"]
+	GeneralManager.open_background_and_panel(true, %DownloadScreen, %DownloadScreen/Panel)
+	await get_tree().process_frame
+	if not DirAccess.dir_exists_absolute(write_location):
+		_report_failure("Main Failure", "The destined write path in initaite_download was invalid", {"file_name": downloaded_file_name, "product": product, "write_location": write_location})
 		return
-	while attempts < 2 and info.status != APIManager.fetch_status.RETRIEVED:
-		info = APIManager.fetch_info(api, product, APIManager.info_types.EXECUTABLE_URL, exec_type)
-		info._get_details()
-		attempts += 1
-		await get_tree().create_timer(0.1).timeout
-	if info.status != APIManager.fetch_status.RETRIEVED:
-		%DownloadScreen.visible = false
-		print("failed there :(")
-		return
-	%DownloadScreen/Panel/Container/Title.text = "Download In Progress..."
-	await GeneralManager.open_background_and_panel(true, %DownloadScreen, %DownloadScreen/Panel)
+	var resp : APIManager.response = await APIManager.download_executable(product)
 	var file : FileAccess = FileAccess.open(write_location + "\\" + downloaded_file_name, FileAccess.WRITE)
-	var buffer : PackedByteArray = await APIManager.download_executable(info.response, product, info.data, api)
+	if not resp.success:
+		print("i failed to download :(")
+		resp._get_details()
+		_report_failure("Main Failure", "A failure occured when initiating a download", {"file_name": downloaded_file_name, "product": product, "write_location": product, "failure": resp.failure, "details": resp.details})
+		return
 	%DownloadScreen/Panel/Container/Title.text = "File Writing In Progress..."
+	await get_tree().process_frame
 	%DownloadScreen/Panel/Container/ProgressBar.value = 0.0
-	file.store_buffer(buffer)
+	file.store_buffer(resp.returned_byt)
 	%DownloadScreen/Panel/Container/ProgressBar.value = 0.5
 	file.close()
 	%DownloadScreen/Panel/Container/ProgressBar.value = 1.0
@@ -327,17 +385,24 @@ func initiate_download(downloaded_file_name : String, product : APIManager.produ
 	GeneralManager.open_background_and_panel(false, %DownloadScreen, %DownloadScreen/Panel)
 	return
 
-func update_download_visuals(target_name : String, version : String, platform : String, api : String, download_size : int, time_elapsed : float, progress : int) -> void:
+func toggle_main_download_screen(state : bool) -> void:
+	GeneralManager.open_background_and_panel(state, %DownloadScreen, %DownloadScreen/Panel)
+	return
+
+func update_download_visuals(target_name : String, version : String, platform : String, api : String, download_size : int, time_elapsed : float, progress : int, last_packet_size : int, host : String) -> void:
 	%DownloadScreen/Panel/Container/Title.text = "Download In Progress" + "".lpad((int(Engine.get_frames_drawn() / 10.0) % 3) + 1, ".")
 	var percentage : float = float(progress) / float(download_size)
 	%DownloadScreen/Panel/Container/AppDetails/Name.text = target_name
 	%DownloadScreen/Panel/Container/AppDetails/Version.text = "V" + version
 	%DownloadScreen/Panel/Container/AppDetails/Platform.text = platform.capitalize() + " Build"
-	%DownloadScreen/Panel/Container/DownloadDetails/API.text = "From: " + api.capitalize()
+	%DownloadScreen/Panel/Container/DownloadDetails/API.text = "From: " + api
 	%DownloadScreen/Panel/Container/Time.text = "Time Elapsed: " + str(time_elapsed).left(str(time_elapsed).find(".") + 3) + "s\nTime To Completion Estimate: " + str(int(maxf(time_elapsed, 0.1) / maxf(percentage, 0.1))) + "s"
 	%DownloadScreen/Panel/Container/ProgressBar.value = percentage
 	%DownloadScreen/Panel/Container/Size.text = String.humanize_size(progress) + "/" + String.humanize_size(download_size)
-	%DownloadScreen/Panel.position = Vector2(555.0, 312.188)
+	%DownloadScreen/Panel/Container/NerdInfo/Row1/LastPacketSize.text = "Last Packet Size: " + String.humanize_size(last_packet_size)
+	%DownloadScreen/Panel/Container/NerdInfo/Row1/Host.text = "Host: " + host
+	%DownloadScreen/Panel/Container/NerdInfo/PacketUsage.text = "Packet Usage (Last Packet Size / DownloadMaximumPacketSize): " + str((last_packet_size / UserManager.settings[&"DownloadMaximumPacketSize"]) * 100) + "%"
+	#%DownloadScreen/Panel.position = Vector2(555.0, 312.188)
 	return
 
 func open_mini_menu(title : String, menu_scene : PackedScene, args : Dictionary[StringName, Variant] = {}) -> void:
@@ -355,9 +420,23 @@ func get_confirmation(text : String, buttons_text : PackedStringArray = ["No", "
 	await $Camera/ScreenContainer/ConfirmationDialog.button_pressed
 	return $Camera/ScreenContainer/ConfirmationDialog.pressed_button
 
+func create_alert(title : String, text : String) -> void:
+	$Camera/ScreenContainer/AlertContainer.add_child(alert_scene.instantiate())
+	$Camera/ScreenContainer/AlertContainer.get_child(-1).fire(title, text)
+	return
+
 func _exit() -> void:
+	_report_failure("Main Notification", "Exiting per user request", {})
 	loading = true
+	await get_tree().process_frame
 	UserManager.save_data()
-	APIManager.clean_up_clients()
+	if UserManager.settings[&"AlwaysWriteErrorLog"]:
+		UserManager.write_error_log()
 	get_tree().quit()
+	return
+
+func _report_failure(type : String, description : String, details : Dictionary[String, Variant], alert : bool = false) -> void:
+	UserManager.append_to_error_log(type, description, details)
+	if alert:
+		create_alert(type, "A failure occured when fetching information;\nplease check / report your error log from the settings.")
 	return

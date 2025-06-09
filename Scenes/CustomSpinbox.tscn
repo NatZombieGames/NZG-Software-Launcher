@@ -1,0 +1,72 @@
+[gd_scene load_steps=6 format=3 uid="uid://bypi61lhi8mxp"]
+
+[ext_resource type="StyleBox" uid="uid://b4cs2dxb1rg2j" path="res://Assets/Styleboxes/PopupPageStylebox.tres" id="1_ff27e"]
+[ext_resource type="StyleBox" uid="uid://diwxwp1dkx443" path="res://Assets/Styleboxes/ContainerStylebox.tres" id="2_i0djm"]
+[ext_resource type="Script" uid="uid://6v674bk615mq" path="res://Scripts/CustomSpinbox.gd" id="2_xpa2d"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_i0djm"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_xpa2d"]
+
+[node name="CustomSpinbox" type="PanelContainer" groups=["Stylebox Haver"]]
+custom_minimum_size = Vector2(100, 50)
+offset_right = 100.0
+offset_bottom = 50.0
+theme_override_styles/panel = ExtResource("1_ff27e")
+script = ExtResource("2_xpa2d")
+metadata/StyleboxName = &"PopupPageStylebox"
+
+[node name="Container" type="HBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="Void0" type="Panel" parent="Container"]
+self_modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+
+[node name="Title" type="Label" parent="Container"]
+visible = false
+layout_mode = 2
+vertical_alignment = 1
+
+[node name="EntryField" type="LineEdit" parent="Container"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_styles/focus = SubResource("StyleBoxEmpty_i0djm")
+placeholder_text = "0.0"
+keep_editing_on_text_submit = true
+context_menu_enabled = false
+emoji_menu_enabled = false
+virtual_keyboard_enabled = false
+clear_button_enabled = true
+caret_blink = true
+caret_blink_interval = 0.5
+
+[node name="Buttons" type="VBoxContainer" parent="Container"]
+layout_mode = 2
+
+[node name="Increment" type="Button" parent="Container/Buttons"]
+custom_minimum_size = Vector2(19, 19)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_override_font_sizes/font_size = 10
+theme_override_styles/focus = SubResource("StyleBoxEmpty_xpa2d")
+theme_override_styles/hover = ExtResource("2_i0djm")
+theme_override_styles/pressed = ExtResource("2_i0djm")
+theme_override_styles/normal = ExtResource("2_i0djm")
+text = "↑"
+
+[node name="Decrement" type="Button" parent="Container/Buttons"]
+custom_minimum_size = Vector2(19, 19)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_override_font_sizes/font_size = 10
+theme_override_styles/focus = SubResource("StyleBoxEmpty_xpa2d")
+theme_override_styles/hover = ExtResource("2_i0djm")
+theme_override_styles/pressed = ExtResource("2_i0djm")
+theme_override_styles/normal = ExtResource("2_i0djm")
+text = "↓"
+
+[node name="Void1" type="Panel" parent="Container"]
+self_modulate = Color(1, 1, 1, 0)
+layout_mode = 2

@@ -1,4 +1,4 @@
-[gd_scene load_steps=25 format=3 uid="uid://bbj6gwox8hrf3"]
+[gd_scene load_steps=33 format=3 uid="uid://bbj6gwox8hrf3"]
 
 [ext_resource type="Script" uid="uid://4jt4q2l1vcnd" path="res://Scripts/Main.gd" id="1_pbw6q"]
 [ext_resource type="Texture2D" uid="uid://c5r2jud5cul40" path="res://Assets/Icons/Options.svg" id="1_rgh2o"]
@@ -9,12 +9,18 @@
 [ext_resource type="Texture2D" uid="uid://pwret2dpnhpd" path="res://Assets/Icons/Products.svg" id="3_bmxlf"]
 [ext_resource type="Texture2D" uid="uid://bx25s1kvyvirg" path="res://Assets/Icons/Fullscreen.svg" id="3_v1gob"]
 [ext_resource type="PackedScene" uid="uid://cd33gvegau1vp" path="res://Scenes/CustomButton.tscn" id="4_4kpch"]
+[ext_resource type="Shader" uid="uid://0vuje4nr4rag" path="res://Assets/Shaders/AlertRingShader.gdshader" id="4_aht7i"]
+[ext_resource type="Texture2D" uid="uid://cq4imkliam0hq" path="res://Assets/Icons/AlertHovered.svg" id="4_c4ay3"]
 [ext_resource type="Texture2D" uid="uid://bkadpwjc70qta" path="res://Assets/Icons/Close.svg" id="4_jw32o"]
 [ext_resource type="Material" uid="uid://c7sdrytp52pvp" path="res://Assets/Materials/RotationMaterial.tres" id="5_2w5on"]
+[ext_resource type="Texture2D" uid="uid://b7886sxb12dni" path="res://Assets/Icons/AlertRinging.svg" id="5_kpo4j"]
+[ext_resource type="Texture2D" uid="uid://dckm0obub5uwf" path="res://Assets/Icons/AlertAcknowledged.svg" id="6_4n42c"]
 [ext_resource type="PackedScene" uid="uid://3rko5u56gi5j" path="res://Scenes/PopupPage.tscn" id="6_v1gob"]
 [ext_resource type="Material" uid="uid://by0c8y7t2s4or" path="res://Assets/Materials/AppBodyBackgroundMaterial.tres" id="8_grg3l"]
 [ext_resource type="Texture2D" uid="uid://bywmh6mmc7lpr" path="res://Assets/ProductAssets/Icons/NMP_Icon.png" id="9_grg3l"]
+[ext_resource type="Texture2D" uid="uid://bcvdiv1spwyuo" path="res://Assets/Icons/Download.svg" id="10_4n42c"]
 [ext_resource type="StyleBox" uid="uid://b4cs2dxb1rg2j" path="res://Assets/Styleboxes/PopupPageStylebox.tres" id="10_bmxlf"]
+[ext_resource type="Shader" uid="uid://dopybc3qecab1" path="res://Assets/Shaders/ProgressVisualizer.gdshader" id="10_c5snn"]
 [ext_resource type="PackedScene" uid="uid://bvfwr4hnvcofl" path="res://Scenes/ConfirmationDialog.tscn" id="13_1p5hy"]
 [ext_resource type="PackedScene" uid="uid://br23cm80r3ixc" path="res://Scenes/MiniMenu.tscn" id="13_346fj"]
 [ext_resource type="Material" uid="uid://cl8ulureoog5y" path="res://Assets/Materials/VerticalRevealMaterial.tres" id="14_3tgeq"]
@@ -24,6 +30,19 @@
 [ext_resource type="Texture2D" uid="uid://dsfyccs2b7sd0" path="res://Assets/Logos/ItchIo.png" id="16_3tgeq"]
 [ext_resource type="Texture2D" uid="uid://byitimdgka8tq" path="res://Assets/Logos/Youtube.png" id="17_c4ay3"]
 [ext_resource type="Texture2D" uid="uid://01xdah0h7c2f" path="res://Assets/Logos/Discord.png" id="18_aht7i"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_5jffn"]
+resource_local_to_scene = true
+shader = ExtResource("4_aht7i")
+shader_parameter/rot = 0.572
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_xvtyr"]
+shader = ExtResource("10_c5snn")
+shader_parameter/progress = 1.0
+shader_parameter/start_y_position = 0.9
+shader_parameter/end_y_position = 0.07
+shader_parameter/unshaded_colour = Vector3(1, 1, 1)
+shader_parameter/shaded_colour = Vector3(0.5, 0.5, 0.5)
 
 [node name="Main" type="Control"]
 custom_minimum_size = Vector2(1920, 1080)
@@ -79,6 +98,20 @@ toggle_mode = true
 texture_normal = ExtResource("3_0sclb")
 ignore_texture_size = true
 stretch_mode = 5
+
+[node name="AlertButton" type="TextureButton" parent="Camera/ScreenContainer/MainContainer/SidePanel/Container"]
+visible = false
+material = SubResource("ShaderMaterial_5jffn")
+custom_minimum_size = Vector2(100, 100)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+toggle_mode = true
+texture_normal = ExtResource("5_kpo4j")
+texture_pressed = ExtResource("6_4n42c")
+texture_hover = ExtResource("4_c4ay3")
+ignore_texture_size = true
+stretch_mode = 5
+metadata/BeenPressed = false
 
 [node name="Void" type="Panel" parent="Camera/ScreenContainer/MainContainer/SidePanel/Container"]
 self_modulate = Color(1, 1, 1, 0)
@@ -182,6 +215,26 @@ metadata/StyleboxName = &"WindowButtonsBackgroundStylebox"
 layout_mode = 2
 theme_override_constants/separation = 0
 
+[node name="Void0" type="Panel" parent="Camera/ScreenContainer/MainContainer/Body/Container/Header/Container/WindowButtons/Buttons/Container"]
+self_modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(10, 0)
+layout_mode = 2
+
+[node name="DownloadIcon" type="TextureButton" parent="Camera/ScreenContainer/MainContainer/Body/Container/Header/Container/WindowButtons/Buttons/Container"]
+unique_name_in_owner = true
+material = SubResource("ShaderMaterial_xvtyr")
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("10_4n42c")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="Void1" type="Panel" parent="Camera/ScreenContainer/MainContainer/Body/Container/Header/Container/WindowButtons/Buttons/Container"]
+self_modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(10, 0)
+layout_mode = 2
+
 [node name="SettingsButton" type="TextureButton" parent="Camera/ScreenContainer/MainContainer/Body/Container/Header/Container/WindowButtons/Buttons/Container"]
 unique_name_in_owner = true
 texture_filter = 4
@@ -237,6 +290,11 @@ mouse_default_cursor_shape = 2
 texture_normal = ExtResource("4_jw32o")
 ignore_texture_size = true
 stretch_mode = 5
+
+[node name="Void5" type="Panel" parent="Camera/ScreenContainer/MainContainer/Body/Container/Header/Container/WindowButtons/Buttons/Container"]
+self_modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(10, 0)
+layout_mode = 2
 
 [node name="Container" type="Control" parent="Camera/ScreenContainer/MainContainer/Body/Container"]
 layout_mode = 2
@@ -605,6 +663,73 @@ layout_mode = 2
 self_modulate = Color(1, 1, 1, 0)
 layout_mode = 2
 
+[node name="AlertPopupContainer" type="Control" parent="Camera/ScreenContainer"]
+custom_minimum_size = Vector2(1920, 1080)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="AlertPopup" type="PanelContainer" parent="Camera/ScreenContainer/AlertPopupContainer" groups=["Stylebox Haver"]]
+unique_name_in_owner = true
+visible = false
+material = ExtResource("14_3tgeq")
+custom_minimum_size = Vector2(225, 0)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 117.5
+offset_top = 200.0
+offset_right = -1577.5
+offset_bottom = -628.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_styles/panel = ExtResource("10_bmxlf")
+metadata/StyleboxName = &"PopupPageStylebox"
+
+[node name="Container" type="MarginContainer" parent="Camera/ScreenContainer/AlertPopupContainer/AlertPopup"]
+layout_mode = 2
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+
+[node name="Container" type="VBoxContainer" parent="Camera/ScreenContainer/AlertPopupContainer/AlertPopup/Container"]
+layout_mode = 2
+
+[node name="Void0" type="Panel" parent="Camera/ScreenContainer/AlertPopupContainer/AlertPopup/Container/Container"]
+self_modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+
+[node name="Text" type="Label" parent="Camera/ScreenContainer/AlertPopupContainer/AlertPopup/Container/Container"]
+custom_minimum_size = Vector2(199, 0)
+layout_mode = 2
+size_flags_vertical = 1
+theme_override_font_sizes/font_size = 20
+text = "Your app version does not match the latest available.
+
+Update to the latest version in the 'Updates' page in the Settings."
+autowrap_mode = 3
+
+[node name="Void1" type="Panel" parent="Camera/ScreenContainer/AlertPopupContainer/AlertPopup/Container/Container"]
+self_modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+
+[node name="ActionButton" parent="Camera/ScreenContainer/AlertPopupContainer/AlertPopup/Container/Container" instance=ExtResource("4_4kpch")]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = " Take Me There "
+
+[node name="Void2" type="Panel" parent="Camera/ScreenContainer/AlertPopupContainer/AlertPopup/Container/Container"]
+self_modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+
+[node name="AlertContainer" type="Control" parent="Camera/ScreenContainer"]
+custom_minimum_size = Vector2(1920, 1080)
+layout_mode = 2
+mouse_filter = 2
+
 [node name="MiniMenu" parent="Camera/ScreenContainer" instance=ExtResource("13_346fj")]
 visible = false
 layout_mode = 2
@@ -715,6 +840,32 @@ max_value = 1.0
 [node name="Size" type="Label" parent="Camera/ScreenContainer/DownloadScreen/Panel/Container"]
 layout_mode = 2
 text = "0.0B / 0.0B"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="NerdInfo" type="VBoxContainer" parent="Camera/ScreenContainer/DownloadScreen/Panel/Container"]
+layout_mode = 2
+
+[node name="Row1" type="HBoxContainer" parent="Camera/ScreenContainer/DownloadScreen/Panel/Container/NerdInfo"]
+layout_mode = 2
+theme_override_constants/separation = 5
+alignment = 1
+
+[node name="LastPacketSize" type="Label" parent="Camera/ScreenContainer/DownloadScreen/Panel/Container/NerdInfo/Row1"]
+layout_mode = 2
+text = "Last Packet Size: 0.0B"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Host" type="Label" parent="Camera/ScreenContainer/DownloadScreen/Panel/Container/NerdInfo/Row1"]
+layout_mode = 2
+text = "Host: _"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="PacketUsage" type="Label" parent="Camera/ScreenContainer/DownloadScreen/Panel/Container/NerdInfo"]
+layout_mode = 2
+text = "Packet Usage (Last Packet Size / DownloadMaximumPacketSize): 0%"
 horizontal_alignment = 1
 vertical_alignment = 1
 

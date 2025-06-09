@@ -16,3 +16,7 @@ layout_mode = 2
 [node name="Reinstall" parent="." instance=ExtResource("1_2lk5h")]
 layout_mode = 2
 text = " Reinstall "
+
+[node name="Delete" parent="." instance=ExtResource("1_2lk5h")]
+layout_mode = 2
+text = " Uninstall "

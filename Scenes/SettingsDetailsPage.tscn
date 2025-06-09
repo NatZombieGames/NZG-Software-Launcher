@@ -17,12 +17,12 @@ offset_left = -20.0
 offset_right = 20.0
 offset_bottom = 18.3333
 grow_horizontal = 2
-theme_override_constants/line_spacing = 6
+theme_override_constants/line_spacing = 8
 text = "Details / Extra Info
 
-All icons except that of the NatZombieGames logo and other NatZombieGames products
+All icons except that of the NatZombieGames logo, other NatZombieGames products and other companys logos
 are sourced from Google Icons.
-This software's sourcecode is hosted freely available on GitHub.
+This software's sourcecode is hosted freely available on GitHub under the CC0-1.0 Universal license.
 The primary font used by this software is 'Ubuntu (Light)' sourced from Google Fonts.
 This software is made in and powered by the Godot game engine.
 "

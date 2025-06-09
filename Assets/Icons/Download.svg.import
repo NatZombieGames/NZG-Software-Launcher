@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dce5j5b28huav"
-path="res://.godot/imported/NDP_Icon.png-53ad00593245a41fb5a56bda22249c0b.ctex"
+uid="uid://bcvdiv1spwyuo"
+path="res://.godot/imported/Download.svg-736e17c0b7ef6f8f18223ba0c9d048ef.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Assets/ProductAssets/Icons/NDP_Icon.png"
-dest_files=["res://.godot/imported/NDP_Icon.png-53ad00593245a41fb5a56bda22249c0b.ctex"]
+source_file="res://Assets/Icons/Download.svg"
+dest_files=["res://.godot/imported/Download.svg-736e17c0b7ef6f8f18223ba0c9d048ef.ctex"]
 
 [params]
 
@@ -32,3 +32,6 @@ process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
 detect_3d/compress_to=1
+svg/scale=1.0
+editor/scale_with_editor_scale=false
+editor/convert_colors_with_editor_theme=false

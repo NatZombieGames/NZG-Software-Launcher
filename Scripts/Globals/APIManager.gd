@@ -1,23 +1,19 @@
 extends Node
 
 var main : Control
-var connection_statuses : Dictionary[api, connection_status] = {
-	api.GITHUB: connection_status.NOT_ATTEMPTED, 
-	api.ITCH: connection_status.NOT_ATTEMPTED, 
-}
-var clients : Dictionary[api, HTTPClient] = {
-	api.GITHUB: HTTPClient.new(), 
-	api.ITCH: HTTPClient.new(), 
-}
-var latest_version_cache : Dictionary[StringName, fetch_response] = {}
+var latest_version_cache : Dictionary[StringName, response] = {}
+var download_url_cache : Dictionary[StringName, response] = {}
+var executable_size_cache : Dictionary[StringName, response] = {}
 var valid_api_key_cache : Dictionary[api, bool] = {}
-var current_task : task = task.INACTIVE
 var download_progress : int = 0
 var download_size : int = 0
+var last_packet_size : int = 0
+var request_host : String = ""
 var mutexes : Dictionary[mutex_type, Mutex] = {
-	mutex_type.TASK: Mutex.new(), 
 	mutex_type.DOWNLOAD_PROGRESS: Mutex.new(), 
 	mutex_type.DOWNLOAD_SIZE: Mutex.new(), 
+	mutex_type.LAST_PACKET_SIZE: Mutex.new(), 
+	mutex_type.REQUEST_HOST: Mutex.new(), 
 }
 const api_to_api_url : Dictionary[api, String] = {
 	api.GITHUB: "https://api.github.com", 
@@ -35,7 +31,6 @@ const api_requires_key : Dictionary[api, bool] = {
 const product_to_api_availability : Dictionary[product, Array] = {
 	product.NPS: [true, false], 
 	product.NMP: [true, true], 
-	product.NDP: [true, false], 
 	product.MINING_IDLE: [false, true], 
 	product.UNKNOWN: [false, false], 
 }
@@ -43,14 +38,12 @@ const product_to_api_availability : Dictionary[product, Array] = {
 const product_to_source : Dictionary[product, Array] = {
 	product.NPS: ["https://github.com/NatZombieGames/Nat-Password-Software", ""], 
 	product.NMP: ["https://github.com/NatZombieGames/Nat-Music-Programme", "https://natzombiegames.itch.io/nat-music-programme"], 
-	product.NDP: ["https://github.com/NatZombieGames/Nat-Documenter-Programme", ""], 
 	product.MINING_IDLE: ["", "https://natzombiegames.itch.io/mining-idle"], 
 	product.UNKNOWN: ["", ""], 
 }
 const github_product_to_github_name : Dictionary[product, String] = {
 	product.NPS: "Nat-Password-Software", 
 	product.NMP: "Nat-Music-Programme", 
-	product.NDP: "Nat-Documenter-Programme", 
 }
 const itch_product_to_itch_id : Dictionary[product, String] = {
 	product.NMP: "3398181", 
@@ -59,432 +52,461 @@ const itch_product_to_itch_id : Dictionary[product, String] = {
 const product_to_product_categories : Dictionary[product, Array] = {
 	product.NPS: [product_category.SOFTWARE, product_category.OPEN_SOURCE], 
 	product.NMP: [product_category.SOFTWARE, product_category.OPEN_SOURCE], 
-	product.NDP: [product_category.SOFTWARE, product_category.OPEN_SOURCE], 
 	product.MINING_IDLE: [product_category.GAME], 
 }
 const product_to_name : Dictionary[product, String] = {
 	product.NPS: "Nat Password Software", 
 	product.NMP: "Nat Music Programme", 
-	product.NDP: "Nat Documenter Programme", 
 	product.MINING_IDLE: "Mining Idle", 
 }
 const connection_timeout_threshold : int = 5
+const connection_max_retries : int = 2
+const connection_max_redirects : int = 5
 enum api {GITHUB, ITCH, UNKNOWN}
-enum product {NPS, NMP, NDP, MINING_IDLE, UNKNOWN}
+enum product {NPS, NMP, MINING_IDLE, UNKNOWN}
 enum product_category {SOFTWARE, GAME, OPEN_SOURCE}
-enum mutex_type {TASK, DOWNLOAD_PROGRESS, DOWNLOAD_SIZE}
-enum task {INACTIVE, CONNECTING, FETCHING, DOWNLOADING}
-enum connection_status {CONNECTED, FAILED, TIMEOUT, CLOSED, NOT_ATTEMPTED}
-enum fetch_status {RETRIEVED, FAILED, TIMEOUT}
-enum key_validation_responses {VALID, INVALID, UNKNOWN}
-enum key_validation_response_details {FAILED_TO_CONNECT, FAILED_TO_READ_RESPONSE, UNNECESSARY, UNREADABLE_KEY, INVALID_KEY, NONE}
-enum info_types {UNKNOWN, LATEST_VERSION, EXECUTABLE_URL}
-enum platforms {UNKNOWN, WINDOWS, LINUX}
-class fetch_response:
-	var status : fetch_status = fetch_status.FAILED
-	var type : info_types = info_types.UNKNOWN
-	var data : Dictionary[String, Variant] = {}
-	var response : String = ""
-	func _init(stat : fetch_status = fetch_status.FAILED, typ : info_types = info_types.UNKNOWN, resp : String = "", new_data : Dictionary[String, Variant] = {}) -> void:
-		status = stat
-		type = typ
-		response = resp
-		data = new_data
+enum mutex_type {DOWNLOAD_PROGRESS, DOWNLOAD_SIZE, LAST_PACKET_SIZE, REQUEST_HOST}
+enum failures {
+	UNKNOWN, 
+	NONE, 
+	CONNECTION_FAILED, 
+	TIMEOUT, 
+	REDIRECT, 
+	RATE_LIMITED, 
+	UNHANDLED_STATUS_OR_CODE_RETURNED, 
+	INVALID_HOST, 
+	INVALID_KEY, 
+	UNREADABLE_KEY, 
+	NO_AVAILABLE_API, 
+	INVALID_SELECTION, 
+	}
+enum return_types {STR, BYT}
+enum info_types {LATEST_VERSION, DOWNLOAD_URL, EXECUTABLE_SIZE}
+enum platforms {WINDOWS, LINUX, UNKNOWN}
+class response:
+	var success : bool
+	var failure : failures
+	var details : Dictionary[String, Variant]
+	var return_type : return_types
+	var returned_str : String
+	var returned_byt : PackedByteArray
+	func _init(nsuccess : bool = false, nfailure : failures = failures.UNKNOWN, ndetails : Dictionary[String, Variant] = {}, nreturn_type : return_types = return_types.STR, nreturned_str : String = "", nreturned_byt : PackedByteArray = []) -> void:
+		success = nsuccess
+		failure = nfailure
+		details = ndetails
+		return_type = nreturn_type
+		returned_str = nreturned_str
+		returned_byt = nreturned_byt
 		return
 	func _get_details() -> void:
-		print("\n---\n-Status: " + fetch_status.find_key(status) + "\n-Type: " + info_types.find_key(type) + "\n-Data: " + str(data) + "\n-Response:\n-- " + response + "\n---\n")
+		print("---\n- Success: " + str(success).capitalize() + "\n- Failure: " + str(failures.find_key(failure)).capitalize() + "\n- Details:\n-- " + str(details) + "\n- Returned Type: " + return_types.find_key(return_type) + "\n- Returned Str: " + returned_str + "\n- Returned Bytes?: " + str(len(returned_byt) > 0) + "\n---")
 		return
-class key_validation_response:
-	var response : key_validation_responses = key_validation_responses.UNKNOWN
-	var details : key_validation_response_details = key_validation_response_details.NONE
-	func _init(resp : key_validation_responses = key_validation_responses.UNKNOWN, dets : key_validation_response_details = key_validation_response_details.NONE) -> void:
-		response = resp
-		details = dets
-		return
-	func _get_details() -> void:
-		print("\n---\n-Response: " + key_validation_responses.find_key(response) + "\n-Details: " + key_validation_response_details.find_key(details) + "\n---")
-		return
-
-func _notification(notif : int) -> void:
-	match notif:
-		Node.NOTIFICATION_WM_CLOSE_REQUEST:
-			clean_up_clients()
-	return
-
-func _get_api_details(target : api) -> void:
-	print("\n---\n-API: " + api.find_key(target) + "\n-Status: " + connection_status.find_key(connection_statuses[target]) + "\n-URL:\n-- " + api_to_api_url[target] + "\n---\n")
-	return
 
 func _create_cache_key(target : api, prod : product) -> StringName:
 	return StringName(String.num_uint64(target, 2).lpad(8, "0") + "|" + String.num_uint64(prod, 2).lpad(8, "0"))
 
 func get_available_api(prod : product) -> api:
-	print("trying to get available api for " + product.find_key(prod) + " from list:\n", product_to_api_availability[prod])
 	if true in product_to_api_availability[prod]:
-		print("returning " + api.find_key(product_to_api_availability[prod].find(true)))
 		@warning_ignore("int_as_enum_without_cast")
 		return product_to_api_availability[prod].find(true)
-	print("returning unknown")
 	return api.UNKNOWN
 
-func clean_up_clients() -> void:
-	for target : api in api.values():
-		if api.find_key(target) != "UNKNOWN":
-			close_connection(target)
-	return
-
-func close_connection(target : api) -> void:
-	clients[target].close()
-	connection_statuses[target] = connection_status.CLOSED
-	return
-
 func is_available_in_api(prod : product, app : api) -> bool:
-	return product_to_api_availability[prod][app]
+	return product_to_api_availability.get(prod, [false, false])[app]
 
-func attempt_connection(target : api) -> connection_status:
-	print("attempting to connect to " + api.find_key(target))
+func fetch_info(prod : product, info : info_types) -> response:
+	if prod == product.UNKNOWN:
+		_report_failure("Fetch Failure", "When attempting to fetch info of type: '" + info_types.find_key(info) + "' about a product the product was unknown", {"product": prod, "info": info}, true)
+		return response.new(false, failures.INVALID_SELECTION)
+	var target : api = get_available_api(prod)
 	if target == api.UNKNOWN:
-		print("unable to connect as target is api.UNKNOWN")
-		return connection_status.FAILED
-	current_task = task.CONNECTING
-	var client : HTTPClient = clients[target]
-	client.close()
-	client.connect_to_host(api_to_api_url[target])
-	var continue_attempt : bool = true
-	var attempt_start_time : float = Time.get_unix_time_from_system()
-	var status : connection_status = connection_status.FAILED
-	while continue_attempt:
-		client.poll()
-		match client.get_status():
-			HTTPClient.Status.STATUS_CONNECTED:
-				print("i have connected to " + api.find_key(target))
-				continue_attempt = false
-				status = connection_status.CONNECTED
-			HTTPClient.Status.STATUS_RESOLVING, HTTPClient.Status.STATUS_CONNECTING:
-				continue_attempt = (int(Time.get_unix_time_from_system() - attempt_start_time)) < connection_timeout_threshold
-				if not continue_attempt:
-					print("i timed out when connecting to " + api.find_key(target))
-					status = connection_status.TIMEOUT
-			_:
-				print("!!! Connection Attempt To " + api.find_key(target) + " Failing status: ", client.get_status())
-				continue_attempt = false
-				status = connection_status.FAILED
-	connection_statuses[target] = status
-	_get_api_details(target)
-	current_task = task.INACTIVE
-	return status
-
-func fetch_info(target : api, prod : product, info : info_types, exec_type : platforms = platforms.WINDOWS, get_from_cache : bool = true, cache_result : bool = true) -> fetch_response:
+		_report_failure("Fetch Failure", "When attempting to fetch info of type: '" + info_types.find_key(info) + "' about the product: '" + product.find_key(prod) + "' no available API was found", {"product": prod, "info": info}, true)
+		return response.new(false, failures.NO_AVAILABLE_API)
 	var cache_key : StringName = _create_cache_key(target, prod)
-	print("fetch info cache key: ", cache_key)
-	if get_from_cache and info == info_types.LATEST_VERSION and cache_key in latest_version_cache.keys():
-		print("fetch info got stuff from cache")
-		return latest_version_cache[cache_key]
-	if connection_statuses[target] != connection_status.CONNECTED or clients[target].get_status() != HTTPClient.Status.STATUS_CONNECTED:
-		print("not connected when trying to fetch info")
-		return fetch_response.new()
-	print("got past cache and connection check stages; fetching info")
-	if not is_available_in_api(prod, target):
-		print("you cannae get that from there pal")
-		return fetch_response.new()
-	current_task = task.FETCHING
-	var client : HTTPClient = clients[target]
-	var continue_attempt : bool = true
-	var status : fetch_status = fetch_status.FAILED
-	var fetch_resp : fetch_response = fetch_response.new(status, info, "", {"platform": platforms.find_key(exec_type)})
-	var response : String = ""
-	var attempt_start_time : float = Time.get_unix_time_from_system()
+	var cache_response : response
+	match info:
+		info_types.DOWNLOAD_URL:
+			if cache_key in download_url_cache.keys() and download_url_cache[cache_key].success:
+				cache_response = latest_version_cache[cache_key]
+		info_types.LATEST_VERSION:
+			if cache_key in latest_version_cache.keys() and latest_version_cache[cache_key].success:
+				cache_response = latest_version_cache[cache_key]
+		info_types.EXECUTABLE_SIZE:
+			if cache_key in executable_size_cache.keys() and executable_size_cache[cache_key].success:
+				cache_response = executable_size_cache[cache_key]
+	if cache_response:
+		cache_response.details["cached"] = true
+		return cache_response
+	var fetch_response : response = response.new()
+	var details : Dictionary[String, Variant] = {
+		"connection_response": null, 
+		"request_response": null, 
+		"key_response": null, 
+		"version": "", 
+	}
+	var url : String = ""
+	var headers : PackedStringArray = []
+	var body : String = ""
 	match target:
+		api.ITCH:
+			var key_response : response = validate_key(api.ITCH)
+			details["key_response"] = key_response
+			if not key_response.success:
+				if key_response.failure == failures.INVALID_KEY:
+					_report_failure("Fetch Failure", "Tried to access an Itch.io product and the Itch.io key was found to be invalid", {"product": prod, "info": info, "api": target, "failure": key_response.failure, "details": key_response.details, "returned_str": key_response.returned_str, "key": UserManager.settings[&"ItchAPIKey"]})
+				else:
+					_report_failure("Fetch Failure", "An error occured when attempting to validate an Itch.io key when trying to access an Itch.io product", {"product": prod, "info": info, "api": target, "failure": key_response.failure, "details": key_response.details, "returned_str": key_response.returned_str, "key": UserManager.settings[&"ItchAPIKey"]})
+				return response.new(false, key_response.failure, details)
+			url = "/api/1/" + UserManager.settings[&"ItchAPIKey"] + "/game/" + itch_product_to_itch_id[prod] + "/uploads"
+			headers = ["accept:json"]
+			body = ""
 		api.GITHUB:
-			print("/repos/NatZombieGames/" + github_product_to_github_name[prod] + "/releases/latest")
-			print('{"owner":"natzombiegames","repo":"' + github_product_to_github_name[prod].to_snake_case() + '"}')
-			match info:
-				info_types.LATEST_VERSION, info_types.EXECUTABLE_URL:
-					client.request(
-						HTTPClient.METHOD_GET, 
-						"/repos/NatZombieGames/" + github_product_to_github_name[prod] + "/releases/latest", 
-						["accept:application/vnd.github+json", "X-GitHub-Api-Version:2022-11-28"], 
-						'{"owner":"natzombiegames","repo":"' + github_product_to_github_name[prod].to_snake_case() + '"}'
-						)
+			url = "/repos/NatZombieGames/" + github_product_to_github_name[prod] + "/releases/latest"
+			headers = ["accept:application/vnd.github+json", "X-GitHub-Api-Version:2022-11-28"]
+			body = '{"owner":"natzombiegames","repo":"' + github_product_to_github_name[prod].to_snake_case() + '"}'
+	var request_response : response = _request_url(url, headers, body, api_to_api_url[target])
+	if not request_response.success:
+		print("Fetch info failed.")
+		_report_failure("Fetch Failure", "When attempting to fetch the info: '" + info_types.find_key(info) + "' an error occured when fetching from the url", {"product": prod, "info": info, "api": target, "failure": request_response.failure, "details": request_response.details, "url": url, "headers": headers, "body": body, "host": api_to_api_url[target]})
+		return response.new(false, request_response.failure, details)
+	details["request_response"] = request_response
+	var response_json : Dictionary[String, Variant]
+	response_json.assign(JSON.parse_string(request_response.returned_str))
+	match target:
 		api.ITCH:
-			var key_validation : key_validation_response = validate_key(api.ITCH)
-			match key_validation.response:
-				key_validation_responses.VALID:
-					pass
-				key_validation_responses.INVALID:
-					get_node("/root/Main").get_confirmation("Your Itch.io key has been found to be invalid and therefor you are unable to use Itch.io services, please check your key is valid and try again.\n\nError details: " + key_validation_response_details.find_key(key_validation.details).capitalize(), ["OK"])
-					current_task = task.INACTIVE
-					return fetch_response.new()
-				key_validation_responses.UNKNOWN:
-					get_node("/root/Main").get_confirmation("Your Itch.io key was unable to be checked, as such until it is validated no Itch.io services can be used.", ["OK"])
-					current_task = task.INACTIVE
-					return fetch_response.new()
-			print("/api/1/" + UserManager.settings[&"ItchAPIKey"] + "/game/" + itch_product_to_itch_id[prod] + "/uploads")
+			details["version"] = response_json["uploads"][0]["display_name"]
+			details["version"] = details["version"].right(len(details["version"]) - 1 - details["version"].to_lower().rfind("v"))
 			match info:
-				info_types.LATEST_VERSION, info_types.EXECUTABLE_URL:
-					client.request(
-						HTTPClient.METHOD_GET, 
-						"/api/1/" + UserManager.settings[&"ItchAPIKey"] + "/game/" + itch_product_to_itch_id[prod] + "/uploads", 
-						["accept:json"], 
-						""
-						)
-	while continue_attempt:
-		client.poll()
-		match client.get_status():
-			HTTPClient.Status.STATUS_BODY:
-				print("fetch info resp code: ", client.get_response_code())
-				match client.get_response_code():
-					HTTPClient.ResponseCode.RESPONSE_OK:
-						mutexes[mutex_type.TASK].lock()
-						current_task = task.DOWNLOADING
-						mutexes[mutex_type.TASK].unlock()
-						response = ""
-						download_progress = 0
-						var length : int = maxi(1, client.get_response_body_length())
-						var response_json : Dictionary[String, Variant]
-						print("info length: ", length)
-						while len(response) < length:
-							response += client.read_response_body_chunk().get_string_from_utf8()
-							download_progress = len(response)
-							#print("! Info Download percentage: ", (download_progress / length) * 100, "%")
-						print("info res length at end: ", len(response))
-						#print("\n", response, "\n\n", JSON.parse_string(response), "\n\n", JSON.parse_string(response)["assets"][0]["browser_download_url"], "\n")
-						response_json.assign(JSON.parse_string(response))
-						#print("resp json: ", response_json)
-						fetch_resp.data["size"] = length
-						match target:
-							api.GITHUB:
-								fetch_resp.data["version"] = response_json["name"]
-								match info:
-									info_types.LATEST_VERSION:
-										response = response_json["name"]
-										status = fetch_status.RETRIEVED
-									info_types.EXECUTABLE_URL:
-										status = fetch_status.FAILED
-										for asset : Dictionary in response_json["assets"]:
-											if [false, asset["name"].ends_with(".exe"), not asset["name"].ends_with(".exe")][exec_type]:
-												response = asset["browser_download_url"]
-												status = fetch_status.RETRIEVED
-							api.ITCH:
-								fetch_resp.data["version"] = response_json["uploads"][0]["display_name"]
-								fetch_resp.data["version"] = fetch_resp.data["version"].right(len(fetch_resp.data["version"]) - 1 - fetch_resp.data["version"].to_lower().rfind("v"))
-								match info:
-									info_types.LATEST_VERSION:
-										response = fetch_resp.data["version"]
-										status = fetch_status.RETRIEVED
-									info_types.EXECUTABLE_URL:
-										status = fetch_status.FAILED
-										for upload : Dictionary in response_json["uploads"]:
-											if [false, upload["p_windows"], upload["p_linux"]][exec_type] == true:
-												upload["id"] = int(upload["id"])
-												response = "https://itch.io/api/1/" + str(UserManager.settings[&"ItchAPIKey"]) + "/upload/" + str(upload["id"]) + "/download"
-												fetch_resp.data["upload_id"] = upload["id"]
-												status = fetch_status.RETRIEVED
-						#print("\n", response, "\n")
-					HTTPClient.ResponseCode.RESPONSE_TOO_MANY_REQUESTS:
-						print("You have been rate limited lol")
-						get_node("/root/Main").get_confirmation("You have been rate-limited from " + api_to_api_name[target] + ".\nYou will need to wait before you can use their service again, the time can vary so please check back later and try again.", ["OK"])
-					_:
-						print("unhandled response code during fetch info :(")
-				continue_attempt = false
-			HTTPClient.Status.STATUS_REQUESTING:
-				continue_attempt = (int(Time.get_unix_time_from_system() - attempt_start_time) < connection_timeout_threshold)
-				if not continue_attempt:
-					status = fetch_status.TIMEOUT
-			_:
-				print("unhandled exception occured during fetch info, status: ", client.get_status())
-				continue_attempt = false
-	current_task = task.INACTIVE
-	fetch_resp.response = response
-	fetch_resp.status = status
-	if cache_result and status == fetch_status.RETRIEVED and info in [info_types.LATEST_VERSION]:
-		match info:
-			info_types.LATEST_VERSION:
-				latest_version_cache[cache_key] = fetch_resp
-	attempt_connection(target)
-	return fetch_resp
+				info_types.LATEST_VERSION:
+					fetch_response.returned_str = details["version"]
+				info_types.DOWNLOAD_URL:
+					for upload : Dictionary in response_json["uploads"]:
+						if [upload["p_windows"], upload["p_linux"], true][UserManager.platform] == true:
+							upload["id"] = int(upload["id"])
+							fetch_response.returned_str = "https://itch.io/api/1/" + str(UserManager.settings[&"ItchAPIKey"]) + "/upload/" + str(upload["id"]) + "/download"
+							details["upload_id"] = upload["id"]
+				info_types.EXECUTABLE_SIZE:
+					for upload : Dictionary in response_json["uploads"]:
+						if [upload["p_windows"], upload["p_linux"], true][UserManager.platform] == true:
+							fetch_response.returned_str = str(upload["size"])
+							details["upload_id"] = int(upload["id"])
+		api.GITHUB:
+			details["version"] = response_json["tag_name"]
+			match info:
+				info_types.LATEST_VERSION:
+					fetch_response.returned_str = details["version"]
+				info_types.DOWNLOAD_URL:
+					for asset : Dictionary in response_json["assets"]:
+						if [asset["name"].ends_with(".exe"), not asset["name"].ends_with(".exe"), true][UserManager.platform]:
+							fetch_response.returned_str = asset["browser_download_url"]
+				info_types.EXECUTABLE_SIZE:
+					for asset : Dictionary in response_json["assets"]:
+						if [asset["name"].ends_with(".exe"), not asset["name"].ends_with(".exe"), true][UserManager.platform]:
+							fetch_response.returned_str = str(asset["size"])
+	fetch_response.details = details
+	fetch_response.success = true
+	fetch_response.failure = failures.NONE
+	match info:
+		info_types.LATEST_VERSION:
+			latest_version_cache[cache_key] = fetch_response
+		info_types.DOWNLOAD_URL:
+			download_url_cache[cache_key] = fetch_response
+		info_types.EXECUTABLE_SIZE:
+			executable_size_cache[cache_key] = fetch_response
+	return fetch_response
 
-func validate_key(key_api : api) -> key_validation_response:
-	if valid_api_key_cache.get(key_api, false) == true:
-		return key_validation_response.new(key_validation_responses.VALID, key_validation_response_details.NONE)
-	if not api_requires_key[key_api]:
-		return key_validation_response.new(key_validation_responses.VALID, key_validation_response_details.UNNECESSARY)
-	if len(UserManager.settings[UserManager.api_to_api_key_setting_name[key_api]]) < 1:
-		return key_validation_response.new(key_validation_responses.INVALID, key_validation_response_details.UNREADABLE_KEY)
-	var client : HTTPClient = clients[key_api]
-	if client.get_status() != HTTPClient.Status.STATUS_CONNECTED:
-		var attemps : int = 0
-		while attemps < 2:
-			attempt_connection(key_api)
-			if client.get_status() == HTTPClient.Status.STATUS_CONNECTED:
-				attemps = 2
-			attemps += 1
-	if client.get_status() != HTTPClient.Status.STATUS_CONNECTED:
-		return key_validation_response.new(key_validation_responses.INVALID, key_validation_response_details.FAILED_TO_CONNECT)
-	match key_api:
+func download_executable(prod : product) -> response:
+	if prod == product.UNKNOWN:
+		_report_failure("Download Failure", "When attempting to download an executable the given product was unknown", {"product": prod}, true)
+		return response.new(false, failures.INVALID_SELECTION)
+	var target : api = get_available_api(prod)
+	if target == api.UNKNOWN:
+		_report_failure("Download Failure", "When attempting to get an available API for the product: '" + product.find_key(prod) + "' no available API was found", {"product": product, "api": target}, true)
+		return response.new(false, failures.INVALID_SELECTION)
+	var download_response : response = response.new()
+	var details : Dictionary[String, Variant] = {
+		"request_response": null, 
+		"download_attempt_response": null, 
+		"size": 0, 
+		"redirects": 0, 
+	}
+	var download_url : String
+	var request_response : response = fetch_info(prod, info_types.DOWNLOAD_URL)
+	if not request_response.success:
+		_report_failure("Download Failure", "Failed to fetch the download url for the product: '" + product.find_key(prod) + "' during download_executable", {"product": prod, "api": target, "failure": request_response.failure, "details": request_response.details})
+		return response.new(false, request_response.failure, details)
+	details["request_response"] = request_response
+	download_url = request_response.returned_str
+	var download_attempt_response : response = response.new()
+	var headers : PackedStringArray
+	var body : String
+	var return_type : return_types = return_types.STR
+	match target:
 		api.ITCH:
-			client.request(
-				HTTPClient.METHOD_GET,
-				"/api/1/" + UserManager.settings[&"ItchAPIKey"] + "/credentials/info",
-				["accept:json"]
-				)
-	var starting_time : float = Time.get_unix_time_from_system()
-	var continue_attempt : bool = true
-	while continue_attempt:
-		client.poll()
-		match client.get_status():
-			HTTPClient.Status.STATUS_BODY:
-				match client.get_response_code():
-					HTTPClient.ResponseCode.RESPONSE_OK:
-						var response : String = ""
-						var length : int = maxi(1, client.get_response_body_length())
-						print(client.get_response_headers())
-						print("resp code: ", client.get_response_code())
-						print("status: ", client.get_status())
-						print("length: ", length)
-						while len(response) < length:
-							response += client.read_response_body_chunk().get_string_from_utf8()
-						match key_api:
-							api.ITCH:
-								if JSON.parse_string(response)["type"] == "key":
-									valid_api_key_cache[api.ITCH] = true
-									return key_validation_response.new(key_validation_responses.VALID, key_validation_response_details.NONE)
-						continue_attempt = false
-					HTTPClient.ResponseCode.RESPONSE_TOO_MANY_REQUESTS:
-						print("You have been rate limited lol")
-						get_node("/root/Main").get_confirmation("You have been rate-limited from " + api_to_api_name[key_api] + ".\nYou will need to wait before you can use their service again, the time can vary so please check back later and try again.", ["OK"])
-						continue_attempt = false
-					_:
-						print("uh ohhh, no good: ", client.get_response_code())
-						continue_attempt = false
-			HTTPClient.Status.STATUS_REQUESTING:
-				continue_attempt = (Time.get_unix_time_from_system() - starting_time) < connection_timeout_threshold
-			_:
-				print("uh ow, ewwor: ", client.get_status())
-				continue_attempt = false
-	return key_validation_response.new(key_validation_responses.INVALID, key_validation_response_details.FAILED_TO_CONNECT)
-
-func download_executable(url : String, prod : product, fetch_data : Dictionary[String, Variant], target : api) -> PackedByteArray:
-	var thread : Thread = Thread.new()
-	thread.start(Callable(self, "_threaded_download_executable").bindv([url, prod, target]))
+			headers = ["accept:json"]
+			body = ""
+		api.GITHUB:
+			headers = ["X-GitHub-Api-Version:2022-11-28"]
+			body = '{"owner":"natzombiegames","repo":"' + github_product_to_github_name[prod].to_snake_case() + '"}'
 	var start_time : float = Time.get_unix_time_from_system()
-	var api_name : String = api.find_key(target)
-	while thread.is_alive():
-		await get_tree().process_frame
-		mutexes[mutex_type.DOWNLOAD_SIZE].lock()
-		mutexes[mutex_type.DOWNLOAD_PROGRESS].lock()
-		main.update_download_visuals(product_to_name[prod], fetch_data["version"], fetch_data["platform"], api_name, download_size, Time.get_unix_time_from_system() - start_time, download_progress)
-		mutexes[mutex_type.DOWNLOAD_SIZE].unlock()
-		mutexes[mutex_type.DOWNLOAD_PROGRESS].unlock()
-	return thread.wait_to_finish()
+	for i : int in range(0, connection_max_redirects):
+		details["redirects"] = i
+		var download_thread : Thread = Thread.new()
+		download_thread.start(Callable(self, &"_request_url").bindv(
+			[download_url, headers, body, api_to_api_url[target], return_type]))
+		while download_thread.is_alive():
+			for mtx : mutex_type in mutex_type.values():
+				mutexes[mtx].lock()
+			main.update_download_visuals(product_to_name[prod], request_response.details["version"], platforms.find_key(UserManager.platform), api_to_api_name[target], download_size, Time.get_unix_time_from_system() - start_time, download_progress, last_packet_size, request_host)
+			details["size"] = download_size
+			for mtx : mutex_type in mutex_type.values():
+				mutexes[mtx].unlock()
+			await get_tree().process_frame
+		download_attempt_response = download_thread.wait_to_finish()
+		details["download_attempt_response"] = download_attempt_response
+		download_response.details = details
+		match target:
+			api.ITCH:
+				if not download_attempt_response.success:
+					_report_failure("Download Failure", "An error occured when downloading an executable", {"product": prod, "api": target, "failure": download_attempt_response.failure, "details": download_attempt_response.details})
+					return download_response
+				match i:
+					0:
+						var json : Dictionary[String, String]
+						json.assign(JSON.parse_string(download_attempt_response.returned_str))
+						download_url = json["url"]
+						return_type = return_types.BYT
+					1:
+						download_response.returned_byt = download_attempt_response.returned_byt
+						download_response.success = true
+						download_response.failure = failures.NONE
+						return download_response
+			api.GITHUB:
+				if download_attempt_response.success:
+					download_response.returned_byt = download_attempt_response.returned_byt
+					download_response.success = true
+					download_response.failure = failures.NONE
+					return download_response
+				if download_attempt_response.failure == failures.REDIRECT:
+					match i:
+						0:
+							download_url = download_attempt_response.details["ending_response_headers"][4].right(-10)
+							return_type = return_types.BYT
+				else:
+					_report_failure("Download Failure", "An error occured when downloading an executable", {"product": prod, "api": target, "failure": download_attempt_response.failure, "details": download_attempt_response.details})
+					return download_response
+	download_response.details = details
+	return download_response
 
-func _threaded_download_executable(url : String, prod : product, target : api) -> PackedByteArray:
-	var result : PackedByteArray = []
-	var client : HTTPClient = HTTPClient.new()
-	var continue_attempt : bool = true
-	var attempt_start_time : float = Time.get_unix_time_from_system()
-	print("url: ", url, "\nhost: ", url.right(-8).get_slice("/", 0) + "\nprod: " + product.find_key(prod) + "\napi: " + api.find_key(target))
-	client.read_chunk_size = maxi(UserManager.settings[&"DownloadMaximumPacketSize"], 1)
-	client.connect_to_host("https://" + url.right(-8).get_slice("/", 0))
-	mutexes[mutex_type.TASK].lock()
-	current_task = task.CONNECTING
-	mutexes[mutex_type.TASK].unlock()
-	mutexes[mutex_type.DOWNLOAD_PROGRESS].lock()
-	download_progress = 0
-	mutexes[mutex_type.DOWNLOAD_PROGRESS].unlock()
-	print("here 1")
-	while continue_attempt:
-		client.poll()
-		match client.get_status():
-			HTTPClient.Status.STATUS_CONNECTED:
-				continue_attempt = false
-				print("here 2")
-			HTTPClient.Status.STATUS_RESOLVING, HTTPClient.Status.STATUS_CONNECTING:
-				continue_attempt = (int(Time.get_unix_time_from_system() - attempt_start_time)) < connection_timeout_threshold
-			_:
-				print("!!! Threaded Download Failing status: ", client.get_status())
-				continue_attempt = false
-	if client.get_status() != HTTPClient.Status.STATUS_CONNECTED:
-		print("unable to connect during exec download :(")
-		return result
-	print("here 3")
-	var request_target : String = url.right(len("https://" + url.right(-8).get_slice("/", 0)) * -1)
-	print(request_target)
+func validate_key(target : api) -> response:
+	if target in valid_api_key_cache.keys() and valid_api_key_cache:
+		return response.new(true, failures.NONE)
+	if not api_requires_key[target]:
+		return response.new(true, failures.NONE)
+	var key_response : response = response.new()
+	var details : Dictionary[String, Variant] = {
+		"request_response": null, 
+	}
 	match target:
-		api.GITHUB:
-			client.request(
-				HTTPClient.METHOD_GET, 
-				request_target, 
-				["X-GitHub-Api-Version:2022-11-28"], 
-				'{"owner":"natzombiegames","repo":"' + github_product_to_github_name[prod].to_snake_case() + '"}'
-				)
 		api.ITCH:
-			client.request(
-				HTTPClient.METHOD_GET, 
-				request_target, 
+			if UserManager.settings[&"ItchAPIKey"] == "":
+				_report_failure("Key Validation Failure", "When attempting to validate Itch.io key it was unreadable", {"api": target, "key": UserManager.settings[&"ItchAPIKey"]})
+				return response.new(false, failures.UNREADABLE_KEY, details)
+			var request_response : response = _request_url(
+				"/api/1/" + UserManager.settings[&"ItchAPIKey"] + "/credentials/info", 
 				["accept:json"], 
-				""
+				"", 
+				api_to_api_url[target]
 				)
-	mutexes[mutex_type.TASK].lock()
-	current_task = task.DOWNLOADING
-	mutexes[mutex_type.TASK].unlock()
-	continue_attempt = true
-	while continue_attempt:
-		client.poll()
-		match client.get_status():
-			HTTPClient.Status.STATUS_BODY:
-				match client.get_response_code():
-					HTTPClient.ResponseCode.RESPONSE_OK:
-						var length : int = maxi(1, client.get_response_body_length())
-						var chunk : PackedByteArray
-						print("\n\n\nDOWNLOADING EXEC!!!!! " + url + "\n\n\n")
-						print(client.get_response_headers())
-						print(client.get_response_code())
-						print("length: ", length)
-						mutexes[mutex_type.DOWNLOAD_SIZE].lock()
-						download_size = length
-						mutexes[mutex_type.DOWNLOAD_SIZE].unlock()
-						while len(result) < length:
-							chunk = client.read_response_body_chunk()
-							result.append_array(chunk)
-							mutexes[mutex_type.DOWNLOAD_PROGRESS].lock()
-							download_progress = len(result)
-							mutexes[mutex_type.DOWNLOAD_PROGRESS].unlock()
-							#print("Downloaded Chunk len: ", len(chunk))
-							#print("! Download percentage: ", download_percentage * 100, "%")
-						print("done?!?!?!??!?!?!?! please?!?!??!")
-						print("res length at end: ", len(chunk))
-						#print("\n", chunk, "\n")
-						if target == api.ITCH and length < 10_000:
-							result = _threaded_download_executable(JSON.parse_string(result.get_string_from_utf8())["url"], prod, target)
-						continue_attempt = false
-					HTTPClient.ResponseCode.RESPONSE_FOUND:
-						print("\n\n-")
-						var resp_heads : Array = client.get_response_headers()
-						resp_heads.map(func(item : String) -> String: print(resp_heads.find(item), ": ", item, "\n-"); return item)
-						print(len(resp_heads))
-						print(resp_heads)
-						print("\nredirect :(")
-						match target:
-							api.GITHUB:
-								result = _threaded_download_executable(resp_heads[4].right(-10), prod, target)
-						continue_attempt = false
-					HTTPClient.ResponseCode.RESPONSE_TOO_MANY_REQUESTS:
-						print("You have been rate limited lol")
-						get_node("/root/Main").get_confirmation("You have been rate-limited from " + api_to_api_name[target] + ".\nYou will need to wait before you can use their service again, the time can vary so please check back later and try again.", ["OK"])
-						continue_attempt = false
-					_:
-						print("uh oh i got here :(, ", client.get_response_code())
-						continue_attempt = false
-			HTTPClient.Status.STATUS_REQUESTING:
-				continue_attempt = (int(Time.get_unix_time_from_system() - attempt_start_time) < connection_timeout_threshold)
-			_:
-				print("\n\nSTATUS!!!!!!!: ", client.get_status())
-				print(client.get_response_headers())
-				print(client.get_response_code())
-				continue_attempt = false
-	print("i got here with my response during exec return")
-	mutexes[mutex_type.TASK].lock()
-	current_task = task.INACTIVE
-	mutexes[mutex_type.TASK].unlock()
-	return result
+			details["request_response"] = request_response
+			if not request_response.success:
+				_report_failure("Key Validation Failure", "An error occured when attempting to validate the Itch.io key", {"api": target, "failure": request_response.failure, "details": request_response.details, "key": UserManager.settings[&"ItchAPIKey"]})
+				return response.new(false, request_response.failure, details)
+			var json : Dictionary[String, String]
+			json.assign(JSON.parse_string(request_response.returned_str))
+			if json["type"] == "key":
+				valid_api_key_cache[target] = true
+				key_response.success = true
+				key_response.failure = failures.NONE
+				key_response.details = details
+				return key_response
+			else:
+				_report_failure("Key Validation Failure", "The Itch.io key was found to be invalid", {"api": target, "returned_str": request_response.returned_str, "key": UserManager.settings[&"ItchAPIKey"]})
+				main.create_alert("Key Validation Failure", "Your Itch.io key was found to be invalid;\nplease check it and try again.")
+				return response.new(false, failures.INVALID_KEY, details)
+	return response.new()
+
+func _connect_to_host(host : String, client : HTTPClient) -> response:
+	var attempt_start_time : float
+	var attempt : bool
+	var details : Dictionary[String, Variant] = {
+		"timed_out": false, 
+		"attempt_start_time": 0.0, 
+		"attempt_end_time": 0.0, 
+		"attempt_time": 0.0, 
+		"attempts": 0, 
+		"ending_http_status": 0, 
+	}
+	var connection_response : response = response.new()
+	for i : int in range(0, connection_max_retries):
+		client.close()
+		client.connect_to_host(host)
+		attempt = true
+		attempt_start_time = Time.get_unix_time_from_system()
+		details["attempt_start_time"] = attempt_start_time
+		details["attempts"] = i + 1
+		while attempt:
+			client.poll()
+			match client.get_status():
+				HTTPClient.STATUS_CONNECTED:
+					details["attempt_end_time"] = Time.get_unix_time_from_system()
+					details["attempt_time"] = details["attempt_end_time"] - details["attempt_start_time"]
+					details["ending_http_status"] = HTTPClient.STATUS_CONNECTED
+					connection_response.details = details
+					connection_response.success = true
+					connection_response.failure = failures.NONE
+					return connection_response
+				HTTPClient.STATUS_CONNECTING, HTTPClient.STATUS_RESOLVING:
+					attempt = (Time.get_unix_time_from_system() - attempt_start_time) < connection_timeout_threshold
+					details["timed_out"] = !attempt
+					if not attempt:
+						connection_response.failure = failures.TIMEOUT
+				_:
+					connection_response.failure = failures.UNHANDLED_STATUS_OR_CODE_RETURNED
+					attempt = false
+		details["attempt_end_time"] = Time.get_unix_time_from_system()
+		details["attempt_time"] = details["attempt_end_time"] - details["attempt_start_time"]
+		details["ending_http_status"] = client.get_status()
+	connection_response.details = details
+	connection_response.success = false
+	_report_failure("Host-Connection Failure", "An error occured when attempting to connect to a host", {"host": host, "failure": connection_response.failure, "details": connection_response.details})
+	return connection_response
+
+func _request_url(url : String, headers : PackedStringArray, body : String, host : String = "", return_type : return_types = return_types.STR) -> response:
+	var client : HTTPClient = HTTPClient.new()
+	client.read_chunk_size = UserManager.settings[&"DownloadMaximumPacketSize"]
+	if url.begins_with("https://"):
+		host = url.left(8 + len(url.right(-8).get_slice("/", 0)))
+		url = url.right(len(host) * -1)
+	if host == "":
+		_report_failure("URL-Request Failure", "An invalid host was given when trying to request from a url", {"url": url, "headers": headers, "body": body, "host": host, "return_type": return_type})
+		return response.new(false, failures.INVALID_HOST)
+	mutexes[mutex_type.REQUEST_HOST].lock()
+	request_host = host
+	mutexes[mutex_type.REQUEST_HOST].unlock()
+	var request_response : response = response.new()
+	request_response.return_type = return_type
+	var attempt_start_time : float
+	var attempt : bool
+	var details : Dictionary[String, Variant] = {
+		"timed_out": false, 
+		"attempt_start_time": 0.0, 
+		"attempt_end_time": 0.0, 
+		"attempt_time": 0.0, 
+		"attempts": 0, 
+		"ending_http_status": 0, 
+		"ending_response_code": 0, 
+		"ending_response_headers": [], 
+		"response_length": 0, 
+		"redirected": false, 
+	}
+	mutexes[mutex_type.DOWNLOAD_SIZE].lock()
+	mutexes[mutex_type.DOWNLOAD_PROGRESS].lock()
+	download_size = 0
+	download_progress = 0
+	mutexes[mutex_type.DOWNLOAD_SIZE].unlock()
+	mutexes[mutex_type.DOWNLOAD_PROGRESS].unlock()
+	for i : int in range(0, connection_max_retries):
+		var connection_attempt : response = _connect_to_host(host, client)
+		if not connection_attempt.success:
+			_report_failure("URL-Request Failure", "Unable to connect to host during url request", {"url": url, "headers": headers, "body": body, "host": host, "return_type": return_type, "failure": connection_attempt.failure, "details": connection_attempt.details})
+			return response.new(false, failures.CONNECTION_FAILED, {"connection_response": connection_attempt})
+		client.request(HTTPClient.METHOD_GET, url, headers, body)
+		attempt_start_time = Time.get_unix_time_from_system()
+		attempt = true
+		details["attempt_start_time"] = attempt_start_time
+		details["attempts"] = i + 1
+		while attempt:
+			client.poll()
+			match client.get_status():
+				HTTPClient.STATUS_BODY:
+					match client.get_response_code():
+						HTTPClient.RESPONSE_OK:
+							request_response.success = true
+							request_response.failure = failures.NONE
+							details["attempt_end_time"] = Time.get_unix_time_from_system()
+							details["attempt_time"] = details["attempt_end_time"] - details["attempt_start_time"]
+							details["ending_http_status"] = client.get_status()
+							details["ending_response_code"] = client.get_response_code()
+							details["ending_response_headers"] = client.get_response_headers()
+							mutexes[mutex_type.DOWNLOAD_SIZE].lock()
+							download_size = client.get_response_body_length()
+							mutexes[mutex_type.DOWNLOAD_SIZE].unlock()
+							main.downloading_mutex.lock()
+							main.downloading = true
+							main.downloading_mutex.unlock()
+							match return_type:
+								return_types.STR:
+									var resp : String = ""
+									while len(resp) < maxi(1, client.get_response_body_length()):
+										resp += client.read_response_body_chunk().get_string_from_utf8()
+										mutexes[mutex_type.DOWNLOAD_PROGRESS].lock()
+										mutexes[mutex_type.LAST_PACKET_SIZE].lock()
+										last_packet_size = len(resp) - download_progress
+										download_progress = len(resp)
+										mutexes[mutex_type.DOWNLOAD_PROGRESS].unlock()
+										mutexes[mutex_type.LAST_PACKET_SIZE].unlock()
+									request_response.returned_str = resp
+									details["response_length"] = len(resp)
+								return_types.BYT:
+									var resp : PackedByteArray = []
+									while len(resp) < maxi(1, client.get_response_body_length()):
+										resp.append_array(client.read_response_body_chunk())
+										mutexes[mutex_type.DOWNLOAD_PROGRESS].lock()
+										download_progress = len(resp)
+										mutexes[mutex_type.DOWNLOAD_PROGRESS].unlock()
+									request_response.returned_byt = resp
+									details["response_length"] = len(resp)
+							request_response.details = details
+							main.downloading_mutex.lock()
+							main.downloading = false
+							main.downloading_mutex.unlock()
+							return request_response
+						HTTPClient.RESPONSE_CONTINUE, HTTPClient.RESPONSE_PROCESSING:
+							attempt = (Time.get_unix_time_from_system() - details["attempt_start_time"]) < connection_timeout_threshold
+							details["timed_out"] = !attempt
+							request_response.failure = failures.TIMEOUT
+						HTTPClient.RESPONSE_FOUND:
+							request_response.failure = failures.REDIRECT
+							details["redirected"] = true
+							attempt = false
+						HTTPClient.RESPONSE_TOO_MANY_REQUESTS:
+							request_response.failure = failures.RATE_LIMITED
+							attempt = false
+				HTTPClient.STATUS_REQUESTING:
+					attempt = (Time.get_unix_time_from_system() - attempt_start_time) < connection_timeout_threshold
+					details["timed_out"] = !attempt
+					if not attempt:
+						request_response.failure = failures.TIMEOUT
+				_:
+					request_response.failure = failures.UNHANDLED_STATUS_OR_CODE_RETURNED
+					attempt = false
+		details["attempt_end_time"] = Time.get_unix_time_from_system()
+		details["attempt_time"] = details["attempt_end_time"] - details["attempt_start_time"]
+		details["ending_http_status"] = client.get_status()
+		details["ending_response_code"] = client.get_response_code()
+		details["ending_response_headers"] = client.get_response_headers()
+		if request_response.failure == failures.REDIRECT:
+			request_response.success = false
+			request_response.details = details
+			return request_response
+	request_response.success = false
+	request_response.details = details
+	_report_failure("URL-Request Failure", "Failed to request from url", {"url": url, "headers": headers, "body": body, "host": host, "return_type": return_type, "failure": request_response.failure, "details": request_response.details})
+	return request_response
+
+func _report_failure(type : String, description : String, details : Dictionary[String, Variant], alert : bool = false) -> void:
+	UserManager.append_to_error_log(type, description, details)
+	if alert:
+		main.create_alert(type, "A failure occured when fetching information;\nplease check / report your error log from the settings.")
+	return
