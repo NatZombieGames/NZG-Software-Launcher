@@ -1,0 +1,9 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://mijnnq3m8v7x"]
+
+[ext_resource type="Shader" uid="uid://dog1jlalxuqns" path="res://Assets/Shaders/Shrink.gdshader" id="1_1k5bs"]
+
+[resource]
+resource_local_to_scene = true
+shader = ExtResource("1_1k5bs")
+shader_parameter/scale = 1.0
+shader_parameter/texture_size = 24.0

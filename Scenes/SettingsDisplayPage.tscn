@@ -22,10 +22,12 @@ grow_vertical = 2
 
 [node name="ShowAppBackgroundBtn" parent="Container" instance=ExtResource("1_2fc4k")]
 layout_mode = 2
+theme_override_font_sizes/font_size = 25
 toggle_mode = true
 text = " Show App Background ☐ "
 
 [node name="InfoForNerdsBtn" parent="Container" instance=ExtResource("1_2fc4k")]
 layout_mode = 2
+theme_override_font_sizes/font_size = 25
 toggle_mode = true
 text = " Info For Nerds ☐ "

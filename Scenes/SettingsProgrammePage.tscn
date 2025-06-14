@@ -1,0 +1,36 @@
+[gd_scene load_steps=3 format=3 uid="uid://qw18834dp4l3"]
+
+[ext_resource type="Script" uid="uid://byolyumf8cfdr" path="res://Scripts/SettingsProgrammePage.gd" id="1_wiqfm"]
+[ext_resource type="PackedScene" uid="uid://cd33gvegau1vp" path="res://Scenes/CustomButton.tscn" id="2_n0h85"]
+
+[node name="SettingsProgrammePage" type="VBoxContainer"]
+anchors_preset = 10
+anchor_right = 1.0
+grow_horizontal = 2
+script = ExtResource("1_wiqfm")
+
+[node name="Void0" type="Panel" parent="."]
+self_modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(0, 5)
+layout_mode = 2
+
+[node name="AlwaysWriteErrorLogButton" parent="." instance=ExtResource("2_n0h85")]
+layout_mode = 2
+theme_override_font_sizes/font_size = 25
+toggle_mode = true
+text = " Write Error Log On Quit ☐ "
+
+[node name="WriteErrorLogButton" parent="." instance=ExtResource("2_n0h85")]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = " Write Current Error Log "
+
+[node name="WriteNotifier" type="Label" parent="."]
+visible = false
+layout_mode = 2
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = -1
+theme_override_constants/shadow_offset_y = 1
+text = "Wrote Error Log to: ''"
+horizontal_alignment = 1
+vertical_alignment = 1

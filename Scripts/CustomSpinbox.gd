@@ -27,9 +27,11 @@ signal value_changed(new_value : int)
 func _ready() -> void:
 	$Container/EntryField.text_changed.connect(
 		func(nval : String) -> void:
-			$Container/EntryField.text = float(nval)
+			var clmn : int = $Container/EntryField.caret_column
+			$Container/EntryField.text = str(float(nval))
 			if float(nval) != value:
 				value = value
+				$Container/EntryField.caret_column = clmn
 			return)
 	$Container/Buttons/Increment.pressed.connect(func() -> void: value += 1.0; return)
 	$Container/Buttons/Decrement.pressed.connect(func() -> void: value -= 1.0; return)

@@ -1,19 +1,30 @@
 extends Node
+##The manager of everything to do with getting info about and updating to the latest app version
 
+##/root/Main
 var main : Control
+##The current app version from [code]ProjectSettings.get_setting("application/config/version", "0.0.0")[/code]
 var current_version : String = ""
+##Wether the latest app version info has been succesfully retrieved, if so [member latest_version] and [member latest_version_size] should be correctly set
 var retrieved_latest_version_info : bool = false
+##The latest app version retrieved from [method get_latest_version_info], also see [member retrieved_latest_version_info] and [member latest_version_size]
 var latest_version : String = ""
+##The latest app version size retrieved from [method get_latest_version_info], also see [member retrieved_latest_version_info] and [member latest_version]
 var latest_version_size : String = ""
+##The url to retrieve the latest app version info
 const latest_version_url : String = "/repos/NatZombieGames/NZG-Software-Launcher/releases/latest"
+##The headers to retrieve the latest app version info
 const latest_version_headers : PackedStringArray = ["accept:application/vnd.github+json", "X-GitHub-Api-Version:2022-11-28"]
+##The body to retrieve the latest app version info
 const latest_version_body : String = '{"owner":"natzombiegames","repo":"nzg_software_launcher"}'
+##The host to retrieve the latest app version info
 const latest_version_host : String = "https://api.github.com"
 
 func _init() -> void:
 	current_version = ProjectSettings.get_setting("application/config/version", "0.0.0")
 	return
 
+##Retrieves the latest app version info and sets the [member retrieved_latest_version_info] flag
 func get_latest_version_info() -> void:
 	retrieved_latest_version_info = false
 	var response : APIManager.response = APIManager._request_url(
@@ -35,11 +46,12 @@ func get_latest_version_info() -> void:
 	retrieved_latest_version_info = true
 	return
 
+##Downloads the latest app version and launches it
 func download_latest_version() -> void:
 	if not retrieved_latest_version_info:
 		get_latest_version_info()
 		if not retrieved_latest_version_info:
-			_report_failure("Update-Manager Failure", "Can not download latest launcher version as the latest version info was unable to be retrieved", {})
+			_report_failure("Update-Manager Failure", "Can not download latest launcher version as the latest version info was unable to be retrieved", {}, true)
 			return
 	var thread : Thread
 	var response : APIManager.response
@@ -87,7 +99,7 @@ func download_latest_version() -> void:
 				var file : FileAccess = FileAccess.open(dir + "\\" + new_name, FileAccess.WRITE)
 				file.store_buffer(response.returned_byt)
 				file.close()
-				OS.execute_with_pipe(dir + "\\" + new_name, ["kill_old_nsl_process=" + OS.get_executable_path()])
+				OS.execute_with_pipe(dir + "\\" + new_name, ["kill_old_nsl_process=" + OS.get_executable_path().get_file()])
 				get_tree().quit()
 			_:
 				attempt = false
@@ -96,18 +108,21 @@ func download_latest_version() -> void:
 	_report_failure("Update-Manager Failure", "A failure occured when trying to download latest launcher version", {"failure": response.failure, "details": response.details})
 	return
 
+##Locks all the [APIManager]'s mutexes
 func _lock_download_mutexes() -> void:
 	for mtx : APIManager.mutex_type in APIManager.mutex_type.values():
 		APIManager.mutexes[mtx].lock()
 	return
 
+##Unlocks all the [APIManager]'s mutexes
 func _unlock_download_mutexes() -> void:
 	for mtx : APIManager.mutex_type in APIManager.mutex_type.values():
 		APIManager.mutexes[mtx].unlock()
 	return
 
+##Appends to the [b]UserManager[/b]'s error log using [code]UserManager.append_to_error_log()[/code] with the given [param type], [param description] and [param details].[br][br]And if [param alert] is enabled then an alert will be fired using [member main] [code]create_alert()[/code]
 func _report_failure(type : String, description : String, details : Dictionary[String, Variant], alert : bool = false) -> void:
 	UserManager.append_to_error_log(type, description, details)
 	if alert:
-		main.create_alert(type, "A failure occured when fetching information;\nplease check / report your error log from the settings.")
+		main.create_alert(type, description)
 	return

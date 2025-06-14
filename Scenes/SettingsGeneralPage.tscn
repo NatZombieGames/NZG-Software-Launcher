@@ -22,5 +22,12 @@ grow_vertical = 2
 
 [node name="CloseOnOpenBtn" parent="Container" instance=ExtResource("1_wru2w")]
 layout_mode = 2
+theme_override_font_sizes/font_size = 25
 toggle_mode = true
 text = "Close Launcher On Launching Application ☐"
+
+[node name="OpenTutorialBtn" parent="Container" instance=ExtResource("1_wru2w")]
+layout_mode = 2
+theme_override_font_sizes/font_size = 25
+toggle_mode = true
+text = "Open Tutorial"

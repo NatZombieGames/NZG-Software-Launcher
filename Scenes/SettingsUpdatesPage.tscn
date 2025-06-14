@@ -16,21 +16,21 @@ layout_mode = 2
 
 [node name="CurVersion" type="Label" parent="."]
 layout_mode = 2
-theme_override_font_sizes/font_size = 25
+theme_override_font_sizes/font_size = 30
 text = "Current Version: 0.0.0"
 horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="LatestVersion" type="Label" parent="."]
 layout_mode = 2
-theme_override_font_sizes/font_size = 25
+theme_override_font_sizes/font_size = 30
 text = "Latest Version: 0.0.0"
 horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="LatestVersionSize" type="Label" parent="."]
 layout_mode = 2
-theme_override_font_sizes/font_size = 25
+theme_override_font_sizes/font_size = 30
 text = "Latest Version Size: 0.0B"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -42,7 +42,7 @@ layout_mode = 2
 
 [node name="GetLatestVersionBtn" parent="." instance=ExtResource("2_s3ulb")]
 layout_mode = 2
-theme_override_font_sizes/font_size = 23
+theme_override_font_sizes/font_size = 25
 text = " Get Latest Version Info "
 
 [node name="Void2" type="Panel" parent="."]
@@ -52,7 +52,7 @@ layout_mode = 2
 
 [node name="UpdateBtn" parent="." instance=ExtResource("2_s3ulb")]
 layout_mode = 2
-theme_override_font_sizes/font_size = 23
+theme_override_font_sizes/font_size = 25
 text = " Update To Latest Version "
 
 [node name="Void3" type="Panel" parent="."]
@@ -62,5 +62,5 @@ layout_mode = 2
 
 [node name="SourceBtn" parent="." instance=ExtResource("2_s3ulb")]
 layout_mode = 2
-theme_override_font_sizes/font_size = 23
+theme_override_font_sizes/font_size = 25
 text = " Go To Github Repository "

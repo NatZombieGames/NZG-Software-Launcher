@@ -1,10 +1,13 @@
 extends Node
+##The manager of everything relating to the user and settings alongside the [member error_log]
 
+##The default path to save and load user data from, equal to;[br][codeblock](OS.get_executable_path().get_base_dir() + "/NSL_Data.dat")[/codeblock]
 @onready var default_data_path : String = (OS.get_executable_path().get_base_dir() + "/NSL_Data.dat")
+##The users platform using the [enum APIManager.platforms] enum
 @export var platform : APIManager.platforms = APIManager.platforms.UNKNOWN
+##The users settings
 @export var settings : Dictionary[StringName, Variant] = {
 	&"ColourSettings": {}, 
-	&"DefaultDownloadLocation": "", 
 	&"ItchAPIKey": "", 
 	&"DownloadMaximumPacketSize": 100_000, 
 	&"ShowAppBackground": true, 
@@ -14,14 +17,22 @@ extends Node
 	&"InfoForNerds": false, 
 	&"AlwaysWriteErrorLog": false, 
 }
+@export var new_user : bool = false
+##The current error log, also see [method write_error_log] and [error_log_item]
 var error_log : Array[error_log_item] = []
+##For all the [enum APIManager.api]'s that require keys; returns the name of the settings for said key
 const api_to_api_key_setting_name : Dictionary[APIManager.api, StringName] = {
 	APIManager.api.ITCH: &"ItchAPIKey", 
 }
+##The items making up the contents of the [member error_log], each having a type, description and optional details alongside recording the time they were created[br][br]Also see [method write_error_log]
 class error_log_item:
+	##The time this log was written
 	var time : float
+	##The type or title of this error
 	var error_type : String
+	##The errors description
 	var error_description : String
+	##Any other details about the error, optional
 	var error_details : Dictionary[String, Variant]
 	func _init(type : String, desc : String, dets : Dictionary[String, Variant]) -> void:
 		error_type = type
@@ -54,42 +65,63 @@ func _notification(notif : int) -> void:
 			write_error_log()
 	return
 
+##Appends a new [error_log_item] to the error log with the given [param type], [param description] and optional [param details]
 func append_to_error_log(type : String, description : String, details : Dictionary[String, Variant] = {}) -> void:
 	error_log.append(error_log_item.new(type, description, details))
 	return
 
-func write_error_log() -> void:
+##Writes the error log to a file and returns the path of the file it was written to[br][br]It is written to[codeblock]OS.get_executable_path().get_base_dir() + "/NSLErrorLogs/NSL_ERROR_LOG_" + str(int(Time.get_unix_time_from_system())) + ".txt"[/codeblock]
+func write_error_log() -> String:
 	var text : String = "T[" + str(Time.get_unix_time_from_system()) + "]:Log Start\n\n"
-	var to_append : String = ""
+	var to_append : String
+	var keys : PackedStringArray
+	var d2_keys : PackedStringArray
+	var start : String
+	var ending : String
 	for item : error_log_item in error_log:
-		to_append = "T[" + str(item.time) + "]:\n----Type: " + item.error_type + "\n----Description: " + item.error_description + "\n"
+		# ├ └ ┬ │ ─
+		to_append = "T[" + str(item.time) + "]:\n├───Type: " + item.error_type + "\n" + ["└", "├"][int(len(item.error_details.keys()) > 0)] + "───Description: " + item.error_description + "\n"
 		if len(item.error_details.keys()) > 0:
-			to_append += "----Details:\n"
-			for key : String in item.error_details:
+			to_append += "└───Details:\n"
+			keys = item.error_details.keys()
+			for key : String in keys:
+				start = "    " + ["├", "└"][int(keys.find(key) == (len(keys) - 1))] + "───" + key.capitalize() + ": "
+				ending = " (" + str(item.error_details[key]) + ")\n"
 				match key:
 					"product":
-						to_append += "------" + key.capitalize() + ": " + APIManager.product.find_key(item.error_details[key]) + " (" + str(item.error_details[key]) + ")\n"
+						to_append += start + APIManager.product.find_key(item.error_details[key]) + ending
 					"api":
-						to_append += "------" + key.capitalize() + ": " + APIManager.api.find_key(item.error_details[key]) + " (" + str(item.error_details[key]) + ")\n"
+						to_append += start + APIManager.api.find_key(item.error_details[key]) + ending
 					"failure":
-						to_append += "------" + key.capitalize() + ": " + APIManager.failures.find_key(item.error_details[key]) + " (" + str(item.error_details[key]) + ")\n"
+						to_append += start + APIManager.failures.find_key(item.error_details[key]) + ending
 					"return_type":
-						to_append += "------" + key.capitalize() + ": " + APIManager.return_types.find_key(item.error_details[key]) + " (" + str(item.error_details[key]) + ")\n"
+						to_append += start + APIManager.return_types.find_key(item.error_details[key]) + ending
 					"info", "info_type":
-						to_append += "------" + key.capitalize() + ": " + APIManager.info_types.find_key(item.error_details[key]) + " (" + str(item.error_details[key]) + ")\n"
+						to_append += start + APIManager.info_types.find_key(item.error_details[key]) + ending
+					"batch", "batch_type":
+						to_append += start + APIManager.batch_types.find_key(item.error_details[key]) + ending
 					"platform":
-						to_append += "------" + key.capitalize() + ": " + APIManager.platforms.find_key(item.error_details[key]) + " (" + str(item.error_details[key]) + ")\n"
+						to_append += start + APIManager.platforms.find_key(item.error_details[key]) + ending
 					_:
-						to_append += "------" + key.capitalize() + ": " + str(item.error_details[key]) + "\n"
+						if typeof(item.error_details[key]) == TYPE_DICTIONARY:
+							to_append += start + "\n"
+							d2_keys = item.error_details[key].keys()
+							for key2 : String in d2_keys:
+								to_append += "    " + ["│", " "][int(keys.find(key) == (len(keys) - 1))] + "   " + ["├", "└"][int(d2_keys.find(key2) == (len(d2_keys) - 1))] + "───" + key2.capitalize() + ": " + str(item.error_details[key][key2]) + "\n"
+						else:
+							to_append += start + str(item.error_details[key]) + "\n"
 		text += to_append + "\n"
 	text += "\nT[" + str(Time.get_unix_time_from_system()) + "]:Log End"
-	var fname : String = OS.get_executable_path().get_base_dir() + "/NSL_ERROR_LOG_" + str(int(Time.get_unix_time_from_system())) + ".txt"
+	if not DirAccess.dir_exists_absolute(OS.get_executable_path().get_base_dir() + "/NSLErrorLogs"):
+		DirAccess.make_dir_absolute(OS.get_executable_path().get_base_dir() + "/NSLErrorLogs")
+	var fname : String = OS.get_executable_path().get_base_dir() + "/NSLErrorLogs/NSL_ERROR_LOG_" + str(int(Time.get_unix_time_from_system())) + ".txt"
 	var file : FileAccess = FileAccess.open(fname, FileAccess.WRITE)
 	file.store_string(text)
 	file.close()
 	print("!! Wrote error log to: '" + fname + "'.")
-	return
+	return fname
 
+##Saves the user data to the given [param path] which is by default [member default_data_path]
 func save_data(path : String = default_data_path) -> void:
 	var config : ConfigFile = ConfigFile.new()
 	var file : FileAccess = FileAccess.open_compressed(path, FileAccess.WRITE, FileAccess.COMPRESSION_DEFLATE)
@@ -102,7 +134,9 @@ func save_data(path : String = default_data_path) -> void:
 	print("! Saved data succesfully to: '" + path + "'.")
 	return
 
+##Loads the user data from the given [param path] which is by default the [member default_data_path]
 func load_data(path : String = default_data_path) -> void:
+	new_user = true
 	if not FileAccess.file_exists(path):
 		print("!! Unable to load data from: '" + path + "' as there is no file there.")
 		append_to_error_log("Data-Loading Failure", "When attempting to load data the given file didn't exist", {"path": path, "exists": FileAccess.file_exists(path), "files_at_base_dir": DirAccess.get_files_at(path.get_base_dir()), "data": settings})
@@ -111,6 +145,7 @@ func load_data(path : String = default_data_path) -> void:
 		print("!! Unable to load data from: '" + path + "' as either the extension or filename don't match the required values.")
 		append_to_error_log("Data-Loading Failure", "Invalid destined file during data loading", {"path": path, "exists": FileAccess.file_exists(path), "files_in_base_dir": DirAccess.get_files_at(path.get_base_dir()), "data": settings})
 		return
+	new_user = false
 	var config : ConfigFile = ConfigFile.new()
 	var file : FileAccess = FileAccess.open_compressed(path, FileAccess.READ, FileAccess.COMPRESSION_DEFLATE)
 	config.parse(file.get_as_text())
@@ -120,6 +155,7 @@ func load_data(path : String = default_data_path) -> void:
 	for key : StringName in settings.keys():
 		settings.set(key, config.get_value(&"Data", key, settings[key]))
 	file.close()
+	UserManager.settings[&"ProductShortcuts"] = UserManager.settings[&"ProductShortcuts"].filter(func(item : String) -> bool: return item in APIManager.product.keys() and item != "UNKNOWN")
 	print("! Succesfully loaded data from: '" + path + "'.")
 	append_to_error_log("User-Manager Notification", "Loaded user data", {"path": path, "data": settings})
 	return

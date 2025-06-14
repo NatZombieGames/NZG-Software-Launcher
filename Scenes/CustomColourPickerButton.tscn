@@ -49,6 +49,7 @@ layout_mode = 2
 
 [node name="Title" type="Label" parent="Button/Container"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 20
 text = "Colour Picker"
 
 [node name="Preview" type="ColorRect" parent="Button/Container"]
@@ -121,6 +122,7 @@ self_modulate = Color(1, 1, 1, 0)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
+value_range = Vector2(0, 1)
 rounder = 0.0
 
 [node name="Row2" type="HBoxContainer" parent="Picker/MarginContainer/Container"]
@@ -152,6 +154,7 @@ self_modulate = Color(1, 1, 1, 0)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
+value_range = Vector2(0, 1)
 rounder = 0.0
 
 [node name="Row3" type="HBoxContainer" parent="Picker/MarginContainer/Container"]
@@ -183,4 +186,5 @@ self_modulate = Color(1, 1, 1, 0)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
+value_range = Vector2(0, 1)
 rounder = 0.0
