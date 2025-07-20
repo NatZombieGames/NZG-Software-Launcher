@@ -39,7 +39,7 @@ shader_parameter/rot = 0.572
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_xvtyr"]
 shader = ExtResource("10_c5snn")
-shader_parameter/progress = 1.0
+shader_parameter/progress = 0.84
 shader_parameter/start_y_position = 0.9
 shader_parameter/end_y_position = 0.07
 shader_parameter/unshaded_colour = Vector3(1, 1, 1)

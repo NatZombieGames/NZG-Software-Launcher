@@ -1,4 +1,5 @@
 shader_type canvas_item;
+render_mode unshaded;
 
 // Taken from https://godotshaders.com/shader/rotate-texture/ but changed it to take a constant rotation.
 

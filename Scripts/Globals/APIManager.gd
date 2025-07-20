@@ -50,6 +50,7 @@ const product_to_api_availability : Dictionary[product, Array] = {
 	product.NPS: [true, false], 
 	product.NMP: [true, true], 
 	product.MINING_IDLE: [false, true], 
+	product.WTTAG: [false, true], 
 	product.UNKNOWN: [false, false], 
 }
 ## A [PackedStringArray] of urls for the given [enum product] for each [enum api] in the order of the [enum api] enum
@@ -57,6 +58,7 @@ const product_to_source : Dictionary[product, Array] = {
 	product.NPS: ["https://github.com/NatZombieGames/Nat-Password-Software", ""], 
 	product.NMP: ["https://github.com/NatZombieGames/Nat-Music-Programme", "https://natzombiegames.itch.io/nat-music-programme"], 
 	product.MINING_IDLE: ["", "https://natzombiegames.itch.io/mining-idle"], 
+	product.WTTAG: ["", "https://natzombiegames.itch.io/wttag"], 
 	product.UNKNOWN: ["", ""], 
 }
 ##Github name of each [enum product] that is available from [constant api.GITHUB]
@@ -68,18 +70,21 @@ const github_product_to_github_name : Dictionary[product, String] = {
 const itch_product_to_itch_id : Dictionary[product, String] = {
 	product.NMP: "3398181", 
 	product.MINING_IDLE: "3095012", 
+	product.WTTAG: "3714923", 
 }
 ##Each [enum product]'s categories ([enum product_category]) in an [Array]
 const product_to_product_categories : Dictionary[product, Array] = {
 	product.NPS: [product_category.SOFTWARE, product_category.OPEN_SOURCE], 
 	product.NMP: [product_category.SOFTWARE, product_category.OPEN_SOURCE], 
 	product.MINING_IDLE: [product_category.GAMES], 
+	product.WTTAG: [product_category.GAMES]
 }
 ##Each [enum product]'s name
 const product_to_name : Dictionary[product, String] = {
 	product.NPS: "Nat Password Software", 
 	product.NMP: "Nat Music Programme", 
 	product.MINING_IDLE: "Mining Idle", 
+	product.WTTAG: "Welcome To The Adventurers Guild"
 }
 ##The path ammendment to add when grabbing the specified type of [enum info_types] from [constant api.GITHUB]
 const github_info_type_to_url_path_ammendment : Dictionary[info_types, String] = {
@@ -114,7 +119,7 @@ const connection_max_redirects : int = 5
 ##The available api's
 enum api {GITHUB, ITCH, UNKNOWN}
 ##All the products
-enum product {NPS, NMP, MINING_IDLE, UNKNOWN}
+enum product {NPS, NMP, MINING_IDLE, WTTAG, UNKNOWN}
 ##All the product categories
 enum product_category {SOFTWARE, GAMES, OPEN_SOURCE}
 ##All the mutex types

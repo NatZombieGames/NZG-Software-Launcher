@@ -11,5 +11,7 @@ void fragment() {
 	UV.y >= start_y_position || UV.y <= end_y_position ?
 		COLOR.a = 0.0 :
 		COLOR.a = COLOR.a;
-	UV.y <= start_y_position + ((end_y_position - start_y_position) * progress) ? COLOR.rgb = shaded_colour : COLOR.rgb = unshaded_colour;
+	UV.y <= (start_y_position + ((end_y_position - start_y_position) * progress)) ? 
+		COLOR.rgb = shaded_colour : COLOR.rgb = unshaded_colour;
 }
+
