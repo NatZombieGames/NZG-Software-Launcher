@@ -14,10 +14,6 @@ script = ExtResource("1_0fldu")
 self_modulate = Color(1, 1, 1, 0)
 layout_mode = 2
 
-[node name="Move" parent="." instance=ExtResource("1_r3l00")]
-layout_mode = 2
-text = " Move Executable "
-
 [node name="ChangeDestination" parent="." instance=ExtResource("1_r3l00")]
 layout_mode = 2
 text = " Change Target Executable "

@@ -54,10 +54,12 @@ metadata/StyleboxName = &"ContainerStylebox"
 layout_mode = 2
 
 [node name="Title" type="Label" parent="Container/NameContainer/Container"]
+custom_minimum_size = Vector2(196, 0)
 layout_mode = 2
 text = "Nat Music Programme"
 horizontal_alignment = 1
 vertical_alignment = 1
+autowrap_mode = 3
 
 [node name="Subtitle" type="Label" parent="Container/NameContainer/Container"]
 layout_mode = 2

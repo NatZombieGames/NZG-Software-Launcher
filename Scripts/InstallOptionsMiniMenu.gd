@@ -8,8 +8,7 @@ func _ready() -> void:
 	var prod_key : String = APIManager.product.find_key($"/root/Main".open_app)
 	var location : String = UserManager.settings[&"ProductToInstallLocation"].get(prod_key, "").replace('"', "")
 	$Reinstall.pressed.connect(Callable($/root/Main, &"initiate_download").bindv([
-		location.get_file(), open_app, APIManager.get_available_api(open_app), 
-		location.get_base_dir(), UserManager.platform]))
+		location.get_file(), open_app, location.get_base_dir()]))
 	$Delete.pressed.connect(
 		func() -> void:
 			if FileAccess.file_exists(location):

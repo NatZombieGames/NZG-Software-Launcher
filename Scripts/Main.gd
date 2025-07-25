@@ -624,7 +624,7 @@ func populate_products_page() -> void:
 	return
 
 ##Initiates a download for the given [param product] and if all succedes then writes the resulting binary to the [param downloaded_file_name] in the [param write_location]
-func initiate_download(downloaded_file_name : String, product : APIManager.product, write_location : String = UserManager.settings[&"DefaultDownloadLocation"]) -> void:
+func initiate_download(downloaded_file_name : String, product : APIManager.product, write_location : String) -> void:
 	print("initiating download")
 	%DownloadScreen/Panel.position = Vector2(555.0, 312.188)
 	%DownloadScreen/Panel/Container/NerdInfo.visible = UserManager.settings[&"InfoForNerds"]
@@ -632,7 +632,8 @@ func initiate_download(downloaded_file_name : String, product : APIManager.produ
 	await get_tree().process_frame
 	%DownloadScreen/Panel.position = Vector2(555.0, 312.188)
 	if not DirAccess.dir_exists_absolute(write_location):
-		_report_failure("Main Failure", "The destined write path in initaite_download was invalid", {"file_name": downloaded_file_name, "product": product, "write_location": write_location})
+		_report_failure("Main Failure", "The destined write path in initaite_download was invalid", {"file_name": downloaded_file_name, "product": product, "write_location": write_location}, true)
+		GeneralManager.open_background_and_panel(false, %DownloadScreen, %DownloadScreen/Panel)
 		return
 	var resp : APIManager.response = await APIManager.download_executable(product)
 	var file : FileAccess = FileAccess.open(write_location + "/" + downloaded_file_name, FileAccess.WRITE)
@@ -670,9 +671,8 @@ func update_download_visuals(target_name : String, version : String, platform : 
 	%DownloadScreen/Panel/Container/Time.text = "Time Elapsed: " + str(time_elapsed).left(str(time_elapsed).find(".") + 3) + "s\nTime To Completion Estimate: " + str(int(maxf(time_elapsed, 0.1) / maxf(percentage, 0.1))) + "s"
 	%DownloadScreen/Panel/Container/ProgressBar.value = percentage
 	%DownloadScreen/Panel/Container/Size.text = String.humanize_size(progress) + "/" + String.humanize_size(download_size)
-	%DownloadScreen/Panel/Container/NerdInfo/Row1/LastPacketSize.text = "Last Packet Size: " + String.humanize_size(last_packet_size)
-	%DownloadScreen/Panel/Container/NerdInfo/Row1/Host.text = "Host: " + host
-	%DownloadScreen/Panel/Container/NerdInfo/PacketUsage.text = "Packet Usage (Last Packet Size / DownloadMaximumPacketSize): " + str(int((UserManager.settings[&"DownloadMaximumPacketSize"] / last_packet_size) * 100)) + "%"
+	%DownloadScreen/Panel/Container/NerdInfo/LastPacketSize.text = "Last Packet Size: " + String.humanize_size(last_packet_size)
+	%DownloadScreen/Panel/Container/NerdInfo/Host.text = "Host:\n" + host
 	%DownloadScreen/Panel.position = Vector2(555.0, 312.188)
 	return
 

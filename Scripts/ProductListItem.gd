@@ -22,6 +22,7 @@ var subtitle : String = "NMP":
 			$Container/NameContainer/Container/Subtitle.text = "(" + subtitle + ")"
 		else:
 			$Container/NameContainer/Container/Subtitle.text = ""
+		$Container/NameContainer/Container/Subtitle.visible = len($Container/NameContainer/Container/Subtitle.text) > 0
 var icon_path : String = "res://Assets/ProductAssets/Icons/NMP_Icon.png":
 	set(value):
 		icon_path = value
