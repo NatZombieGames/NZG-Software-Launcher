@@ -51,6 +51,7 @@ const product_to_api_availability : Dictionary[product, Array] = {
 	product.NMP: [true, true], 
 	product.MINING_IDLE: [false, true], 
 	product.WTTAG: [false, true], 
+	product.NFR: [true, false], 
 	product.UNKNOWN: [false, false], 
 }
 ## A [PackedStringArray] of urls for the given [enum product] for each [enum api] in the order of the [enum api] enum
@@ -59,12 +60,14 @@ const product_to_source : Dictionary[product, Array] = {
 	product.NMP: ["https://github.com/NatZombieGames/Nat-Music-Programme", "https://natzombiegames.itch.io/nat-music-programme"], 
 	product.MINING_IDLE: ["", "https://natzombiegames.itch.io/mining-idle"], 
 	product.WTTAG: ["", "https://natzombiegames.itch.io/wttag"], 
+	product.NFR: ["https://github.com/NatZombieGames/Nat-File-Rat", ""], 
 	product.UNKNOWN: ["", ""], 
 }
 ##Github name of each [enum product] that is available from [constant api.GITHUB]
 const github_product_to_github_name : Dictionary[product, String] = {
 	product.NPS: "Nat-Password-Software", 
 	product.NMP: "Nat-Music-Programme", 
+	product.NFR: "Nat-File-Rat", 
 }
 ##Itch ID for each [enum product] that is available from [constant api.ITCH]
 const itch_product_to_itch_id : Dictionary[product, String] = {
@@ -77,14 +80,16 @@ const product_to_product_categories : Dictionary[product, Array] = {
 	product.NPS: [product_category.SOFTWARE, product_category.OPEN_SOURCE], 
 	product.NMP: [product_category.SOFTWARE, product_category.OPEN_SOURCE], 
 	product.MINING_IDLE: [product_category.GAMES], 
-	product.WTTAG: [product_category.GAMES]
+	product.WTTAG: [product_category.GAMES], 
+	product.NFR: [product_category.SOFTWARE, product_category.OPEN_SOURCE], 
 }
 ##Each [enum product]'s name
 const product_to_name : Dictionary[product, String] = {
 	product.NPS: "Nat Password Software", 
 	product.NMP: "Nat Music Programme", 
 	product.MINING_IDLE: "Mining Idle", 
-	product.WTTAG: "Welcome To The Adventurers Guild"
+	product.WTTAG: "Welcome To The Adventurers Guild", 
+	product.NFR: "Nat File Rat", 
 }
 ##The path ammendment to add when grabbing the specified type of [enum info_types] from [constant api.GITHUB]
 const github_info_type_to_url_path_ammendment : Dictionary[info_types, String] = {
@@ -119,7 +124,7 @@ const connection_max_redirects : int = 5
 ##The available api's
 enum api {GITHUB, ITCH, UNKNOWN}
 ##All the products
-enum product {NPS, NMP, MINING_IDLE, WTTAG, UNKNOWN}
+enum product {NPS, NMP, MINING_IDLE, WTTAG, NFR, UNKNOWN}
 ##All the product categories
 enum product_category {SOFTWARE, GAMES, OPEN_SOURCE}
 ##All the mutex types

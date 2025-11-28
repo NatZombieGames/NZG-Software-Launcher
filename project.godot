@@ -12,9 +12,9 @@ config_version=5
 
 config/name="NZG Software Launcher"
 config/description="Programme to launch and manage all other NZG products."
-config/version="1.0.3"
+config/version="1.0.4"
 run/main_scene="uid://bbj6gwox8hrf3"
-config/features=PackedStringArray("4.4", "Mobile")
+config/features=PackedStringArray("4.5", "Mobile")
 run/max_fps=30
 run/low_processor_mode=true
 boot_splash/bg_color=Color(0.0470588, 0.0470588, 0.054902, 1)
@@ -68,8 +68,8 @@ Shaded="Shaded"
 
 [gui]
 
-theme/custom_font="uid://dl5fa4m7mvrve"
 theme/default_font_antialiasing=2
+theme/custom_font="uid://dl5fa4m7mvrve"
 
 [input]
 
