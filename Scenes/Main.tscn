@@ -1,4 +1,4 @@
-[gd_scene load_steps=35 format=3 uid="uid://bbj6gwox8hrf3"]
+[gd_scene format=3 uid="uid://bbj6gwox8hrf3"]
 
 [ext_resource type="Script" uid="uid://4jt4q2l1vcnd" path="res://Scripts/Main.gd" id="1_pbw6q"]
 [ext_resource type="Texture2D" uid="uid://c5r2jud5cul40" path="res://Assets/Icons/Options.svg" id="1_rgh2o"]
@@ -57,38 +57,38 @@ corner_radius_top_right = 15
 corner_radius_bottom_right = 15
 corner_radius_bottom_left = 15
 
-[node name="Main" type="Control"]
+[node name="Main" type="Control" unique_id=858479190]
 custom_minimum_size = Vector2(1920, 1080)
 layout_mode = 3
 anchors_preset = 0
 script = ExtResource("1_pbw6q")
 
-[node name="Camera" type="Camera2D" parent="."]
+[node name="Camera" type="Camera2D" parent="." unique_id=475373875]
 anchor_mode = 0
 
-[node name="ScreenContainer" type="AspectRatioContainer" parent="Camera"]
+[node name="ScreenContainer" type="AspectRatioContainer" parent="Camera" unique_id=2100575076]
 custom_minimum_size = Vector2(1920, 1080)
 offset_right = 1920.0
 offset_bottom = 1080.0
 
-[node name="Background" type="ColorRect" parent="Camera/ScreenContainer" groups=["Background 1"]]
+[node name="Background" type="ColorRect" parent="Camera/ScreenContainer" unique_id=339528455 groups=["Background 1"]]
 custom_minimum_size = Vector2(1920, 1080)
 layout_mode = 2
 color = Color(0.0470588, 0.0470588, 0.054902, 1)
 
-[node name="MainContainer" type="HBoxContainer" parent="Camera/ScreenContainer"]
+[node name="MainContainer" type="HBoxContainer" parent="Camera/ScreenContainer" unique_id=1611415866]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(1920, 1080)
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 0
 
-[node name="SidePanel" type="ColorRect" parent="Camera/ScreenContainer/MainContainer" groups=["Background 2"]]
+[node name="SidePanel" type="ColorRect" parent="Camera/ScreenContainer/MainContainer" unique_id=938241363 groups=["Background 2"]]
 custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 color = Color(0.0666667, 0.0666667, 0.0745098, 1)
 
-[node name="Container" type="VBoxContainer" parent="Camera/ScreenContainer/MainContainer/SidePanel"]
+[node name="Container" type="VBoxContainer" parent="Camera/ScreenContainer/MainContainer/SidePanel" unique_id=1598785771]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -96,14 +96,14 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Icon" type="TextureRect" parent="Camera/ScreenContainer/MainContainer/SidePanel/Container"]
+[node name="Icon" type="TextureRect" parent="Camera/ScreenContainer/MainContainer/SidePanel/Container" unique_id=597146009]
 custom_minimum_size = Vector2(100, 100)
 layout_mode = 2
 texture = ExtResource("2_frkhe")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="SocialsButton" type="TextureButton" parent="Camera/ScreenContainer/MainContainer/SidePanel/Container"]
+[node name="SocialsButton" type="TextureButton" parent="Camera/ScreenContainer/MainContainer/SidePanel/Container" unique_id=1323096901]
 custom_minimum_size = Vector2(100, 100)
 layout_mode = 2
 mouse_default_cursor_shape = 2
@@ -112,7 +112,7 @@ texture_normal = ExtResource("3_0sclb")
 ignore_texture_size = true
 stretch_mode = 5
 
-[node name="AlertButton" type="TextureButton" parent="Camera/ScreenContainer/MainContainer/SidePanel/Container"]
+[node name="AlertButton" type="TextureButton" parent="Camera/ScreenContainer/MainContainer/SidePanel/Container" unique_id=1055820670]
 visible = false
 material = SubResource("ShaderMaterial_5jffn")
 custom_minimum_size = Vector2(100, 100)
@@ -126,28 +126,28 @@ ignore_texture_size = true
 stretch_mode = 5
 metadata/BeenPressed = false
 
-[node name="Void" type="Panel" parent="Camera/ScreenContainer/MainContainer/SidePanel/Container"]
+[node name="Void" type="Panel" parent="Camera/ScreenContainer/MainContainer/SidePanel/Container" unique_id=1166127376]
 self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(0, 15)
 layout_mode = 2
 
-[node name="ScrollContainer" type="ScrollContainer" parent="Camera/ScreenContainer/MainContainer/SidePanel/Container"]
+[node name="ScrollContainer" type="ScrollContainer" parent="Camera/ScreenContainer/MainContainer/SidePanel/Container" unique_id=288403076]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="ShortcutList" type="VBoxContainer" parent="Camera/ScreenContainer/MainContainer/SidePanel/Container/ScrollContainer"]
+[node name="ShortcutList" type="VBoxContainer" parent="Camera/ScreenContainer/MainContainer/SidePanel/Container/ScrollContainer" unique_id=851705098]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 size_flags_vertical = 3
 alignment = 2
 
-[node name="Separator" type="ColorRect" parent="Camera/ScreenContainer/MainContainer/SidePanel/Container" groups=["Separator"]]
+[node name="Separator" type="ColorRect" parent="Camera/ScreenContainer/MainContainer/SidePanel/Container" unique_id=338308208 groups=["Separator"]]
 custom_minimum_size = Vector2(0, 15)
 layout_mode = 2
 color = Color(0.0784314, 0.0784314, 0.0862745, 1)
 
-[node name="ProductsPageButton" type="TextureButton" parent="Camera/ScreenContainer/MainContainer/SidePanel/Container"]
+[node name="ProductsPageButton" type="TextureButton" parent="Camera/ScreenContainer/MainContainer/SidePanel/Container" unique_id=1871004023]
 material = ExtResource("8_xvtyr")
 custom_minimum_size = Vector2(100, 100)
 layout_mode = 2
@@ -156,17 +156,17 @@ texture_normal = ExtResource("3_bmxlf")
 ignore_texture_size = true
 stretch_mode = 5
 
-[node name="Separator" type="ColorRect" parent="Camera/ScreenContainer/MainContainer" groups=["Separator"]]
+[node name="Separator" type="ColorRect" parent="Camera/ScreenContainer/MainContainer" unique_id=288772493 groups=["Separator"]]
 custom_minimum_size = Vector2(10, 0)
 layout_mode = 2
 color = Color(0.0784314, 0.0784314, 0.0862745, 1)
 
-[node name="Body" type="Control" parent="Camera/ScreenContainer/MainContainer"]
+[node name="Body" type="Control" parent="Camera/ScreenContainer/MainContainer" unique_id=1749630994]
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
 
-[node name="Container" type="VBoxContainer" parent="Camera/ScreenContainer/MainContainer/Body"]
+[node name="Container" type="VBoxContainer" parent="Camera/ScreenContainer/MainContainer/Body" unique_id=1990645108]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -174,13 +174,13 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Header" type="ColorRect" parent="Camera/ScreenContainer/MainContainer/Body/Container" groups=["Shaded"]]
+[node name="Header" type="ColorRect" parent="Camera/ScreenContainer/MainContainer/Body/Container" unique_id=1362716831 groups=["Shaded"]]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 color = Color(0.0980392, 0.0980392, 0.105882, 1)
 
-[node name="Container" type="HBoxContainer" parent="Camera/ScreenContainer/MainContainer/Body/Container/Header"]
+[node name="Container" type="HBoxContainer" parent="Camera/ScreenContainer/MainContainer/Body/Container/Header" unique_id=830198264]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -188,14 +188,14 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="PageTitle" type="Label" parent="Camera/ScreenContainer/MainContainer/Body/Container/Header/Container"]
+[node name="PageTitle" type="Label" parent="Camera/ScreenContainer/MainContainer/Body/Container/Header/Container" unique_id=1760811620]
 layout_mode = 2
 size_flags_vertical = 0
 theme_override_font_sizes/font_size = 40
 text = "  Products"
 vertical_alignment = 1
 
-[node name="WindowButtons" type="HBoxContainer" parent="Camera/ScreenContainer/MainContainer/Body/Container/Header/Container"]
+[node name="WindowButtons" type="HBoxContainer" parent="Camera/ScreenContainer/MainContainer/Body/Container/Header/Container" unique_id=540109949]
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -204,37 +204,37 @@ mouse_filter = 2
 theme_override_constants/separation = 0
 alignment = 2
 
-[node name="Void0" type="Panel" parent="Camera/ScreenContainer/MainContainer/Body/Container/Header/Container/WindowButtons"]
+[node name="Void0" type="Panel" parent="Camera/ScreenContainer/MainContainer/Body/Container/Header/Container/WindowButtons" unique_id=2109926364]
 self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(10, 0)
 layout_mode = 2
 
-[node name="DragWindowButton" type="Button" parent="Camera/ScreenContainer/MainContainer/Body/Container/Header/Container/WindowButtons"]
+[node name="DragWindowButton" type="Button" parent="Camera/ScreenContainer/MainContainer/Body/Container/Header/Container/WindowButtons" unique_id=1727619170]
 self_modulate = Color(1, 1, 1, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_default_cursor_shape = 3
 
-[node name="Void1" type="Panel" parent="Camera/ScreenContainer/MainContainer/Body/Container/Header/Container/WindowButtons"]
+[node name="Void1" type="Panel" parent="Camera/ScreenContainer/MainContainer/Body/Container/Header/Container/WindowButtons" unique_id=69629678]
 self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(10, 0)
 layout_mode = 2
 
-[node name="Buttons" type="PanelContainer" parent="Camera/ScreenContainer/MainContainer/Body/Container/Header/Container/WindowButtons" groups=["Stylebox Haver"]]
+[node name="Buttons" type="PanelContainer" parent="Camera/ScreenContainer/MainContainer/Body/Container/Header/Container/WindowButtons" unique_id=647340355 groups=["Stylebox Haver"]]
 layout_mode = 2
 theme_override_styles/panel = ExtResource("2_jw32o")
 metadata/StyleboxName = &"WindowButtonsBackgroundStylebox"
 
-[node name="Container" type="HBoxContainer" parent="Camera/ScreenContainer/MainContainer/Body/Container/Header/Container/WindowButtons/Buttons"]
+[node name="Container" type="HBoxContainer" parent="Camera/ScreenContainer/MainContainer/Body/Container/Header/Container/WindowButtons/Buttons" unique_id=75874498]
 layout_mode = 2
 theme_override_constants/separation = 0
 
-[node name="Void0" type="Panel" parent="Camera/ScreenContainer/MainContainer/Body/Container/Header/Container/WindowButtons/Buttons/Container"]
+[node name="Void0" type="Panel" parent="Camera/ScreenContainer/MainContainer/Body/Container/Header/Container/WindowButtons/Buttons/Container" unique_id=1440780870]
 self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(10, 0)
 layout_mode = 2
 
-[node name="DownloadIcon" type="TextureButton" parent="Camera/ScreenContainer/MainContainer/Body/Container/Header/Container/WindowButtons/Buttons/Container"]
+[node name="DownloadIcon" type="TextureButton" parent="Camera/ScreenContainer/MainContainer/Body/Container/Header/Container/WindowButtons/Buttons/Container" unique_id=1462718150]
 unique_name_in_owner = true
 visible = false
 material = SubResource("ShaderMaterial_xvtyr")
@@ -245,13 +245,13 @@ texture_normal = ExtResource("10_4n42c")
 ignore_texture_size = true
 stretch_mode = 5
 
-[node name="Void1" type="Panel" parent="Camera/ScreenContainer/MainContainer/Body/Container/Header/Container/WindowButtons/Buttons/Container"]
+[node name="Void1" type="Panel" parent="Camera/ScreenContainer/MainContainer/Body/Container/Header/Container/WindowButtons/Buttons/Container" unique_id=2055949159]
 visible = false
 self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(10, 0)
 layout_mode = 2
 
-[node name="SettingsButton" type="TextureButton" parent="Camera/ScreenContainer/MainContainer/Body/Container/Header/Container/WindowButtons/Buttons/Container"]
+[node name="SettingsButton" type="TextureButton" parent="Camera/ScreenContainer/MainContainer/Body/Container/Header/Container/WindowButtons/Buttons/Container" unique_id=1581654707]
 unique_name_in_owner = true
 texture_filter = 4
 material = ExtResource("5_2w5on")
@@ -262,12 +262,12 @@ texture_normal = ExtResource("1_rgh2o")
 ignore_texture_size = true
 stretch_mode = 5
 
-[node name="Void2" type="Panel" parent="Camera/ScreenContainer/MainContainer/Body/Container/Header/Container/WindowButtons/Buttons/Container"]
+[node name="Void2" type="Panel" parent="Camera/ScreenContainer/MainContainer/Body/Container/Header/Container/WindowButtons/Buttons/Container" unique_id=1771236171]
 self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(10, 0)
 layout_mode = 2
 
-[node name="MinimizeButton" type="TextureButton" parent="Camera/ScreenContainer/MainContainer/Body/Container/Header/Container/WindowButtons/Buttons/Container"]
+[node name="MinimizeButton" type="TextureButton" parent="Camera/ScreenContainer/MainContainer/Body/Container/Header/Container/WindowButtons/Buttons/Container" unique_id=1740098773]
 unique_name_in_owner = true
 texture_filter = 4
 custom_minimum_size = Vector2(50, 50)
@@ -277,12 +277,12 @@ texture_normal = ExtResource("2_pbw6q")
 ignore_texture_size = true
 stretch_mode = 5
 
-[node name="Void3" type="Panel" parent="Camera/ScreenContainer/MainContainer/Body/Container/Header/Container/WindowButtons/Buttons/Container"]
+[node name="Void3" type="Panel" parent="Camera/ScreenContainer/MainContainer/Body/Container/Header/Container/WindowButtons/Buttons/Container" unique_id=1261613963]
 self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(10, 0)
 layout_mode = 2
 
-[node name="FullscreenButton" type="TextureButton" parent="Camera/ScreenContainer/MainContainer/Body/Container/Header/Container/WindowButtons/Buttons/Container"]
+[node name="FullscreenButton" type="TextureButton" parent="Camera/ScreenContainer/MainContainer/Body/Container/Header/Container/WindowButtons/Buttons/Container" unique_id=1634943515]
 unique_name_in_owner = true
 texture_filter = 4
 custom_minimum_size = Vector2(50, 50)
@@ -292,12 +292,12 @@ texture_normal = ExtResource("3_v1gob")
 ignore_texture_size = true
 stretch_mode = 5
 
-[node name="Void4" type="Panel" parent="Camera/ScreenContainer/MainContainer/Body/Container/Header/Container/WindowButtons/Buttons/Container"]
+[node name="Void4" type="Panel" parent="Camera/ScreenContainer/MainContainer/Body/Container/Header/Container/WindowButtons/Buttons/Container" unique_id=687508260]
 self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(10, 0)
 layout_mode = 2
 
-[node name="CloseButton" type="TextureButton" parent="Camera/ScreenContainer/MainContainer/Body/Container/Header/Container/WindowButtons/Buttons/Container"]
+[node name="CloseButton" type="TextureButton" parent="Camera/ScreenContainer/MainContainer/Body/Container/Header/Container/WindowButtons/Buttons/Container" unique_id=1028998239]
 unique_name_in_owner = true
 texture_filter = 4
 custom_minimum_size = Vector2(50, 50)
@@ -307,16 +307,16 @@ texture_normal = ExtResource("4_jw32o")
 ignore_texture_size = true
 stretch_mode = 5
 
-[node name="Void5" type="Panel" parent="Camera/ScreenContainer/MainContainer/Body/Container/Header/Container/WindowButtons/Buttons/Container"]
+[node name="Void5" type="Panel" parent="Camera/ScreenContainer/MainContainer/Body/Container/Header/Container/WindowButtons/Buttons/Container" unique_id=641059826]
 self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(10, 0)
 layout_mode = 2
 
-[node name="Container" type="Control" parent="Camera/ScreenContainer/MainContainer/Body/Container"]
+[node name="Container" type="Control" parent="Camera/ScreenContainer/MainContainer/Body/Container" unique_id=1220830387]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="AppBody" type="Control" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container"]
+[node name="AppBody" type="Control" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container" unique_id=1045981395]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
@@ -326,7 +326,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="Background" type="TextureRect" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody"]
+[node name="Background" type="TextureRect" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody" unique_id=506098521]
 texture_filter = 1
 material = ExtResource("8_grg3l")
 layout_mode = 1
@@ -339,7 +339,7 @@ texture = ExtResource("9_grg3l")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="Container" type="HBoxContainer" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody"]
+[node name="Container" type="HBoxContainer" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody" unique_id=720331786]
 custom_minimum_size = Vector2(0, 1027)
 layout_mode = 1
 anchors_preset = 12
@@ -350,12 +350,12 @@ offset_top = -8.0
 grow_horizontal = 2
 grow_vertical = 0
 
-[node name="ContentContainer" type="Control" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container"]
+[node name="ContentContainer" type="Control" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container" unique_id=2036550963]
 clip_contents = true
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="AppContent" type="VBoxContainer" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer"]
+[node name="AppContent" type="VBoxContainer" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer" unique_id=483809633]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 10
@@ -363,12 +363,12 @@ anchor_right = 1.0
 offset_bottom = 366.0
 grow_horizontal = 2
 
-[node name="Void0" type="Panel" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent"]
+[node name="Void0" type="Panel" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent" unique_id=1816997090]
 self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 
-[node name="AppName" type="Label" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent"]
+[node name="AppName" type="Label" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent" unique_id=611005603]
 layout_mode = 2
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
 theme_override_constants/shadow_offset_x = -3
@@ -377,7 +377,7 @@ theme_override_font_sizes/font_size = 75
 text = "   Nat Music Programme"
 vertical_alignment = 1
 
-[node name="AppAcronym" type="Label" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent"]
+[node name="AppAcronym" type="Label" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent" unique_id=1365346795]
 layout_mode = 2
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
 theme_override_constants/shadow_offset_x = -3
@@ -386,92 +386,92 @@ theme_override_font_sizes/font_size = 35
 text = "       (NMP)"
 vertical_alignment = 1
 
-[node name="Void1" type="Panel" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent"]
+[node name="Void1" type="Panel" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent" unique_id=1607747438]
 self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(0, 75)
 layout_mode = 2
 
-[node name="ActionButtonsGreaterContainer" type="HBoxContainer" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent"]
+[node name="ActionButtonsGreaterContainer" type="HBoxContainer" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent" unique_id=929498160]
 custom_minimum_size = Vector2(0, 100)
 layout_mode = 2
 
-[node name="Void0" type="Panel" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent/ActionButtonsGreaterContainer"]
+[node name="Void0" type="Panel" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent/ActionButtonsGreaterContainer" unique_id=1275701037]
 self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(170, 0)
 layout_mode = 2
 
-[node name="ActionButtonsContainer" type="HFlowContainer" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent/ActionButtonsGreaterContainer"]
+[node name="ActionButtonsContainer" type="HFlowContainer" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent/ActionButtonsGreaterContainer" unique_id=1421571655]
 custom_minimum_size = Vector2(1600, 100)
 layout_mode = 2
 size_flags_horizontal = 0
 
-[node name="LaunchButton" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent/ActionButtonsGreaterContainer/ActionButtonsContainer" instance=ExtResource("4_4kpch")]
+[node name="LaunchButton" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent/ActionButtonsGreaterContainer/ActionButtonsContainer" unique_id=990910976 instance=ExtResource("4_4kpch")]
 layout_mode = 2
 theme_override_font_sizes/font_size = 30
 text = " Launch "
 metadata/FileTargetState = 0
 
-[node name="UpdateButton" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent/ActionButtonsGreaterContainer/ActionButtonsContainer" instance=ExtResource("4_4kpch")]
+[node name="UpdateButton" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent/ActionButtonsGreaterContainer/ActionButtonsContainer" unique_id=981804799 instance=ExtResource("4_4kpch")]
 layout_mode = 2
 theme_override_font_sizes/font_size = 30
 text = " Update "
 
-[node name="SourceButton" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent/ActionButtonsGreaterContainer/ActionButtonsContainer" instance=ExtResource("4_4kpch")]
+[node name="SourceButton" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent/ActionButtonsGreaterContainer/ActionButtonsContainer" unique_id=377495782 instance=ExtResource("4_4kpch")]
 layout_mode = 2
 theme_override_font_sizes/font_size = 30
 text = " Show In Filesystem "
 
-[node name="InstallOptionsButton" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent/ActionButtonsGreaterContainer/ActionButtonsContainer" instance=ExtResource("4_4kpch")]
+[node name="InstallOptionsButton" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent/ActionButtonsGreaterContainer/ActionButtonsContainer" unique_id=861375511 instance=ExtResource("4_4kpch")]
 layout_mode = 2
 theme_override_font_sizes/font_size = 30
 text = " Install Options "
 
-[node name="OtherOptionsButton" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent/ActionButtonsGreaterContainer/ActionButtonsContainer" instance=ExtResource("4_4kpch")]
+[node name="OtherOptionsButton" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent/ActionButtonsGreaterContainer/ActionButtonsContainer" unique_id=1508274826 instance=ExtResource("4_4kpch")]
 layout_mode = 2
 theme_override_font_sizes/font_size = 30
 text = " Other Options "
 
-[node name="PointButton" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent/ActionButtonsGreaterContainer/ActionButtonsContainer" instance=ExtResource("4_4kpch")]
+[node name="PointButton" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent/ActionButtonsGreaterContainer/ActionButtonsContainer" unique_id=609922550 instance=ExtResource("4_4kpch")]
 layout_mode = 2
 theme_override_font_sizes/font_size = 30
 text = " Point To Existing Executable "
 
-[node name="WebSourceButton" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent/ActionButtonsGreaterContainer/ActionButtonsContainer" instance=ExtResource("4_4kpch")]
+[node name="WebSourceButton" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent/ActionButtonsGreaterContainer/ActionButtonsContainer" unique_id=1236153484 instance=ExtResource("4_4kpch")]
 layout_mode = 2
 theme_override_font_sizes/font_size = 30
 text = " Go To Source "
 
-[node name="Void2" type="Panel" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent"]
+[node name="Void2" type="Panel" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent" unique_id=2025813840]
 self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(0, 150)
 layout_mode = 2
 
-[node name="InfoGreaterContainer" type="HBoxContainer" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent"]
+[node name="InfoGreaterContainer" type="HBoxContainer" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent" unique_id=871430044]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="Void0" type="Panel" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent/InfoGreaterContainer"]
+[node name="Void0" type="Panel" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent/InfoGreaterContainer" unique_id=2104526249]
 self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(170, 0)
 layout_mode = 2
 
-[node name="InfoContainer" type="VBoxContainer" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent/InfoGreaterContainer"]
+[node name="InfoContainer" type="VBoxContainer" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent/InfoGreaterContainer" unique_id=892138085]
 custom_minimum_size = Vector2(1624, 0)
 layout_mode = 2
 
-[node name="Description" type="Label" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent/InfoGreaterContainer/InfoContainer"]
+[node name="Description" type="Label" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent/InfoGreaterContainer/InfoContainer" unique_id=401301730]
 layout_mode = 2
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
 theme_override_constants/shadow_offset_x = -3
 theme_override_constants/shadow_offset_y = 3
 theme_override_font_sizes/font_size = 30
 
-[node name="Void0" type="Panel" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent/InfoGreaterContainer/InfoContainer"]
+[node name="Void0" type="Panel" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent/InfoGreaterContainer/InfoContainer" unique_id=338747377]
 self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 
-[node name="ReadMe" type="RichTextLabel" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent/InfoGreaterContainer/InfoContainer"]
+[node name="ReadMe" type="RichTextLabel" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent/InfoGreaterContainer/InfoContainer" unique_id=1721024490]
 custom_minimum_size = Vector2(1624, 0)
 layout_mode = 2
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
@@ -485,28 +485,28 @@ theme_override_font_sizes/mono_font_size = 20
 bbcode_enabled = true
 fit_content = true
 
-[node name="Void1" type="Panel" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent/InfoGreaterContainer/InfoContainer"]
+[node name="Void1" type="Panel" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent/InfoGreaterContainer/InfoContainer" unique_id=587746706]
 self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(0, 100)
 layout_mode = 2
 
-[node name="InfoLabel" type="Label" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent/InfoGreaterContainer/InfoContainer"]
+[node name="InfoLabel" type="Label" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent/InfoGreaterContainer/InfoContainer" unique_id=467088776]
 layout_mode = 2
 text = "Info:
     Name: Information"
 
-[node name="Void2" type="Panel" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent/InfoGreaterContainer/InfoContainer"]
+[node name="Void2" type="Panel" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container/ContentContainer/AppContent/InfoGreaterContainer/InfoContainer" unique_id=1725090488]
 self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(0, 500)
 layout_mode = 2
 
-[node name="ScrollBar" type="VScrollBar" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container"]
+[node name="ScrollBar" type="VScrollBar" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/AppBody/Container" unique_id=1283166314]
 layout_mode = 2
 mouse_default_cursor_shape = 9
 max_value = 1.0
 page = 0.075
 
-[node name="ProductsBody" type="Control" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container"]
+[node name="ProductsBody" type="Control" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container" unique_id=783624022]
 unique_name_in_owner = true
 visible = false
 layout_mode = 1
@@ -517,7 +517,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="ScrollContainer" type="ScrollContainer" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/ProductsBody"]
+[node name="ScrollContainer" type="ScrollContainer" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/ProductsBody" unique_id=1521812612]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -525,17 +525,17 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Container" type="VBoxContainer" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/ProductsBody/ScrollContainer"]
+[node name="Container" type="VBoxContainer" parent="Camera/ScreenContainer/MainContainer/Body/Container/Container/ProductsBody/ScrollContainer" unique_id=432711050]
 custom_minimum_size = Vector2(1810, 0)
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="SocialsPopupContainer" type="Control" parent="Camera/ScreenContainer"]
+[node name="SocialsPopupContainer" type="Control" parent="Camera/ScreenContainer" unique_id=827130953]
 custom_minimum_size = Vector2(1920, 1080)
 layout_mode = 2
 mouse_filter = 2
 
-[node name="SocialsPopup" type="PanelContainer" parent="Camera/ScreenContainer/SocialsPopupContainer" groups=["Stylebox Haver"]]
+[node name="SocialsPopup" type="PanelContainer" parent="Camera/ScreenContainer/SocialsPopupContainer" unique_id=1107068797 groups=["Stylebox Haver"]]
 unique_name_in_owner = true
 visible = false
 material = ExtResource("14_3tgeq")
@@ -555,23 +555,23 @@ size_flags_vertical = 4
 theme_override_styles/panel = ExtResource("10_bmxlf")
 metadata/StyleboxName = &"PopupPageStylebox"
 
-[node name="Container" type="VBoxContainer" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup"]
+[node name="Container" type="VBoxContainer" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup" unique_id=216467721]
 layout_mode = 2
 
-[node name="Void" type="Panel" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container"]
+[node name="Void" type="Panel" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container" unique_id=856757892]
 self_modulate = Color(1, 1, 1, 0)
 layout_mode = 2
 
-[node name="Row1" type="HBoxContainer" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container"]
+[node name="Row1" type="HBoxContainer" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container" unique_id=1620202487]
 layout_mode = 2
 alignment = 1
 
-[node name="Void" type="Panel" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row1"]
+[node name="Void" type="Panel" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row1" unique_id=394839643]
 self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(10, 0)
 layout_mode = 2
 
-[node name="Icon" type="TextureRect" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row1"]
+[node name="Icon" type="TextureRect" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row1" unique_id=2125636895]
 texture_filter = 1
 custom_minimum_size = Vector2(50, 50)
 layout_mode = 2
@@ -579,12 +579,12 @@ texture = ExtResource("15_jyqft")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="Void2" type="Panel" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row1"]
+[node name="Void2" type="Panel" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row1" unique_id=2011082007]
 self_modulate = Color(1, 1, 1, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="LinkButton" type="LinkButton" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row1"]
+[node name="LinkButton" type="LinkButton" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row1" unique_id=415964489]
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
@@ -592,21 +592,21 @@ theme_override_font_sizes/font_size = 25
 text = "Github"
 uri = "https://github.com/NatZombieGames"
 
-[node name="Void3" type="Panel" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row1"]
+[node name="Void3" type="Panel" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row1" unique_id=145297304]
 self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(10, 0)
 layout_mode = 2
 
-[node name="Row2" type="HBoxContainer" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container"]
+[node name="Row2" type="HBoxContainer" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container" unique_id=1551384405]
 layout_mode = 2
 alignment = 1
 
-[node name="Void" type="Panel" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row2"]
+[node name="Void" type="Panel" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row2" unique_id=440259924]
 self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(10, 0)
 layout_mode = 2
 
-[node name="Icon" type="TextureRect" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row2"]
+[node name="Icon" type="TextureRect" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row2" unique_id=2139887224]
 texture_filter = 1
 custom_minimum_size = Vector2(50, 50)
 layout_mode = 2
@@ -614,12 +614,12 @@ texture = ExtResource("16_3tgeq")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="Void2" type="Panel" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row2"]
+[node name="Void2" type="Panel" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row2" unique_id=1892921534]
 self_modulate = Color(1, 1, 1, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="LinkButton" type="LinkButton" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row2"]
+[node name="LinkButton" type="LinkButton" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row2" unique_id=1875694850]
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
@@ -627,21 +627,21 @@ theme_override_font_sizes/font_size = 25
 text = "Itch.io"
 uri = "https://natzombiegames.itch.io"
 
-[node name="Void3" type="Panel" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row2"]
+[node name="Void3" type="Panel" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row2" unique_id=470774569]
 self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(10, 0)
 layout_mode = 2
 
-[node name="Row3" type="HBoxContainer" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container"]
+[node name="Row3" type="HBoxContainer" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container" unique_id=806390651]
 layout_mode = 2
 alignment = 1
 
-[node name="Void" type="Panel" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row3"]
+[node name="Void" type="Panel" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row3" unique_id=1444748324]
 self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(10, 0)
 layout_mode = 2
 
-[node name="Icon" type="TextureRect" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row3"]
+[node name="Icon" type="TextureRect" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row3" unique_id=2057324830]
 texture_filter = 3
 custom_minimum_size = Vector2(50, 50)
 layout_mode = 2
@@ -649,12 +649,12 @@ texture = ExtResource("17_c4ay3")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="Void2" type="Panel" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row3"]
+[node name="Void2" type="Panel" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row3" unique_id=1093188899]
 self_modulate = Color(1, 1, 1, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="LinkButton" type="LinkButton" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row3"]
+[node name="LinkButton" type="LinkButton" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row3" unique_id=152305998]
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
@@ -662,21 +662,21 @@ theme_override_font_sizes/font_size = 25
 text = "Youtube"
 uri = "https://www.youtube.com/@NatZombieGames"
 
-[node name="Void3" type="Panel" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row3"]
+[node name="Void3" type="Panel" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row3" unique_id=1213226083]
 self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(10, 0)
 layout_mode = 2
 
-[node name="Row4" type="HBoxContainer" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container"]
+[node name="Row4" type="HBoxContainer" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container" unique_id=637221884]
 layout_mode = 2
 alignment = 1
 
-[node name="Void" type="Panel" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row4"]
+[node name="Void" type="Panel" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row4" unique_id=2099893697]
 self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(10, 0)
 layout_mode = 2
 
-[node name="Icon" type="TextureRect" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row4"]
+[node name="Icon" type="TextureRect" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row4" unique_id=200631468]
 texture_filter = 1
 custom_minimum_size = Vector2(50, 50)
 layout_mode = 2
@@ -684,12 +684,12 @@ texture = ExtResource("18_aht7i")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="Void2" type="Panel" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row4"]
+[node name="Void2" type="Panel" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row4" unique_id=1371686972]
 self_modulate = Color(1, 1, 1, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="LinkButton" type="LinkButton" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row4"]
+[node name="LinkButton" type="LinkButton" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row4" unique_id=1806957302]
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
@@ -697,21 +697,21 @@ theme_override_font_sizes/font_size = 25
 text = "Discord"
 uri = "https://discord.gg/wcZGjeXPNK"
 
-[node name="Void3" type="Panel" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row4"]
+[node name="Void3" type="Panel" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container/Row4" unique_id=463595853]
 self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(10, 0)
 layout_mode = 2
 
-[node name="Void2" type="Panel" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container"]
+[node name="Void2" type="Panel" parent="Camera/ScreenContainer/SocialsPopupContainer/SocialsPopup/Container" unique_id=1104578929]
 self_modulate = Color(1, 1, 1, 0)
 layout_mode = 2
 
-[node name="AlertPopupContainer" type="Control" parent="Camera/ScreenContainer"]
+[node name="AlertPopupContainer" type="Control" parent="Camera/ScreenContainer" unique_id=651921158]
 custom_minimum_size = Vector2(1920, 1080)
 layout_mode = 2
 mouse_filter = 2
 
-[node name="AlertPopup" type="PanelContainer" parent="Camera/ScreenContainer/AlertPopupContainer" groups=["Stylebox Haver"]]
+[node name="AlertPopup" type="PanelContainer" parent="Camera/ScreenContainer/AlertPopupContainer" unique_id=1106543889 groups=["Stylebox Haver"]]
 unique_name_in_owner = true
 visible = false
 material = ExtResource("14_3tgeq")
@@ -731,21 +731,21 @@ size_flags_vertical = 4
 theme_override_styles/panel = ExtResource("10_bmxlf")
 metadata/StyleboxName = &"PopupPageStylebox"
 
-[node name="Container" type="MarginContainer" parent="Camera/ScreenContainer/AlertPopupContainer/AlertPopup"]
+[node name="Container" type="MarginContainer" parent="Camera/ScreenContainer/AlertPopupContainer/AlertPopup" unique_id=1967325925]
 layout_mode = 2
 theme_override_constants/margin_left = 5
 theme_override_constants/margin_top = 5
 theme_override_constants/margin_right = 5
 theme_override_constants/margin_bottom = 5
 
-[node name="Container" type="VBoxContainer" parent="Camera/ScreenContainer/AlertPopupContainer/AlertPopup/Container"]
+[node name="Container" type="VBoxContainer" parent="Camera/ScreenContainer/AlertPopupContainer/AlertPopup/Container" unique_id=1425636113]
 layout_mode = 2
 
-[node name="Void0" type="Panel" parent="Camera/ScreenContainer/AlertPopupContainer/AlertPopup/Container/Container"]
+[node name="Void0" type="Panel" parent="Camera/ScreenContainer/AlertPopupContainer/AlertPopup/Container/Container" unique_id=1235407077]
 self_modulate = Color(1, 1, 1, 0)
 layout_mode = 2
 
-[node name="Text" type="Label" parent="Camera/ScreenContainer/AlertPopupContainer/AlertPopup/Container/Container"]
+[node name="Text" type="Label" parent="Camera/ScreenContainer/AlertPopupContainer/AlertPopup/Container/Container" unique_id=53656839]
 custom_minimum_size = Vector2(199, 0)
 layout_mode = 2
 size_flags_vertical = 1
@@ -755,38 +755,38 @@ text = "Your app version does not match the latest available.
 Update to the latest version in the 'Updates' page in the Settings."
 autowrap_mode = 3
 
-[node name="Void1" type="Panel" parent="Camera/ScreenContainer/AlertPopupContainer/AlertPopup/Container/Container"]
+[node name="Void1" type="Panel" parent="Camera/ScreenContainer/AlertPopupContainer/AlertPopup/Container/Container" unique_id=1737025218]
 self_modulate = Color(1, 1, 1, 0)
 layout_mode = 2
 
-[node name="ActionButton" parent="Camera/ScreenContainer/AlertPopupContainer/AlertPopup/Container/Container" instance=ExtResource("4_4kpch")]
+[node name="ActionButton" parent="Camera/ScreenContainer/AlertPopupContainer/AlertPopup/Container/Container" unique_id=166199468 instance=ExtResource("4_4kpch")]
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
 text = " Take Me There "
 
-[node name="Void2" type="Panel" parent="Camera/ScreenContainer/AlertPopupContainer/AlertPopup/Container/Container"]
+[node name="Void2" type="Panel" parent="Camera/ScreenContainer/AlertPopupContainer/AlertPopup/Container/Container" unique_id=1757727360]
 self_modulate = Color(1, 1, 1, 0)
 layout_mode = 2
 
-[node name="AlertContainer" type="Control" parent="Camera/ScreenContainer"]
+[node name="AlertContainer" type="Control" parent="Camera/ScreenContainer" unique_id=1416322551]
 custom_minimum_size = Vector2(1920, 1080)
 layout_mode = 2
 mouse_filter = 2
 
-[node name="MiniMenu" parent="Camera/ScreenContainer" instance=ExtResource("13_346fj")]
+[node name="MiniMenu" parent="Camera/ScreenContainer" unique_id=283889775 instance=ExtResource("13_346fj")]
 visible = false
 layout_mode = 2
 
-[node name="PopupPage" parent="Camera/ScreenContainer" instance=ExtResource("6_v1gob")]
+[node name="PopupPage" parent="Camera/ScreenContainer" unique_id=1460967863 instance=ExtResource("6_v1gob")]
 visible = false
 layout_mode = 2
 
-[node name="TooltipContainer" type="Control" parent="Camera/ScreenContainer"]
+[node name="TooltipContainer" type="Control" parent="Camera/ScreenContainer" unique_id=1671686687]
 custom_minimum_size = Vector2(1920, 0)
 layout_mode = 2
 mouse_filter = 2
 
-[node name="Tooltip" type="PanelContainer" parent="Camera/ScreenContainer/TooltipContainer"]
+[node name="Tooltip" type="PanelContainer" parent="Camera/ScreenContainer/TooltipContainer" unique_id=1888301118]
 visible = false
 layout_mode = 0
 offset_right = 40.0
@@ -795,7 +795,7 @@ mouse_filter = 2
 theme_override_styles/panel = ExtResource("10_bmxlf")
 metadata/StyleboxName = &"PopupPageStylebox"
 
-[node name="MarginContainer" type="MarginContainer" parent="Camera/ScreenContainer/TooltipContainer/Tooltip"]
+[node name="MarginContainer" type="MarginContainer" parent="Camera/ScreenContainer/TooltipContainer/Tooltip" unique_id=1557030457]
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/margin_left = 5
@@ -803,7 +803,7 @@ theme_override_constants/margin_top = 5
 theme_override_constants/margin_right = 5
 theme_override_constants/margin_bottom = 5
 
-[node name="Text" type="Label" parent="Camera/ScreenContainer/TooltipContainer/Tooltip/MarginContainer"]
+[node name="Text" type="Label" parent="Camera/ScreenContainer/TooltipContainer/Tooltip/MarginContainer" unique_id=1201221687]
 layout_mode = 2
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
 theme_override_constants/shadow_offset_x = 2
@@ -811,18 +811,18 @@ theme_override_constants/shadow_offset_y = -2
 theme_override_font_sizes/font_size = 25
 text = "Tooltip text"
 
-[node name="ConfirmationDialog" parent="Camera/ScreenContainer" instance=ExtResource("13_1p5hy")]
+[node name="ConfirmationDialog" parent="Camera/ScreenContainer" unique_id=503385873 instance=ExtResource("13_1p5hy")]
 visible = false
 layout_mode = 2
 
-[node name="DownloadScreen" type="ColorRect" parent="Camera/ScreenContainer"]
+[node name="DownloadScreen" type="ColorRect" parent="Camera/ScreenContainer" unique_id=57083689]
 unique_name_in_owner = true
 visible = false
 custom_minimum_size = Vector2(1920, 1080)
 layout_mode = 2
 color = Color(0, 0, 0, 0.498039)
 
-[node name="Panel" type="PanelContainer" parent="Camera/ScreenContainer/DownloadScreen" groups=["Stylebox Haver"]]
+[node name="Panel" type="PanelContainer" parent="Camera/ScreenContainer/DownloadScreen" unique_id=538744659 groups=["Stylebox Haver"]]
 custom_minimum_size = Vector2(810, 455.625)
 layout_mode = 1
 anchors_preset = 8
@@ -839,59 +839,59 @@ grow_vertical = 2
 theme_override_styles/panel = ExtResource("10_bmxlf")
 metadata/StyleboxName = &"PopupPageStylebox"
 
-[node name="Container" type="VBoxContainer" parent="Camera/ScreenContainer/DownloadScreen/Panel"]
+[node name="Container" type="VBoxContainer" parent="Camera/ScreenContainer/DownloadScreen/Panel" unique_id=2137986688]
 layout_mode = 2
 alignment = 1
 
-[node name="Title" type="Label" parent="Camera/ScreenContainer/DownloadScreen/Panel/Container"]
+[node name="Title" type="Label" parent="Camera/ScreenContainer/DownloadScreen/Panel/Container" unique_id=1528360266]
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 25
 text = "Download In Progress..."
 
-[node name="Void0" type="Panel" parent="Camera/ScreenContainer/DownloadScreen/Panel/Container"]
+[node name="Void0" type="Panel" parent="Camera/ScreenContainer/DownloadScreen/Panel/Container" unique_id=1883742971]
 self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(0, 20)
 layout_mode = 2
 
-[node name="AppDetails" type="HBoxContainer" parent="Camera/ScreenContainer/DownloadScreen/Panel/Container"]
+[node name="AppDetails" type="HBoxContainer" parent="Camera/ScreenContainer/DownloadScreen/Panel/Container" unique_id=1692619526]
 layout_mode = 2
 alignment = 1
 
-[node name="Name" type="Label" parent="Camera/ScreenContainer/DownloadScreen/Panel/Container/AppDetails"]
+[node name="Name" type="Label" parent="Camera/ScreenContainer/DownloadScreen/Panel/Container/AppDetails" unique_id=560271022]
 layout_mode = 2
 text = "Name"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Version" type="Label" parent="Camera/ScreenContainer/DownloadScreen/Panel/Container/AppDetails"]
+[node name="Version" type="Label" parent="Camera/ScreenContainer/DownloadScreen/Panel/Container/AppDetails" unique_id=1056414746]
 layout_mode = 2
 text = "V0.0.0"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Platform" type="Label" parent="Camera/ScreenContainer/DownloadScreen/Panel/Container/AppDetails"]
+[node name="Platform" type="Label" parent="Camera/ScreenContainer/DownloadScreen/Panel/Container/AppDetails" unique_id=1858352899]
 layout_mode = 2
 text = "_ Build"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="DownloadDetails" type="HBoxContainer" parent="Camera/ScreenContainer/DownloadScreen/Panel/Container"]
+[node name="DownloadDetails" type="HBoxContainer" parent="Camera/ScreenContainer/DownloadScreen/Panel/Container" unique_id=1071725520]
 layout_mode = 2
 alignment = 1
 
-[node name="API" type="Label" parent="Camera/ScreenContainer/DownloadScreen/Panel/Container/DownloadDetails"]
+[node name="API" type="Label" parent="Camera/ScreenContainer/DownloadScreen/Panel/Container/DownloadDetails" unique_id=1808845225]
 layout_mode = 2
 text = "From: _"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Void1" type="Panel" parent="Camera/ScreenContainer/DownloadScreen/Panel/Container"]
+[node name="Void1" type="Panel" parent="Camera/ScreenContainer/DownloadScreen/Panel/Container" unique_id=1036549896]
 self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(0, 10)
 layout_mode = 2
 
-[node name="Time" type="Label" parent="Camera/ScreenContainer/DownloadScreen/Panel/Container"]
+[node name="Time" type="Label" parent="Camera/ScreenContainer/DownloadScreen/Panel/Container" unique_id=1368736305]
 layout_mode = 2
 size_flags_horizontal = 4
 text = "Time Elapsed: 0s
@@ -899,33 +899,33 @@ Time To Completion Estimate: 0s"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Void2" type="Panel" parent="Camera/ScreenContainer/DownloadScreen/Panel/Container"]
+[node name="Void2" type="Panel" parent="Camera/ScreenContainer/DownloadScreen/Panel/Container" unique_id=1421244658]
 self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(0, 5)
 layout_mode = 2
 
-[node name="ProgressBar" type="ProgressBar" parent="Camera/ScreenContainer/DownloadScreen/Panel/Container"]
+[node name="ProgressBar" type="ProgressBar" parent="Camera/ScreenContainer/DownloadScreen/Panel/Container" unique_id=1455472772]
 custom_minimum_size = Vector2(500, 25)
 layout_mode = 2
 size_flags_horizontal = 4
 max_value = 1.0
 
-[node name="Size" type="Label" parent="Camera/ScreenContainer/DownloadScreen/Panel/Container"]
+[node name="Size" type="Label" parent="Camera/ScreenContainer/DownloadScreen/Panel/Container" unique_id=842609106]
 layout_mode = 2
 text = "0.0B / 0.0B"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="NerdInfo" type="VBoxContainer" parent="Camera/ScreenContainer/DownloadScreen/Panel/Container"]
+[node name="NerdInfo" type="VBoxContainer" parent="Camera/ScreenContainer/DownloadScreen/Panel/Container" unique_id=988846905]
 layout_mode = 2
 
-[node name="LastPacketSize" type="Label" parent="Camera/ScreenContainer/DownloadScreen/Panel/Container/NerdInfo"]
+[node name="LastPacketSize" type="Label" parent="Camera/ScreenContainer/DownloadScreen/Panel/Container/NerdInfo" unique_id=761277651]
 layout_mode = 2
 text = "Last Packet Size: 0.0B"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Host" type="Label" parent="Camera/ScreenContainer/DownloadScreen/Panel/Container/NerdInfo"]
+[node name="Host" type="Label" parent="Camera/ScreenContainer/DownloadScreen/Panel/Container/NerdInfo" unique_id=1747384508]
 custom_minimum_size = Vector2(790, 0)
 layout_mode = 2
 text = "Host: _"
@@ -933,13 +933,13 @@ horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
 
-[node name="ImagePreviewScreen" type="ColorRect" parent="Camera/ScreenContainer"]
+[node name="ImagePreviewScreen" type="ColorRect" parent="Camera/ScreenContainer" unique_id=764034476]
 visible = false
 custom_minimum_size = Vector2(1920, 1080)
 layout_mode = 2
 color = Color(0, 0, 0, 0.498039)
 
-[node name="Image" type="TextureRect" parent="Camera/ScreenContainer/ImagePreviewScreen"]
+[node name="Image" type="TextureRect" parent="Camera/ScreenContainer/ImagePreviewScreen" unique_id=2106109330]
 custom_minimum_size = Vector2(1440, 810)
 layout_mode = 1
 anchors_preset = 8
@@ -957,7 +957,7 @@ texture = ExtResource("2_frkhe")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="Text" type="Label" parent="Camera/ScreenContainer/ImagePreviewScreen"]
+[node name="Text" type="Label" parent="Camera/ScreenContainer/ImagePreviewScreen" unique_id=74120928]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -976,13 +976,13 @@ text = "Scroll Up / Down To Zoom In / Out
 Press Anything Else To Close"
 horizontal_alignment = 1
 
-[node name="Tutorial" type="ColorRect" parent="Camera/ScreenContainer"]
+[node name="Tutorial" type="ColorRect" parent="Camera/ScreenContainer" unique_id=1150991035]
 visible = false
 custom_minimum_size = Vector2(1920, 1080)
 layout_mode = 2
 color = Color(0, 0, 0, 0.498039)
 
-[node name="Panel" type="PanelContainer" parent="Camera/ScreenContainer/Tutorial" groups=["Stylebox Haver"]]
+[node name="Panel" type="PanelContainer" parent="Camera/ScreenContainer/Tutorial" unique_id=422141807 groups=["Stylebox Haver"]]
 custom_minimum_size = Vector2(864, 486)
 layout_mode = 1
 anchors_preset = 8
@@ -999,36 +999,36 @@ grow_vertical = 2
 theme_override_styles/panel = ExtResource("10_bmxlf")
 metadata/StyleboxName = &"PopupPageStylebox"
 
-[node name="Container" type="VBoxContainer" parent="Camera/ScreenContainer/Tutorial/Panel"]
+[node name="Container" type="VBoxContainer" parent="Camera/ScreenContainer/Tutorial/Panel" unique_id=410736672]
 layout_mode = 2
 
-[node name="Void0" type="Panel" parent="Camera/ScreenContainer/Tutorial/Panel/Container"]
+[node name="Void0" type="Panel" parent="Camera/ScreenContainer/Tutorial/Panel/Container" unique_id=1284474905]
 self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(0, 5)
 layout_mode = 2
 
-[node name="TitleContainer" type="HBoxContainer" parent="Camera/ScreenContainer/Tutorial/Panel/Container"]
+[node name="TitleContainer" type="HBoxContainer" parent="Camera/ScreenContainer/Tutorial/Panel/Container" unique_id=414341898]
 layout_mode = 2
 
-[node name="Void0" type="Panel" parent="Camera/ScreenContainer/Tutorial/Panel/Container/TitleContainer"]
+[node name="Void0" type="Panel" parent="Camera/ScreenContainer/Tutorial/Panel/Container/TitleContainer" unique_id=531672858]
 self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(117, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Title" type="Label" parent="Camera/ScreenContainer/Tutorial/Panel/Container/TitleContainer"]
+[node name="Title" type="Label" parent="Camera/ScreenContainer/Tutorial/Panel/Container/TitleContainer" unique_id=1218576762]
 layout_mode = 2
 theme_override_font_sizes/font_size = 30
 text = "Welcome To The NZG Software Launcher!"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Void1" type="Panel" parent="Camera/ScreenContainer/Tutorial/Panel/Container/TitleContainer"]
+[node name="Void1" type="Panel" parent="Camera/ScreenContainer/Tutorial/Panel/Container/TitleContainer" unique_id=309188036]
 self_modulate = Color(1, 1, 1, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="CloseButton" type="TextureButton" parent="Camera/ScreenContainer/Tutorial/Panel/Container/TitleContainer"]
+[node name="CloseButton" type="TextureButton" parent="Camera/ScreenContainer/Tutorial/Panel/Container/TitleContainer" unique_id=550225050]
 custom_minimum_size = Vector2(34, 34)
 layout_mode = 2
 mouse_default_cursor_shape = 2
@@ -1036,12 +1036,12 @@ texture_normal = ExtResource("4_jw32o")
 ignore_texture_size = true
 stretch_mode = 5
 
-[node name="Void1" type="Panel" parent="Camera/ScreenContainer/Tutorial/Panel/Container"]
+[node name="Void1" type="Panel" parent="Camera/ScreenContainer/Tutorial/Panel/Container" unique_id=2003814319]
 self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(0, 5)
 layout_mode = 2
 
-[node name="Content" type="RichTextLabel" parent="Camera/ScreenContainer/Tutorial/Panel/Container"]
+[node name="Content" type="RichTextLabel" parent="Camera/ScreenContainer/Tutorial/Panel/Container" unique_id=571797855]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_font_sizes/normal_font_size = 20
@@ -1051,42 +1051,42 @@ theme_override_font_sizes/italics_font_size = 20
 theme_override_font_sizes/mono_font_size = 20
 bbcode_enabled = true
 
-[node name="Void2" type="Panel" parent="Camera/ScreenContainer/Tutorial/Panel/Container"]
+[node name="Void2" type="Panel" parent="Camera/ScreenContainer/Tutorial/Panel/Container" unique_id=25991150]
 self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(0, 5)
 layout_mode = 2
 
-[node name="Navigation" type="HBoxContainer" parent="Camera/ScreenContainer/Tutorial/Panel/Container"]
+[node name="Navigation" type="HBoxContainer" parent="Camera/ScreenContainer/Tutorial/Panel/Container" unique_id=1418140403]
 layout_mode = 2
 alignment = 1
 
-[node name="BackButton" parent="Camera/ScreenContainer/Tutorial/Panel/Container/Navigation" instance=ExtResource("4_4kpch")]
+[node name="BackButton" parent="Camera/ScreenContainer/Tutorial/Panel/Container/Navigation" unique_id=1204266229 instance=ExtResource("4_4kpch")]
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
 text = " Previous "
 
-[node name="Label" type="Label" parent="Camera/ScreenContainer/Tutorial/Panel/Container/Navigation"]
+[node name="Label" type="Label" parent="Camera/ScreenContainer/Tutorial/Panel/Container/Navigation" unique_id=83581955]
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
 text = "Page 0"
 
-[node name="ForwardButton" parent="Camera/ScreenContainer/Tutorial/Panel/Container/Navigation" instance=ExtResource("4_4kpch")]
+[node name="ForwardButton" parent="Camera/ScreenContainer/Tutorial/Panel/Container/Navigation" unique_id=1505685556 instance=ExtResource("4_4kpch")]
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
 text = " Next "
 
-[node name="Void3" type="Panel" parent="Camera/ScreenContainer/Tutorial/Panel/Container"]
+[node name="Void3" type="Panel" parent="Camera/ScreenContainer/Tutorial/Panel/Container" unique_id=201296956]
 self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(0, 5)
 layout_mode = 2
 
-[node name="SoftLoadingScreen" type="ColorRect" parent="Camera/ScreenContainer"]
+[node name="SoftLoadingScreen" type="ColorRect" parent="Camera/ScreenContainer" unique_id=348813927]
 visible = false
 custom_minimum_size = Vector2(1920, 1080)
 layout_mode = 2
 color = Color(0, 0, 0, 0.498039)
 
-[node name="Container" type="VBoxContainer" parent="Camera/ScreenContainer/SoftLoadingScreen"]
+[node name="Container" type="VBoxContainer" parent="Camera/ScreenContainer/SoftLoadingScreen" unique_id=14499131]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -1095,13 +1095,13 @@ grow_horizontal = 2
 grow_vertical = 2
 alignment = 1
 
-[node name="Background" type="ColorRect" parent="Camera/ScreenContainer/SoftLoadingScreen/Container"]
+[node name="Background" type="ColorRect" parent="Camera/ScreenContainer/SoftLoadingScreen/Container" unique_id=1032703185]
 custom_minimum_size = Vector2(375, 100)
 layout_mode = 2
 size_flags_horizontal = 4
 color = Color(0, 0, 0, 1)
 
-[node name="Text" type="Label" parent="Camera/ScreenContainer/SoftLoadingScreen/Container/Background"]
+[node name="Text" type="Label" parent="Camera/ScreenContainer/SoftLoadingScreen/Container/Background" unique_id=547047310]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -1114,7 +1114,7 @@ Please Wait"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Icon" type="TextureRect" parent="Camera/ScreenContainer/SoftLoadingScreen/Container"]
+[node name="Icon" type="TextureRect" parent="Camera/ScreenContainer/SoftLoadingScreen/Container" unique_id=502795160]
 process_thread_group = 2
 process_thread_group_order = 0
 process_thread_messages = 0
@@ -1125,13 +1125,13 @@ texture = ExtResource("16_2w5on")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="LoadingScreen" type="ColorRect" parent="Camera/ScreenContainer"]
+[node name="LoadingScreen" type="ColorRect" parent="Camera/ScreenContainer" unique_id=850061403]
 visible = false
 custom_minimum_size = Vector2(1920, 1080)
 layout_mode = 2
 color = Color(0, 0, 0, 1)
 
-[node name="Icon" type="TextureRect" parent="Camera/ScreenContainer/LoadingScreen"]
+[node name="Icon" type="TextureRect" parent="Camera/ScreenContainer/LoadingScreen" unique_id=459879960]
 process_thread_group = 2
 process_thread_group_order = 0
 process_thread_messages = 0
@@ -1153,7 +1153,7 @@ texture = ExtResource("16_2w5on")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="PickInstallLocationDialog" type="FileDialog" parent="Camera/ScreenContainer"]
+[node name="PickInstallLocationDialog" type="FileDialog" parent="Camera/ScreenContainer" unique_id=822089893]
 unique_name_in_owner = true
 auto_translate_mode = 1
 title = "Pick Install Location"
@@ -1167,7 +1167,7 @@ file_mode = 2
 access = 2
 use_native_dialog = true
 
-[node name="PointToExecutableDialog" type="FileDialog" parent="Camera/ScreenContainer"]
+[node name="PointToExecutableDialog" type="FileDialog" parent="Camera/ScreenContainer" unique_id=1598709796]
 unique_name_in_owner = true
 auto_translate_mode = 1
 title = "Pick Existing Executable Location"
